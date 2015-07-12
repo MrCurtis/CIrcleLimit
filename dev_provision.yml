@@ -1,0 +1,21 @@
+---
+- hosts: all
+  tasks:
+    - name: Add sbt repository
+      sudo: true
+      apt_repository: repo="deb http://dl.bintray.com/sbt/debian /"
+    - name: Install sbt
+      sudo: true
+      apt: pkg=sbt state=installed update_cache=true force=true
+    - name: Install nodejs
+      sudo: true
+      apt: pkg=nodejs state=installed update_cache=true
+    - name: Make symlink node->nodejs - this is a temporary measure
+      sudo: true
+      file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+    - name: Install npm
+      sudo: true
+      apt: pkg=npm state=installed update_cache=true
+    - name: Install source map support for node js
+      sudo: true
+      npm: name=source-map-support global=true
