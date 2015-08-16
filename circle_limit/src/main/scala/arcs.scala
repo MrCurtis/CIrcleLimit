@@ -22,6 +22,19 @@ import breeze.numerics.{
  */   
 case class Arc(start: Complex, finish: Complex, centre: Complex)
 
+
+/**
+ * Used to indicate which model of hyperbolic geometry is being used. 
+ *
+ * This is useful, for example, when we wish to define geodesics by
+ * only specifying two points.
+ */
+object SpaceType extends Enumeration {
+  val UpperHalfPlane = Value
+  val PoincareDisc = Value
+}
+
+
 /**
  * A Moebius transformation of form az+b/cz+d.
  */
