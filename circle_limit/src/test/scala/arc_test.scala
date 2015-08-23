@@ -2,7 +2,6 @@ package circle_limit
 
 import utest._
 import breeze.math._
-import breeze.math._
 
 
 object ArcTestSuite extends TestSuite{
@@ -23,14 +22,24 @@ object ArcTestSuite extends TestSuite{
 object SpaceTypesTestSuite extends TestSuite {
   val tests = TestSuite {
     "has the right attributes"-{
-      SpaceType.UpperHalfPlane
-      SpaceType.PoincareDisc
+      List(
+        SpaceType.UpperHalfPlane,
+        SpaceType.PoincareDisc
+      )
     }
   }
 }
 
 object MobiusTransformationTestSuite extends TestSuite{
   val tests = TestSuite{
+
+    "attempting to create an non-invertible transformation raises exception"-{
+      val e = intercept[NonInvertibleMatrixException]{
+        val t = new MoebiusTransformation(1.0+0.0*i, 1.0+0.0*i, 2.0+2.0*i, 2.0+2.0*i)
+      }
+      val expected_error_message = "Attempting to create a non-invertible transformation"
+      assertMatch(e) {case NonInvertibleMatrixException(expected_error_message)=>}
+    }
 
     "applying a transformation to a complex number returns the correct result"-{
       // TODO - work out why implicit conversion does not work here.

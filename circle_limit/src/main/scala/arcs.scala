@@ -13,6 +13,10 @@ import breeze.numerics.{
   abs
 }
 
+
+case class NonInvertibleMatrixException(err_msg: String) extends Exception(err_msg)
+
+
 /**
  * Represents an arc of a circle.
  *
@@ -71,6 +75,10 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
    * equal to one.
    */
   private def normalize(unnormalized: DenseMatrix[Complex]): DenseMatrix[Complex] = {
+    val d = det(unnormalized)
+    if (d == 0.0) throw NonInvertibleMatrixException(
+      "Attempting to create a non-invertible transformation."
+    ) 
     unnormalized / srt(det(unnormalized))
   }
 
