@@ -73,6 +73,13 @@ object ProjectiveComplexTestSuite extends TestSuite {
       assert (Infinity equal z)
     }
 
+    "returns ExtendedComplex objects of the right type when asComplex called"-{
+      val infinite = new ProjectiveComplex((130.8 + 24.6*i, 0.0 + 0.0*i))
+      assert (infinite.toExtendedComplex == Left(Infinity))
+      val complex = new ProjectiveComplex((130.8 + 24.6*i, 2.0 + 0.0*i))
+      assert (complex.toExtendedComplex == Right(65.4 + 12.3*i))
+    }
+
   }
 }
 

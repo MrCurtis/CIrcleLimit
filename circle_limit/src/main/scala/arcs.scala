@@ -51,7 +51,6 @@ object Infinity
  *
  * This class is keeped simple for the time being. For example we 
  * do not define any operations.
- *
  */
 class ProjectiveComplex(pair: ComplexPair){
   val z = pair._1
@@ -60,6 +59,10 @@ class ProjectiveComplex(pair: ComplexPair){
   def equal(that: ProjectiveComplex) = {
     this.z * that.w == that.z * this.w
   }
+
+  def toExtendedComplex: ExtendedComplex =
+    if (w == 0.0 + 0.0*i) Left (Infinity)
+    else Right(z/w)
 }
 
 
