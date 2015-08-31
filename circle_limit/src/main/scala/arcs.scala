@@ -15,7 +15,7 @@ import breeze.numerics.{
 
 
 object CircleTypes {
-  type ExtendedComplex = Either[Complex, Infinity.type]
+  type ExtendedComplex = Either[Infinity.type, Complex]
   type ComplexPair = (Complex, Complex)
 }
 import CircleTypes._
@@ -23,10 +23,10 @@ import CircleTypes._
 object CircleImplicits {
 
   implicit def complexToEitherComplexOrInfinity(z: Complex): ExtendedComplex =
-    Left(z)
+    Right(z)
 
   implicit def infinityToEitherComplexOrInfinity(z: Infinity.type): ExtendedComplex =
-    Right(Infinity)
+    Left(Infinity)
 
   implicit def complexToComplexPair(z: Complex): ComplexPair =
     (z, 1.0 + 0.0*i)
@@ -45,8 +45,6 @@ object CircleImplicits {
 case class NonInvertibleMatrixException(err_msg: String) extends Exception(err_msg)
 
 object Infinity
-import Infinity._
-
 
 /**
  * Represents a point on the projective projective line.
