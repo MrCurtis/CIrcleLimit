@@ -4,31 +4,78 @@ import utest._
 import breeze.math._
 
 
+
 object ArcTestSuite extends TestSuite{
   val tests = TestSuite{
+
     "test Arc can be initiated"-{
       val arc = Arc(1.0+2.0*i, 3.0+4.0*i, 5.0+6.0*i)
     }
+
     "values are accesible"-{
       val arc = Arc(1.0+2.0*i, 3.0+4.0*i, 5.0+6.0*i)
       assert (arc.start == 1.0+2.0*i)
       assert (arc.finish == 3.0+4.0*i)
       assert (arc.centre == 5.0+6.0*i)
     }
+
   }
 }
 
 
 object SpaceTypesTestSuite extends TestSuite {
   val tests = TestSuite {
+
     "has the right attributes"-{
       List(
         SpaceType.UpperHalfPlane,
         SpaceType.PoincareDisc
       )
+      assert (true)
     }
+
   }
 }
+
+
+object ProjectiveComplexTestSuite extends TestSuite {
+  val tests = TestSuite {
+
+    "can be instatiated with a complex number (using implicits)"-{
+      import CircleImplicits._
+      val z = new ProjectiveComplex(1.0 + 2.0*i)
+    }
+
+    "can be instatiated with infinity (using implicits)"-{
+      import CircleImplicits._
+      val z = new ProjectiveComplex(Infinity)
+    }
+
+    "has equality defined by the correct equivalence"-{
+      val z = new ProjectiveComplex((1.0 + 2.0*i), (3.0 + 4.0*i))
+      val w = new ProjectiveComplex((2.0 + 4.0*i), (6.0 + 8.0*i))
+      assert (z equal w)
+      assert (w equal z)
+    }
+
+    "uses defined equality between projective complex and complex numbers"-{
+      import CircleImplicits._
+      val z = 65.4 + 12.3*i
+      val w = new ProjectiveComplex((130.8 + 24.6*i, 2.0 + 0.0*i))
+      assert (z equal w)
+      assert (w equal z)
+    }
+
+    "uses defined equality between projective complex and Infinity"-{
+      import CircleImplicits._
+      val z = new ProjectiveComplex((130.8 + 24.6*i, 0.0 + 0.0*i))
+      assert (z equal Infinity)
+      assert (Infinity equal z)
+    }
+
+  }
+}
+
 
 object MobiusTransformationTestSuite extends TestSuite{
   val tests = TestSuite{
@@ -42,11 +89,12 @@ object MobiusTransformationTestSuite extends TestSuite{
     }
 
     "applying a transformation to a complex number returns the correct result"-{
+      import CircleImplicits._
       // TODO - work out why implicit conversion does not work here.
       val t = new MoebiusTransformation(1.0+0*i, 1.0+0*i, 0.0+0*i, 1.0+0*i)
       val z = 1.0 + 1.0*i
       val w = t transform z
-      assert (w == 2.0 + 1.0*i)
+      assert (w equal 2.0 + 1.0*i)
     }
 
     "equality is determined as an element of PSL(2,C)"-{
@@ -80,5 +128,6 @@ object MobiusTransformationTestSuite extends TestSuite{
       val composed = t1 compose t2
       assert (composed equal expected)
     }
+
   }
 }

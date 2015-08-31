@@ -14,7 +14,55 @@ import breeze.numerics.{
 }
 
 
+object CircleTypes {
+  type ExtendedComplex = Either[Complex, Infinity.type]
+  type ComplexPair = (Complex, Complex)
+}
+import CircleTypes._
+
+object CircleImplicits {
+
+  implicit def complexToEitherComplexOrInfinity(z: Complex): ExtendedComplex =
+    Left(z)
+
+  implicit def infinityToEitherComplexOrInfinity(z: Infinity.type): ExtendedComplex =
+    Right(Infinity)
+
+  implicit def complexToComplexPair(z: Complex): ComplexPair =
+    (z, 1.0 + 0.0*i)
+
+  implicit def infinityToComplexPair(z: Infinity.type): ComplexPair =
+    (1.0 + 0.0*i, 0.0 + 0.0*i)
+
+  implicit def complexToProjectiveComplex(z: Complex) =
+    new ProjectiveComplex( complexToComplexPair(z) )
+
+  implicit def infinityToProjectiveComplex(z: Infinity.type) =
+    new ProjectiveComplex ( infinityToComplexPair(z) )
+
+}
+
 case class NonInvertibleMatrixException(err_msg: String) extends Exception(err_msg)
+
+object Infinity
+import Infinity._
+
+
+/**
+ * Represents a point on the projective projective line.
+ *
+ * This class is keeped simple for the time being. For example we 
+ * do not define any operations.
+ *
+ */
+class ProjectiveComplex(pair: ComplexPair){
+  val z = pair._1
+  val w = pair._2
+
+  def equal(that: ProjectiveComplex) = {
+    this.z * that.w == that.z * this.w
+  }
+}
 
 
 /**
@@ -44,11 +92,16 @@ object SpaceType extends Enumeration {
  */
 class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
 
+
   /**
-   * If mt is a MobiusTransformation and z a complex number, then 
+   * If mt is a MobiusTransformation and z a point of the Reimann sphere, then 
    * mt transform z returns the image of z under mt.
    */
-  def transform(z: Complex): Complex = (a*z + b) / (c*z + d)
+  def transform(projectiveComplex: ProjectiveComplex): ProjectiveComplex = 
+    new ProjectiveComplex (
+      a*projectiveComplex.z + b*projectiveComplex.w,
+      c*projectiveComplex.z + d*projectiveComplex.w
+    )
 
   /**
    * Returns the composite of the two transformations.
