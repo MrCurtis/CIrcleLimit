@@ -49,16 +49,6 @@ object Infinity
 
 
 /**
- * Represents an arc of a circle.
- *
- * An instance of Arc with start=z_0, finish=z_1, and centre=z_2 should
- * be used to represent the segment of a circle with centre z_2, and 
- * radius |z_0 - z_2| drawn anti-clockwise from z_0 to z_1.
- */   
-case class Arc(start: Complex, finish: Complex, centre: Complex)
-
-
-/**
  * Used to indicate which model of hyperbolic geometry is being used. 
  *
  * This is useful, for example, when we wish to define geodesics by
