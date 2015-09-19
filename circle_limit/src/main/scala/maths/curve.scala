@@ -51,7 +51,38 @@ class Arc(start: Complex, finish: Complex, val centre: Complex) extends Curve(st
       that.finish == this.finish &&
       that.centre == this.centre
   }
-        
+
+  /**
+   * Returns true only if the arc subtends an angle of less than Pi.
+   */
+  def isAcute = ((finish - centre) / (start - centre)).imag > 0
+
+  /**
+   * Returns true only if the arc subtends an angle of more than Pi.
+   */
+  def isObtuse = ((finish - centre) / (start - centre)).imag < 0
+
+  /**
+   * Returns the complement of the arc with respect to its associated circle.
+   */
+  def complement = Arc(finish, start, centre)
+
+  /**
+   * Returns the acute arc with the same end points and centre.
+   *
+   * If the arc is neither obtuse or acute then then method returns 
+   * the object it is called from.
+   */
+  def getAcute = if (this.isObtuse) this.complement else this
+
+  /**
+   * Returns the obtuse arc with the same end points and centre.
+   *
+   * If the arc is neither obtuse or acute then then method returns 
+   * the object it is called from.
+   */
+  def getObtuse = if (this.isAcute) this.complement else this
+    
 }
 object Arc {
   def apply(start: Complex, finish: Complex, centre: Complex) = new Arc(start, finish, centre)

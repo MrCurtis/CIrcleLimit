@@ -72,5 +72,46 @@ object ArcTestSuite extends TestSuite{
       assert (arc5 != arc1)
     }
 
+    "has obtuse / acute functionality"-{
+
+        val acute = Arc(5.0+ 5.0*i, 4.0+6.0*i, 1.0+2.0*i)
+        // We define obtuse to be the complement of acute.
+        val obtuse = Arc(4.0+6.0*i, 5.0+ 5.0*i, 1.0+2.0*i) 
+        val neither = Arc(5.0+5.0*i, -3.0-1.0*i, 1.0+2.0*i)
+
+      "isAcute works properly"-{
+        assert (acute.isAcute)
+        assert (!(obtuse.isAcute))
+        assert (!(neither.isAcute))
+      }
+
+      "isObtuse works properly"-{
+        assert (!(acute.isObtuse))
+        assert ((obtuse.isObtuse))
+        assert (!(neither.isObtuse))
+      }
+
+      "complement works properly"-{
+        val complement_of_neither = Arc(-3.0-1.0*i, 5.0+5.0*i, 1.0+2.0*i)
+
+        assert (acute.complement == obtuse)
+        assert (obtuse.complement == acute)
+        assert (neither.complement == complement_of_neither)
+      }
+
+      "getAcute works properly"-{
+        assert (acute.getAcute == acute)
+        assert (obtuse.getAcute == acute)
+        assert (neither.getAcute == neither)
+      }
+
+      "getObtuse works properly"-{
+        assert (acute.getObtuse == obtuse)
+        assert (obtuse.getObtuse == obtuse)
+        assert (neither.getObtuse == neither)
+      }
+
+    }
+
   }
 }
