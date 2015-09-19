@@ -18,6 +18,7 @@ class Geodesic(z1: ProjectiveComplex, z2: ProjectiveComplex, spaceType: SpaceTyp
    */
   def asCurve: Curve = spaceType match {
     case SpaceType.UpperHalfPlane => createCurveFromGeodesicInUpperHalfPlane(z1, z2)
+    case SpaceType.PoincareDisc => createCurveFromGeodesicInPoincareDisc(z1, z2)
   }
 
   private def createCurveFromGeodesicInUpperHalfPlane(z1: ProjectiveComplex, z2: ProjectiveComplex): Curve = {
@@ -25,10 +26,10 @@ class Geodesic(z1: ProjectiveComplex, z2: ProjectiveComplex, spaceType: SpaceTyp
     (z1.toExtendedComplex, z2.toExtendedComplex) match {
 
       case (Right(w1: Complex), Right(w2: Complex)) => 
-        if (w1.real == w2.real){
-          createLineFromComplexInUpperHalfPlane(w1, w2)
-        }else{
+        if (w1.real != w2.real){
           createArcFromComplexInUpperHalfPlane(w1, w2)
+        } else {
+          createLineFromComplex(w1, w2)
         }
 
       case (Right(_), Left(_)) | (Left(_), Right(_)) =>
@@ -47,13 +48,68 @@ class Geodesic(z1: ProjectiveComplex, z2: ProjectiveComplex, spaceType: SpaceTyp
     val zCentre = (z2 * (1 -2*k*i) + z1 * (1 + 2*k*i))/2.0+0.0*i
     if (z1.real > z2.real) {
       Arc(z1, z2, zCentre)
-    }else{
+    } else {
       Arc(z2, z1, zCentre)
     }
   }
 
-  private def createLineFromComplexInUpperHalfPlane(z1: Complex, z2: Complex): Line = {
-    Line(1.0+5.0*i, 1.0+7.0*i)
+  private def createLineFromComplex(z1: Complex, z2: Complex): Line = {
+    Line(z1, z2)
+  }
+
+  private def createCurveFromGeodesicInPoincareDisc(z1: ProjectiveComplex, z2: ProjectiveComplex): Curve = {
+
+    (z1.toExtendedComplex, z2.toExtendedComplex) match {
+
+      case (Right(w1: Complex), Right(w2: Complex)) => 
+        if (w1.real*w2.imag != w2.real*w1.imag) {
+          createArcFromComplexInPoincareDisc(w1, w2)
+        } else {
+          createLineFromComplex(w1, w2)
+        }
+
+      case (Right(_), Left(_)) | (Left(_), Right(_)) =>
+        throw new NotImplementedError("Infinity is not a point on the disc.")
+
+      case (Left(_), Left(_)) | (Left(_), Left(_)) =>
+        throw new NotImplementedError("Make this impossible for a geodesic.")
+
+      } 
+
+  }
+
+  private def createArcFromComplexInPoincareDisc(z1: Complex, z2: Complex): Arc = {
+    //  A note on the calculations:
+    //
+    //  If z_c is any point outside of the closed unit disc, then the circle 
+    //  centred at z_c which intersects the unit circle orthoganaly has radius
+    //  r determined (using Pythogaras' theorem) by:
+    //    1) r^2 = |z_c|^2 - 1
+    //  If, furthermore, this circle passes through both z_1 and z_2 then we
+    //  have:
+    //    2) |z_c - z_1|^2 = r^2
+    //  and 
+    //    3) |z_c - z_2|^2 = r^2
+    //  Substituting the RHS of (1) for the RHS of (2) and rearranging we get 
+    //    4) x_c*x_1 + y_c*y_1 = (1/2) * (x_1^2 + y_1^2 + 1)
+    //  where x_c,y_c and x_1, y_1 are the real and imaginary parts of z_c and 
+    //  z_1 respectively.
+    //  Similarly we have
+    //    5) x_c*x_2 + y_c*y_2 = (1/2) * (x_2^2 + y_2^2 + 1)
+    //  Solving for x_c and y_c gives us the results below.
+    
+    val x1 = z1.real
+    val y1 = z1.imag
+    val x2 = z2.real
+    val y2 = z2.imag
+
+    val xC = (0.5)*(x1*x1 + y1*y1 + 1)*(y2 - y1)/(x1*y2 - x2*y1)
+    val yC = (0.5)*(x2*x2 + y2*y2 + 1)*(x1 - x2)/(x1*y2 - x2*y1)
+
+    val zC = xC + yC*i
+
+    Arc(z1, z2, zC).getAcute
+
   }
   
 }
