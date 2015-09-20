@@ -62,5 +62,35 @@ object GeodesicTestSuite extends TestSuite{
       assert (geodesic.asCurve == line)
     }
 
+    "has well-defined equality operator:"-{
+        val geod1 = Geodesic(0.0+5.0*i, 3.0+4.0*i, SpaceType.UpperHalfPlane)
+        val geod2 = Geodesic(0.0+5.0*i, 3.0+4.0*i, SpaceType.UpperHalfPlane)
+        val geod3 = Geodesic(3.0+4.0*i, 0.0+5.0*i, SpaceType.UpperHalfPlane)
+        val geod4 = Geodesic(0.0+5.0*i, 3.0+4.0*i, SpaceType.PoincareDisc)
+        val geod5 = Geodesic(3.0+4.0*i, 0.0+5.0*i, SpaceType.PoincareDisc)
+        val geod6 = Geodesic(1.5+5.0*i, 3.7+4.0*i, SpaceType.UpperHalfPlane)
+
+      "instances are equal only if have same end points and same space type"-{
+        assert (geod1 == geod1)
+        assert (geod2 == geod1)
+        assert (geod1 == geod2)
+        assert (geod1 == geod3)
+        assert (geod3 == geod1)
+        assert (geod1 != geod4)
+        assert (geod4 != geod1)
+        assert (geod1 != geod5)
+        assert (geod5 != geod1)
+        assert (geod1 != geod6)
+        assert (geod6 != geod1)
+      }
+
+      "equality implies hashCode equality"-{
+        val geodesics = List(geod1, geod2, geod3, geod4, geod5, geod6)
+        for (p <- geodesics; q <- geodesics) 
+          assert ( (p != q) || (p.hashCode == q.hashCode) )
+      }
+
+    }
+
   }
 }

@@ -9,7 +9,7 @@ import breeze.math.{
  * A geodesic specified by its two end point z1 and z2, and the model
  * of hyperbolic space in which it is represented.
  */
-class Geodesic(z1: ProjectiveComplex, z2: ProjectiveComplex, spaceType: SpaceType.Value) {
+class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceType: SpaceType.Value) {
 
   /**
    * Returns a more concrete representation of the geodesic, specific to 
@@ -79,24 +79,26 @@ class Geodesic(z1: ProjectiveComplex, z2: ProjectiveComplex, spaceType: SpaceTyp
   }
 
   private def createArcFromComplexInPoincareDisc(z1: Complex, z2: Complex): Arc = {
-    //  A note on the calculations:
-    //
-    //  If z_c is any point outside of the closed unit disc, then the circle 
-    //  centred at z_c which intersects the unit circle orthoganaly has radius
-    //  r determined (using Pythogaras' theorem) by:
-    //    1) r^2 = |z_c|^2 - 1
-    //  If, furthermore, this circle passes through both z_1 and z_2 then we
-    //  have:
-    //    2) |z_c - z_1|^2 = r^2
-    //  and 
-    //    3) |z_c - z_2|^2 = r^2
-    //  Substituting the RHS of (1) for the RHS of (2) and rearranging we get 
-    //    4) x_c*x_1 + y_c*y_1 = (1/2) * (x_1^2 + y_1^2 + 1)
-    //  where x_c,y_c and x_1, y_1 are the real and imaginary parts of z_c and 
-    //  z_1 respectively.
-    //  Similarly we have
-    //    5) x_c*x_2 + y_c*y_2 = (1/2) * (x_2^2 + y_2^2 + 1)
-    //  Solving for x_c and y_c gives us the results below.
+    /*  
+    *  A note on the calculations:
+    *
+    *  If z_c is any point outside of the closed unit disc, then the circle 
+    *  centred at z_c which intersects the unit circle orthoganaly has radius
+    *  r determined (using Pythogaras' theorem) by:
+    *    1) r^2 = |z_c|^2 - 1
+    *  If, furthermore, this circle passes through both z_1 and z_2 then we
+    *  have:
+    *    2) |z_c - z_1|^2 = r^2
+    *  and 
+    *    3) |z_c - z_2|^2 = r^2
+    *  Substituting the RHS of (1) for the RHS of (2) and rearranging we get 
+    *    4) x_c*x_1 + y_c*y_1 = (1/2) * (x_1^2 + y_1^2 + 1)
+    *  where x_c,y_c and x_1, y_1 are the real and imaginary parts of z_c and 
+    *  z_1 respectively.
+    *  Similarly we have
+    *    5) x_c*x_2 + y_c*y_2 = (1/2) * (x_2^2 + y_2^2 + 1)
+    *  Solving for x_c and y_c gives us the results below.
+    */
     
     val x1 = z1.real
     val y1 = z1.imag
@@ -110,6 +112,23 @@ class Geodesic(z1: ProjectiveComplex, z2: ProjectiveComplex, spaceType: SpaceTyp
 
     Arc(z1, z2, zC).getAcute
 
+  }
+
+  // Must be symmetrical with respect to z1 and z2
+  override def hashCode: Int = z1.hashCode + z2.hashCode
+
+  def canEqual(other: Any) = other.isInstanceOf[Geodesic]
+
+  /**
+   * Geodesics are equal if and only if their end points are equal 
+   * (regardless of order) and they have the same SpaceType.
+   */
+  override def equals (that: Any) = that match {
+    case that: Geodesic => 
+      (that canEqual this) &&
+      ( (this.z1 == that.z1 && this.z2 == that.z2) || (this.z1 == that.z2 && this.z2 == that.z1) ) &&
+      (this.spaceType == that.spaceType)
+    case _ => false
   }
   
 }
