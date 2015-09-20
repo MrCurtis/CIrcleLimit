@@ -5,7 +5,7 @@ import breeze.math.i
 import CircleTypes._
 
 /**
- * Represents a point on the projective projective line.
+ * Represents a point on the projective line.
  *
  * This class is kept simple for the time being. For example we 
  * do not define any operations.
@@ -14,7 +14,8 @@ class ProjectiveComplex(pair: ComplexPair){
   val z = pair._1
   val w = pair._2
 
-  override def hashCode: Int = 41 * ( 41 + z.hashCode ) + w.hashCode 
+  //Doesn't seem possible to use any hashCode but the trivial one here.
+  override def hashCode: Int = 0
 
   def canEqual(other: Any) = other.isInstanceOf[ProjectiveComplex]
 

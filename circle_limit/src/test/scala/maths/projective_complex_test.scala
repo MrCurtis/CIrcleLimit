@@ -16,11 +16,27 @@ object ProjectiveComplexTestSuite extends TestSuite {
       val z = new ProjectiveComplex(Infinity)
     }
 
-    "has equality defined by the correct equivalence"-{
-      val z = new ProjectiveComplex((1.0 + 2.0*i), (3.0 + 4.0*i))
-      val w = new ProjectiveComplex((2.0 + 4.0*i), (6.0 + 8.0*i))
-      assert (z == w)
-      assert (w == z)
+    "has coherent equality:"-{
+      val p1 = new ProjectiveComplex(1.0+2.0*i, 3.0+4.0*i)
+      val p2 = new ProjectiveComplex(2.0+4.0*i, 6.0+8.0*i)
+      val p3 = new ProjectiveComplex(-4.0+2.0*i, -8.0+6.0*i)
+      val p4 = new ProjectiveComplex(1.0+2.1*i, 3.0+4.0*i)
+
+      "== is defined up to ratio of z and w"-{
+        assert (p1 == p2)
+        assert (p2 == p1)
+        assert (p1 == p3)
+        assert (p3 == p1)
+        assert (p1 != p4)
+        assert (p4 != p1)
+      }
+
+      "equality implies hashCode equality"-{
+        val points = List(p1, p2, p3, p4)
+        for (p <- points; q <- points) 
+          assert ( (p != q) || (p.hashCode == q.hashCode) )
+      }
+      
     }
 
     "returns ExtendedComplex objects of the right type when asExtendedComplex called"-{
