@@ -126,3 +126,7 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
     (matrixNorm(mt1) < errorBounds) ||  (matrixNorm(mt2) < errorBounds)
   }
 }
+object MoebiusTransformation {
+  def apply(a: Complex, b: Complex, c: Complex, d: Complex) = 
+    new MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex)
+}
