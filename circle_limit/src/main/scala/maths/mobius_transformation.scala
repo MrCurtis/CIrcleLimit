@@ -30,6 +30,21 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
     )
 
   /**
+   * Returns the image of the geodisec under the Moebius Transformation.
+   *
+   * At present we consider each transformation to be a conformal
+   * isomorphism of a particular hyperbolic space. Thus the image has the
+   * same space type as the original geodesic. This might change in the 
+   * future.
+   */
+  def transform(geodesic: Geodesic): Geodesic = 
+    Geodesic (
+      transform(geodesic.z1),
+      transform(geodesic.z2),
+      geodesic.spaceType
+    )
+
+  /**
    * Returns the composite of the two transformations.
    */
   def compose(that: MoebiusTransformation) = {
@@ -62,7 +77,7 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
   }
 
   /**
-   * Returns the principal sqaureroot of a complex number.
+   * Returns the principal square-root of a complex number.
    *
    * The principal squareroot is that which is contained in the upper 
    * half-plane union the real line.

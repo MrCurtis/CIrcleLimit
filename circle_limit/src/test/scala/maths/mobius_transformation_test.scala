@@ -22,6 +22,15 @@ object MobiusTransformationTestSuite extends TestSuite{
       assert (w.toExtendedComplex == Right(2.0 + 1.0*i))
     }
 
+    "applying a transformation to a geodesic returns the correct geodesic"-{
+      import CircleImplicits._
+      val t = new MoebiusTransformation(0.0+1.0*i, 0.0+0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+      val geod = Geodesic(0.4+0.2*i, 0.8+0.4*i, SpaceType.PoincareDisc)
+      val expected = Geodesic(-0.2+0.4*i, -0.4+0.8*i, SpaceType.PoincareDisc)
+      val returned = t transform geod
+      assert (returned == expected)
+    }
+
     "equality is determined as an element of PSL(2,C)"-{
       val t1 = new MoebiusTransformation(1.0+0.0*i, 2.0-2.0*i, 5.0+0.0*i, 7.0+0.0*i)
       val t2 = new MoebiusTransformation(2.0+0.0*i, 4.0-4.0*i, 10.0+0.0*i, 14.0+0.0*i)
