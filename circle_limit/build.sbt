@@ -1,9 +1,19 @@
-lazy val root = (project in file(".")).
+name := "CircleLimit root project"
+
+lazy val root = project.in(file(".")).
+  aggregate(circleLimitJS, circleLimitJVM).
   settings(
-    name := "circle_limit",
-    version := "0.0",
-    libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1",
+    publish := {},
+    publishLocal := {}
+  )
+
+lazy val circleLimit = crossProject.in(file(".")).
+  settings(
+    name := "circleLimit",
+    version := "0.1-SNAPSHOT",
+    scalaVersion := "2.11.5",
     testFrameworks += new TestFramework("utest.runner.Framework"),
+
     libraryDependencies  ++= Seq(
       // other dependencies here
       "org.scalanlp" %% "breeze" % "0.10",
@@ -14,7 +24,18 @@ lazy val root = (project in file(".")).
 
     resolvers ++= Seq(
       "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-    ),
-    scalaVersion := "2.11.1" // or 2.10.3 or later
+    )
+  ).
+  jvmSettings(
+    // Add JVM-specific settings here
+    libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1"
+  ).
+  jsSettings(
+    // Add JS-specific settings here
+    libraryDependencies += "com.lihaoyi" %%% "utest" % "0.3.1"
   )
 
+lazy val circleLimitJVM = circleLimit.jvm
+lazy val circleLimitJS = circleLimit.js
+
+enablePlugins(ScalaJSPlugin)
