@@ -3,6 +3,7 @@ package circle_limit
 import utest._
 import breeze.math._
 
+
 object MobiusTransformationTestSuite extends TestSuite{
   val tests = TestSuite{
 
@@ -10,8 +11,9 @@ object MobiusTransformationTestSuite extends TestSuite{
       val e = intercept[NonInvertibleMatrixException]{
         val t = MoebiusTransformation(1.0+0.0*i, 1.0+0.0*i, 2.0+2.0*i, 2.0+2.0*i)
       }
-      val expected_error_message = "Attempting to create a non-invertible transformation"
-      assertMatch(e) {case NonInvertibleMatrixException(expected_error_message)=>}
+      assertMatch(e) {case NonInvertibleMatrixException(
+        "Attempting to create a non-invertible transformation.")=>
+      }
     }
 
     "applying a transformation to a complex number returns the correct result"-{

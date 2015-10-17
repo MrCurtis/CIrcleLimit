@@ -70,8 +70,9 @@ object MobiusTransformationMatrixTestSuite extends TestSuite {
       val e = intercept[NonInvertibleMatrixException]{
         t.returnNormalizedToSL
       }
-      val expected_error_message = "Cannot normalize matrix with determinant zero."
-      assertMatch(e) {case NonInvertibleMatrixException(expected_error_message)=>}
+      assertMatch(e) {case NonInvertibleMatrixException(
+        "Cannot normalize matrix with determinant zero.")=>
+      }
     }
   
   }
