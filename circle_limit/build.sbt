@@ -11,7 +11,7 @@ lazy val circleLimit = crossProject.in(file(".")).
   settings(
     name := "circleLimit",
     version := "0.1-SNAPSHOT",
-    scalaVersion := "2.11.5",
+    scalaVersion := "2.11.7",
     testFrameworks += new TestFramework("utest.runner.Framework"),
 
     resolvers ++= Seq(
