@@ -1,9 +1,10 @@
 package circle_limit
 
-import breeze.math.{
-  Complex, 
-  i
+import spire.math.{
+  Complex
 }
+import spire.implicits._
+import Imaginary.i
 
 /**
  * A geodesic specified by its two end point z1 and z2, and the model
@@ -25,7 +26,7 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
 
     (z1.toExtendedComplex, z2.toExtendedComplex) match {
 
-      case (Right(w1: Complex), Right(w2: Complex)) => 
+      case (Right(w1: Complex[Double]), Right(w2: Complex[Double])) => 
         if (w1.real != w2.real){
           createArcFromComplexInUpperHalfPlane(w1, w2)
         } else {
@@ -42,7 +43,7 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
 
   }
 
-  private def createArcFromComplexInUpperHalfPlane(z1: Complex, z2: Complex): Arc = {
+  private def createArcFromComplexInUpperHalfPlane(z1: Complex[Double], z2: Complex[Double]): Arc = {
     //TODO - Explain the maths for calculating the centre.
     val k = (z2.imag + z1.imag) / (2 * (z2.real - z1.real)) 
     val zCentre = (z2 * (1 -2*k*i) + z1 * (1 + 2*k*i))/2.0+0.0*i
@@ -53,7 +54,7 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
     }
   }
 
-  private def createLineFromComplex(z1: Complex, z2: Complex): Line = {
+  private def createLineFromComplex(z1: Complex[Double], z2: Complex[Double]): Line = {
     Line(z1, z2)
   }
 
@@ -61,7 +62,7 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
 
     (z1.toExtendedComplex, z2.toExtendedComplex) match {
 
-      case (Right(w1: Complex), Right(w2: Complex)) => 
+      case (Right(w1: Complex[Double]), Right(w2: Complex[Double])) => 
         if (w1.real*w2.imag != w2.real*w1.imag) {
           createArcFromComplexInPoincareDisc(w1, w2)
         } else {
@@ -78,7 +79,7 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
 
   }
 
-  private def createArcFromComplexInPoincareDisc(z1: Complex, z2: Complex): Arc = {
+  private def createArcFromComplexInPoincareDisc(z1: Complex[Double], z2: Complex[Double]): Arc = {
     /*  
     *  A note on the calculations:
     *

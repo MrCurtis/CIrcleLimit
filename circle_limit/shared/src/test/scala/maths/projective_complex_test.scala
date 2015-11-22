@@ -1,14 +1,18 @@
 package circle_limit
 
 import utest._
-import breeze.math._
+import spire.math.{
+  Complex
+}
+import spire.implicits._
+import Imaginary.i
 
 object ProjectiveComplexTestSuite extends TestSuite {
   val tests = TestSuite {
 
     "can be instatiated with a complex number (using implicits)"-{
       import CircleImplicits._
-      val z = new ProjectiveComplex(1.0 + 2.0*i)
+      val z = new ProjectiveComplex(Complex[Double](1.0, 2.0))
     }
 
     "can be instatiated with infinity (using implicits)"-{
@@ -17,6 +21,7 @@ object ProjectiveComplexTestSuite extends TestSuite {
     }
 
     "has coherent equality:"-{
+      import CircleImplicits._
       val p1 = new ProjectiveComplex(1.0+2.0*i, 3.0+4.0*i)
       val p2 = new ProjectiveComplex(2.0+4.0*i, 6.0+8.0*i)
       val p3 = new ProjectiveComplex(-4.0+2.0*i, -8.0+6.0*i)

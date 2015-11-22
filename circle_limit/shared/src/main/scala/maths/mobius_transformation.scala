@@ -1,22 +1,16 @@
 package circle_limit
 
-import breeze.linalg.{
-  DenseMatrix,
-  sum
+import spire.math.{
+  Complex
 }
-import breeze.math.{
-  Complex, 
-  i
-}
-import breeze.numerics.{
-  sqrt,
-  abs
-}
+import spire.implicits._
+
+import Imaginary.i
 
 /**
  * A Moebius transformation of form az+b/cz+d.
  */
-class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
+class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) {
 
 
   /**
@@ -25,8 +19,8 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
    */
   def transform(projectiveComplex: ProjectiveComplex): ProjectiveComplex = 
     new ProjectiveComplex (
-      a*projectiveComplex.z + b*projectiveComplex.w,
-      c*projectiveComplex.z + d*projectiveComplex.w
+      (a*projectiveComplex.z + b*projectiveComplex.w,
+      c*projectiveComplex.z + d*projectiveComplex.w)
     )
 
   /**
@@ -50,65 +44,23 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
   def compose(that: MoebiusTransformation) = {
     val composedMatrix = this.theTransformationMatrix * that.theTransformationMatrix
     new MoebiusTransformation(
-      composedMatrix(0,0),
-      composedMatrix(0,1),
-      composedMatrix(1,0),
-      composedMatrix(1,1)
+      composedMatrix.a,
+      composedMatrix.b,
+      composedMatrix.c,
+      composedMatrix.d
     )
   }
 
   /**
    * The transformation represented as an element of PSL(2,C).
    */
-  val theTransformationMatrix = normalize(DenseMatrix((a, b), (c, d)))
-
-  /**
-   * Returns a matrix in it's canonical form as an element of PSL(2,C).
-   *
-   * Canonical representives of a matrix in PSL(2,C) have determinant
-   * equal to one.
-   */
-  private def normalize(unnormalized: DenseMatrix[Complex]): DenseMatrix[Complex] = {
-    val d = det(unnormalized)
-    if (d == 0.0) throw NonInvertibleMatrixException(
-      "Attempting to create a non-invertible transformation."
-    ) 
-    unnormalized / srt(det(unnormalized))
-  }
-
-  /**
-   * Returns the principal square-root of a complex number.
-   *
-   * The principal squareroot is that which is contained in the upper 
-   * half-plane union the real line.
-   */
-  private def srt(num: Complex): Complex = {
-    if (num.imag == 0 && num.re <= 0) {
-      0.0 + sqrt (-1.0 * num.re) * i
+  val theTransformationMatrix = {
+    try {
+      MoebiusTransformationMatrix(a, b, c, d).returnNormalizedToSL
+    } catch {
+      case NonInvertibleMatrixException(_) => throw 
+        NonInvertibleMatrixException("Attempting to create a non-invertible transformation.") 
     }
-    else {
-      val r = abs(num)
-      sqrt(r) * (num + r)/(abs(num + r))
-    }
-      
-  }
-
-  /**
-   * Returns the determinant of a 2x2 matrix
-   */
-  private def det(matrix: DenseMatrix[Complex]): Complex = {
-    matrix(0,0)*matrix(1,1) - matrix(0,1)*matrix(1,0)
-  }
-
-  /**
-   * The standard norm on PSL(2,C)
-   */
-  private def matrixNorm(matrix: DenseMatrix[Complex]): Double = {
-    sqrt(
-      sum(
-        matrix.map(z => z.abs*z.abs)
-      )
-    )
   }
 
   /**
@@ -125,8 +77,15 @@ class MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex) {
     val mt2 = this.theTransformationMatrix - that.theTransformationMatrix
     (matrixNorm(mt1) < errorBounds) ||  (matrixNorm(mt2) < errorBounds)
   }
+
+  /**
+   * The standard norm on PSL(2,C)
+   */
+  private def matrixNorm(m: MoebiusTransformationMatrix): Double =
+    (m.a.abs*m.a.abs + m.b.abs*m.b.abs + m.c.abs*m.c.abs + m.d.abs*m.d.abs).sqrt
+  
 }
 object MoebiusTransformation {
-  def apply(a: Complex, b: Complex, c: Complex, d: Complex) = 
-    new MoebiusTransformation(a: Complex, b: Complex, c: Complex, d: Complex)
+  def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
+    new MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
 }

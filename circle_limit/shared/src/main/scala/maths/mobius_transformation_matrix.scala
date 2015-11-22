@@ -1,13 +1,9 @@
 package circle_limit
 
-import breeze.math.{
-  Complex, 
-  i
+import spire.math.{
+  Complex
 }
-import breeze.numerics.{
-  sqrt,
-  abs
-}
+import spire.implicits._
 
 
 /**
@@ -16,7 +12,7 @@ import breeze.numerics.{
  * The class is kept simple and only has the functionality needed for the
  * MoebiusTransformation class.
  */
-class MoebiusTransformationMatrix(val a: Complex, val b: Complex, val c: Complex, val d:Complex) {
+class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double], val c: Complex[Double], val d:Complex[Double]) {
 
   /**
    * Matrix multiplication.
@@ -69,24 +65,8 @@ class MoebiusTransformationMatrix(val a: Complex, val b: Complex, val c: Complex
     if (d == 0.0) throw NonInvertibleMatrixException(
       "Cannot normalize matrix with determinant zero."
     ) 
-    val scalar = MoebiusTransformationMatrix(1.0/srt(d), 0.0+0.0*i, 0.0+0.0*i, 1.0/srt(d))
+    val scalar = MoebiusTransformationMatrix(1.0/d.sqrt, Complex(0.0+0.0), Complex(0.0+0.0), 1.0/d.sqrt)
     scalar * this
-  }
-
-  /**
-   * Returns the principal square-root of a complex number.
-   *
-   * The principal squareroot is that which is contained in the upper 
-   * half-plane union the real line.
-   */
-  private def srt(num: Complex): Complex = {
-    if (num.imag == 0 && num.re <= 0) {
-      0.0 + sqrt (-1.0 * num.re) * i
-    }
-    else {
-      val r = abs(num)
-      sqrt(r) * (num + r)/(abs(num + r))
-    }
   }
   
   override def hashCode: Int = 
@@ -115,6 +95,6 @@ class MoebiusTransformationMatrix(val a: Complex, val b: Complex, val c: Complex
 }
 
 object MoebiusTransformationMatrix {
-  def apply(a: Complex, b: Complex, c: Complex, d: Complex) = 
-    new MoebiusTransformationMatrix(a: Complex, b: Complex, c: Complex, d: Complex)
+  def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
+    new MoebiusTransformationMatrix(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
 }

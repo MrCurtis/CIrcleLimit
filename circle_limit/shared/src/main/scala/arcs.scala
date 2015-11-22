@@ -1,40 +1,37 @@
 package circle_limit
 
-import breeze.linalg.{
-  DenseMatrix,
-  sum
+import spire.math.{
+  Complex
 }
-import breeze.math.{
-  Complex, 
-  i
+import spire.implicits._
+
+object Imaginary {
+  val i = Complex[Double](0,1)
 }
-import breeze.numerics.{
-  sqrt,
-  abs
-}
+import Imaginary.i
 
 
 object CircleTypes {
-  type ExtendedComplex = Either[Infinity.type, Complex]
-  type ComplexPair = (Complex, Complex)
+  type ExtendedComplex = Either[Infinity.type, Complex[Double]]
+  type ComplexPair = (Complex[Double], Complex[Double])
 }
 import CircleTypes._
 
 object CircleImplicits {
 
-  implicit def complexToEitherComplexOrInfinity(z: Complex): ExtendedComplex =
+  implicit def complexToEitherComplexOrInfinity(z: Complex[Double]): ExtendedComplex =
     Right(z)
 
   implicit def infinityToEitherComplexOrInfinity(z: Infinity.type): ExtendedComplex =
     Left(Infinity)
 
-  implicit def complexToComplexPair(z: Complex): ComplexPair =
+  implicit def complexToComplexPair(z: Complex[Double]): ComplexPair =
     (z, 1.0 + 0.0*i)
 
   implicit def infinityToComplexPair(z: Infinity.type): ComplexPair =
     (1.0 + 0.0*i, 0.0 + 0.0*i)
 
-  implicit def complexToProjectiveComplex(z: Complex) =
+  implicit def complexToProjectiveComplex(z: Complex[Double]) =
     new ProjectiveComplex( complexToComplexPair(z) )
 
   implicit def infinityToProjectiveComplex(z: Infinity.type) =

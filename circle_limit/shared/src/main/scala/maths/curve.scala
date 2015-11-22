@@ -1,13 +1,17 @@
 package circle_limit
 
-import breeze.math.Complex
+import spire.math.{
+  Complex
+}
+import spire.implicits._
+import Imaginary.i
 
-abstract class Curve(val start: Complex, val finish: Complex)
+abstract class Curve(val start: Complex[Double], val finish: Complex[Double])
 
 /**
  * Represents a Euclidean line, with end-points start and finish.
  */
-class Line(start: Complex, finish: Complex) extends Curve(start, finish) {
+class Line(start: Complex[Double], finish: Complex[Double]) extends Curve(start, finish) {
 
   def canEqual(other: Any) = other.isInstanceOf[Line]
 
@@ -23,7 +27,7 @@ class Line(start: Complex, finish: Complex) extends Curve(start, finish) {
   }
 }
 object Line {
-  def apply(start: Complex, finish: Complex) = new Line(start, finish)
+  def apply(start: Complex[Double], finish: Complex[Double]) = new Line(start, finish)
 }
 
 /**
@@ -33,7 +37,7 @@ object Line {
  * be used to represent the segment of a circle with centre z_2, and 
  * radius |z_0 - z_2| drawn anti-clockwise from z_0 to z_1.
  */   
-class Arc(start: Complex, finish: Complex, val centre: Complex) extends Curve(start, finish) {
+class Arc(start: Complex[Double], finish: Complex[Double], val centre: Complex[Double]) extends Curve(start, finish) {
 
   def canEqual(other: Any) = other.isInstanceOf[Arc]
 
@@ -85,5 +89,5 @@ class Arc(start: Complex, finish: Complex, val centre: Complex) extends Curve(st
     
 }
 object Arc {
-  def apply(start: Complex, finish: Complex, centre: Complex) = new Arc(start, finish, centre)
+  def apply(start: Complex[Double], finish: Complex[Double], centre: Complex[Double]) = new Arc(start, finish, centre)
 }

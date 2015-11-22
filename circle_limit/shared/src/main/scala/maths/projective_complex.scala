@@ -1,6 +1,11 @@
 package circle_limit
 
-import breeze.math.i
+import spire.math.{
+  Complex
+}
+import spire.implicits._
+import Imaginary.i
+
 
 import CircleTypes._
 

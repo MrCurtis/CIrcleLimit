@@ -1,7 +1,12 @@
 package circle_limit
 
 import utest._
-import breeze.math._
+
+import spire.math.{
+  Complex
+}
+import spire.implicits._
+import Imaginary.i
 
 
 object MobiusTransformationTestSuite extends TestSuite{
@@ -17,18 +22,19 @@ object MobiusTransformationTestSuite extends TestSuite{
     }
 
     "applying a transformation to a complex number returns the correct result"-{
-      import CircleImplicits._
-      val t = MoebiusTransformation(1.0+0*i, 1.0+0*i, 0.0+0*i, 1.0+0*i)
+      import CircleImplicits.complexToProjectiveComplex
+      val t = MoebiusTransformation(1.0+0.0*i, 1.0+0.0*i, 0.0+0.0*i, 1.0+0.0*i)
       val z = 1.0 + 1.0*i
       val w = t transform z
       assert (w.toExtendedComplex == Right(2.0 + 1.0*i))
     }
 
     "applying a transformation to a geodesic returns the correct geodesic"-{
-      import CircleImplicits._
+      import CircleImplicits.complexToProjectiveComplex
       val t = MoebiusTransformation(0.0+1.0*i, 0.0+0.0*i, 0.0+0.0*i, 1.0+0.0*i)
-      val geod = Geodesic(0.4+0.2*i, 0.8+0.4*i, SpaceType.PoincareDisc)
-      val expected = Geodesic(-0.2+0.4*i, -0.4+0.8*i, SpaceType.PoincareDisc)
+      //TODO - Work out why type conversion doesn't work here
+      val geod = Geodesic(Complex[Double](0.4, 0.2), Complex[Double](0.8, 0.4), SpaceType.PoincareDisc)
+      val expected = Geodesic(Complex[Double](-0.2, 0.4), Complex[Double](-0.4, 0.8), SpaceType.PoincareDisc)
       val returned = t transform geod
       assert (returned == expected)
     }

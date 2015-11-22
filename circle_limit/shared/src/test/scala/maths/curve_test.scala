@@ -1,7 +1,11 @@
 package circle_limit
 
 import utest._
-import breeze.math._
+import spire.math.{
+  Complex
+}
+import spire.implicits._
+import Imaginary.i
 
 object LineTestSuite extends TestSuite {
   val tests = TestSuite{
