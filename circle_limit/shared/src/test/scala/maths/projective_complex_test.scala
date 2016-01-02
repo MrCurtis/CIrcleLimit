@@ -1,4 +1,4 @@
-package circle_limit
+package circle_limit.maths
 
 import utest._
 import spire.math.{
