@@ -18,43 +18,13 @@ object CircleLimitApp {
     playground.appendChild(newP)
     println("Seems to be working")
     val bonsai = js.Dynamic.global.bonsai
-    val jsFun = () => {
-      23
-    }
     bonsai.run(
       movie,
       js.Dynamic.literal(
-        code = jsFun,
+        code = "new Rect(10, 10, 100, 100).addTo(stage).attr('fillColor', 'green'); new Rect(10, 120, 100, 100).addTo(stage).attr('fillColor', 'red'); new Rect(10, 230, 100, 100).addTo(stage).attr('fillColor', 'blue');",
         width = 500,
         height = 400 
       )
     )
-    //println(rect)
-    //val renderer = canvas.getContext("2d")
-      //.asInstanceOf[dom.CanvasRenderingContext2D]
-    //canvas.width = canvas.parentElement.clientWidth
-    //canvas.height = canvas.parentElement.clientHeight
-    //renderer.strokeStyle = "#EE5834"
-    //renderer.fillRect(200, 200, 10, 10)
-    //renderer.moveTo(0,0)
-    //renderer.lineTo(100, 100)
-    //renderer.stroke()
-    //renderer.stroke()
-    //println(canvas.width)
-    //println(canvas.height)
-    //println("is working")
-
-    //var pointA = (0.0, 0.0)
-    //var pointB = (0.0, 0.0)
-    //canvas.onmousedown = (e: dom.MouseEvent) => {
-      //pointA = (e.clientX, e.clientY)
-      //println(pointA)
-    //}
-    //canvas.onmouseup = (e: dom.MouseEvent) => {
-      //pointB = (e.clientX, e.clientY)
-      //val radius = (pointB._1 - pointA._1) + (pointB._2 - pointA._2)
-      //renderer.arc(pointA._1, pointA._2, radius, 0, 2*3.14)
-      //renderer.stroke()
-    //}
   }
 }
