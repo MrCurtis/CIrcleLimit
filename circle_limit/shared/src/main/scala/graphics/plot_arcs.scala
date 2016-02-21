@@ -93,7 +93,7 @@ object ArcPlotter {
     val radius = (transformedStart - transformedCentre).abs
     val startAngle = (transformedStart - transformedCentre).arg
     val endAngle = (transformedFinish - transformedCentre).arg
-    "new Arc(%f, %f, %f, %f, %f, true)".format(
+    "new Arc(%f, %f, %f, %f, %f, true).addTo(stage);".format(
       x, y, radius, startAngle, endAngle
     )
   }

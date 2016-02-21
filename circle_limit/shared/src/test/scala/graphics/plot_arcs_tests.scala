@@ -20,9 +20,10 @@ object CreateConstructorCallStringTestSuite extends TestSuite {
       val inputArc = Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i)
       val returned = ArcPlotter.createConstructorCallString(
         inputArc,
-        simpleTestTransform
+        simpleTestTransform _
       )
-      val expected = "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true)"
+      val expected =
+        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"
       assert (returned == expected)
     }
 
