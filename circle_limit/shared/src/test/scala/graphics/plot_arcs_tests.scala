@@ -2,7 +2,33 @@ package circle_limit.graphics
 
 import scala.math.{sqrt, pow}
 
+import spire.math.Complex
+import spire.implicits._
 import utest._
+
+import circle_limit.maths.Imaginary.i
+import circle_limit.maths.Arc
+
+
+object CreateConstructorCallStringTestSuite extends TestSuite {
+
+  def simpleTestTransform(z: (Double, Double)) = (2*z._1, 2*z._2)
+
+  val tests = TestSuite{
+
+    "returns a valid javascript Arc constructor call as string" - {
+      val inputArc = Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i)
+      val returned = ArcPlotter.createConstructorCallString(
+        inputArc,
+        simpleTestTransform
+      )
+      val expected = "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true)"
+      assert (returned == expected)
+    }
+
+  }
+}
+
 
 object ConvertFromMathematicalToGraphicalSpaceTestSuite extends TestSuite {
 

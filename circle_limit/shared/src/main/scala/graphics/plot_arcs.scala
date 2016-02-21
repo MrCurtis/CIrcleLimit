@@ -3,6 +3,8 @@ package circle_limit.graphics
 import spire.math.Complex
 import spire.implicits._
 
+import circle_limit.maths.Arc
+
 object ArcPlotter {
 
   /**
@@ -70,4 +72,30 @@ object ArcPlotter {
       }
     (resultAsComplex.real, resultAsComplex.imag)
   }
+
+  /**
+   * Creates a string representation of a JS Arc contructor call.
+   *
+   * The coordinates are transformed by the transform function before being
+   * formatted into the string.
+   */
+  def createConstructorCallString(arc: Arc, transform: Function[(Double, Double), (Double, Double)]): String = {
+    def transformComplex(complex: Complex[Double]) = {
+      val pair = (complex.real, complex.imag)
+      val transformedPair = transform(pair)
+      Complex[Double](transformedPair._1, transformedPair._2)
+    }
+    val transformedCentre = transformComplex(arc.centre)
+    val transformedStart = transformComplex(arc.start)
+    val transformedFinish = transformComplex(arc.finish)
+    val x = transformedCentre.real
+    val y = transformedCentre.imag
+    val radius = (transformedStart - transformedCentre).abs
+    val startAngle = (transformedStart - transformedCentre).arg
+    val endAngle = (transformedFinish - transformedCentre).arg
+    "new Arc(%f, %f, %f, %f, %f, true)".format(
+      x, y, radius, startAngle, endAngle
+    )
+  }
+
 }
