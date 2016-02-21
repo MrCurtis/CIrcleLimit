@@ -10,6 +10,32 @@ import circle_limit.maths.Imaginary.i
 import circle_limit.maths.Arc
 
 
+object CreateConstructorStringFromListTestSuite extends TestSuite {
+
+  def simpleTestTransform(z: (Double, Double)) = (2*z._1, 2*z._2)
+
+  val tests = TestSuite {
+
+    "returns a list of constructors seperated by semi-colon as string" - {
+      val inputList = List(
+        Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i),
+        Arc(0.0+1.0*i, 1.0+0.0*i, 1.0+1.0*i),
+        Arc(1.0+1.0*i, -1.0+1.0*i, 0.0+1.0*i)
+      )
+      val expected =
+        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"+
+        "new Arc(2.000000, 2.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"+
+        "new Arc(0.000000, 2.000000, 2.000000, 0.000000, 3.141593, true).addTo(stage);"
+      val returned = ArcPlotter.createConstructorStringFromList(
+        inputList,
+        simpleTestTransform
+      )
+      assert (returned == expected)
+    }
+  }
+}
+
+
 object CreateConstructorCallStringTestSuite extends TestSuite {
 
   def simpleTestTransform(z: (Double, Double)) = (2*z._1, 2*z._2)

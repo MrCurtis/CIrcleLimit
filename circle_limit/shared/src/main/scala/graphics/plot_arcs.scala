@@ -74,6 +74,20 @@ object ArcPlotter {
   }
 
   /**
+   * Creates a string calling the JS constructor on each of the arcs.
+   *
+   * The coordinates are transformed by the transform function before being
+   * formatted into the string.
+   */
+  def createConstructorStringFromList(
+    listOfArcs: List[Arc],
+    transform: Function[(Double, Double), (Double, Double)]
+  ): String = {
+    val stringForEachArc = createConstructorCallString(_: Arc, transform)
+    listOfArcs.map(stringForEachArc).mkString
+  }
+
+  /**
    * Creates a string representation of a JS Arc contructor call.
    *
    * The coordinates are transformed by the transform function before being
