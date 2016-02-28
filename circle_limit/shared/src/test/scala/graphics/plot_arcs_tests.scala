@@ -23,9 +23,9 @@ object CreateConstructorStringFromListTestSuite extends TestSuite {
         Arc(1.0+1.0*i, -1.0+1.0*i, 0.0+1.0*i)
       )
       val expected =
-        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"+
-        "new Path().moveTo(0.000000, 2.000000).lineTo(2.000000, 0.000000).addTo(stage);"+
-        "new Arc(0.000000, 2.000000, 2.000000, 0.000000, 3.141593, true).addTo(stage);"
+        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).stroke('black', 2).addTo(stage);"+
+        "new Path().moveTo(0.000000, 2.000000).lineTo(2.000000, 0.000000).stroke('black', 2).addTo(stage);"+
+        "new Arc(0.000000, 2.000000, 2.000000, 0.000000, 3.141593, true).stroke('black', 2).addTo(stage);"
       val returned = ArcPlotter.createConstructorStringFromList(
         inputList,
         simpleTestTransform
@@ -49,7 +49,7 @@ object CreateConstructorCallStringTestSuite extends TestSuite {
         simpleTestTransform _
       )
       val expected =
-        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"
+        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).stroke('black', 2).addTo(stage);"
       assert (returned == expected)
     }
 
@@ -60,7 +60,7 @@ object CreateConstructorCallStringTestSuite extends TestSuite {
         simpleTestTransform _
       )
       val expected =
-        "new Path().moveTo(-2.000000, 0.000000).lineTo(0.000000, -2.000000).addTo(stage);"
+        "new Path().moveTo(-2.000000, 0.000000).lineTo(0.000000, -2.000000).stroke('black', 2).addTo(stage);"
       assert (returned == expected)
       
     }
