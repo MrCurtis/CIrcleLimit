@@ -7,7 +7,7 @@ import spire.implicits._
 import utest._
 
 import circle_limit.maths.Imaginary.i
-import circle_limit.maths.Arc
+import circle_limit.maths.{Arc, Line}
 
 
 object CreateConstructorStringFromListTestSuite extends TestSuite {
@@ -19,12 +19,12 @@ object CreateConstructorStringFromListTestSuite extends TestSuite {
     "returns a list of constructors seperated by semi-colon as string" - {
       val inputList = List(
         Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i),
-        Arc(0.0+1.0*i, 1.0+0.0*i, 1.0+1.0*i),
+        Line(0.0+1.0*i, 1.0+0.0*i),
         Arc(1.0+1.0*i, -1.0+1.0*i, 0.0+1.0*i)
       )
       val expected =
         "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"+
-        "new Arc(2.000000, 2.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"+
+        "new Path().moveTo(0.000000, 2.000000).lineTo(2.000000, 0.000000).addTo(stage);"+
         "new Arc(0.000000, 2.000000, 2.000000, 0.000000, 3.141593, true).addTo(stage);"
       val returned = ArcPlotter.createConstructorStringFromList(
         inputList,
@@ -42,7 +42,7 @@ object CreateConstructorCallStringTestSuite extends TestSuite {
 
   val tests = TestSuite{
 
-    "returns a valid javascript Arc constructor call as string" - {
+    "For Arc argument - returns a valid javascript Arc constructor call as string" - {
       val inputArc = Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i)
       val returned = ArcPlotter.createConstructorCallString(
         inputArc,
@@ -51,6 +51,18 @@ object CreateConstructorCallStringTestSuite extends TestSuite {
       val expected =
         "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).addTo(stage);"
       assert (returned == expected)
+    }
+
+    "For Line argument - returns a valid Path constructor with method call" - {
+      val inputLine = Line(-1.0+0.0*i, 0.0-1.0*i)
+      val returned = ArcPlotter.createConstructorCallString(
+        inputLine,
+        simpleTestTransform _
+      )
+      val expected =
+        "new Path().moveTo(-2.000000, 0.000000).lineTo(0.000000, -2.000000).addTo(stage);"
+      assert (returned == expected)
+      
     }
 
   }

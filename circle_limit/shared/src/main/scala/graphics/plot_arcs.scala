@@ -3,7 +3,11 @@ package circle_limit.graphics
 import spire.math.Complex
 import spire.implicits._
 
-import circle_limit.maths.Arc
+import circle_limit.maths.{
+  Arc,
+  Curve,
+  Line
+}
 
 object ArcPlotter {
 
@@ -74,42 +78,52 @@ object ArcPlotter {
   }
 
   /**
-   * Creates a string calling the JS constructor on each of the arcs.
+   * Creates a string calling the JS constructor on each of the curves.
    *
    * The coordinates are transformed by the transform function before being
    * formatted into the string.
    */
   def createConstructorStringFromList(
-    listOfArcs: List[Arc],
+    listOfArcs: List[Curve],
     transform: Function[(Double, Double), (Double, Double)]
   ): String = {
-    val stringForEachArc = createConstructorCallString(_: Arc, transform)
-    listOfArcs.map(stringForEachArc).mkString
+    val stringForEachCurve = createConstructorCallString(_: Curve, transform)
+    listOfArcs.map(stringForEachCurve).mkString
   }
 
   /**
-   * Creates a string representation of a JS Arc contructor call.
+   * Creates a string representation of a bonsai contructor call.
    *
    * The coordinates are transformed by the transform function before being
    * formatted into the string.
    */
-  def createConstructorCallString(arc: Arc, transform: Function[(Double, Double), (Double, Double)]): String = {
+  def createConstructorCallString(curve: Curve, transform: Function[(Double, Double), (Double, Double)]): String = {
     def transformComplex(complex: Complex[Double]) = {
       val pair = (complex.real, complex.imag)
       val transformedPair = transform(pair)
       Complex[Double](transformedPair._1, transformedPair._2)
     }
-    val transformedCentre = transformComplex(arc.centre)
-    val transformedStart = transformComplex(arc.start)
-    val transformedFinish = transformComplex(arc.finish)
-    val x = transformedCentre.real
-    val y = transformedCentre.imag
-    val radius = (transformedStart - transformedCentre).abs
-    val startAngle = (transformedStart - transformedCentre).arg
-    val endAngle = (transformedFinish - transformedCentre).arg
-    "new Arc(%f, %f, %f, %f, %f, true).addTo(stage);".format(
-      x, y, radius, startAngle, endAngle
-    )
+    curve match {
+      case arc: Arc => {
+        val transformedCentre = transformComplex(arc.centre)
+        val transformedStart = transformComplex(arc.start)
+        val transformedFinish = transformComplex(arc.finish)
+        val x = transformedCentre.real
+        val y = transformedCentre.imag
+        val radius = (transformedStart - transformedCentre).abs
+        val startAngle = (transformedStart - transformedCentre).arg
+        val endAngle = (transformedFinish - transformedCentre).arg
+        "new Arc(%f, %f, %f, %f, %f, true).addTo(stage);".format(
+          x, y, radius, startAngle, endAngle
+        )
+      }
+      case line: Line => {
+        val transformedStart = transformComplex(line.start)
+        val transformedFinish = transformComplex(line.finish)
+        "new Path().moveTo(%f, %f).lineTo(%f, %f).addTo(stage);".format(
+          transformedStart.real, transformedStart.imag, transformedFinish.real, transformedFinish.imag
+        )
+      }
+    }
   }
-
 }
