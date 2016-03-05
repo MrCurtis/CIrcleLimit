@@ -39,15 +39,15 @@ object MobiusTransformationTestSuite extends TestSuite{
       assert (returned == expected)
     }
 
-    "equality is determined as an element of PSL(2,C)"-{
+    "almostEquality is determined as an element of PSL(2,C)"-{
       val t1 = MoebiusTransformation(1.0+0.0*i, 2.0-2.0*i, 5.0+0.0*i, 7.0+0.0*i)
       val t2 = MoebiusTransformation(2.0+0.0*i, 4.0-4.0*i, 10.0+0.0*i, 14.0+0.0*i)
       val t3 = MoebiusTransformation(-1.0+0.0*i, -2.0+2.0*i, -5.0+0.0*i, -7.0+0.0*i)
-      assert (t1 equal t2)
-      assert (t1 equal t3)
+      assert (t1 almostEquals t2)
+      assert (t1 almostEquals t3)
     }
 
-    "transformations which are 'close' norm-wise are treated as equal - to ignore rounding"-{
+    "transformations which are 'close' norm-wise are treated as 'almost' equal - to ignore rounding"-{
       val t1 = MoebiusTransformation(
         -0.3062072401072272 + 0.04494168029824927*i,
         1.0085050809181804 + 0.4775894393197067*i,
@@ -60,7 +60,7 @@ object MobiusTransformationTestSuite extends TestSuite{
         -1.531036200536136 + 0.22470840149124627*i,
         1.8456279626238805 + 1.9187422792593445*i  
       )
-      assert (t1 equal t2)
+      assert (t1 almostEquals t2)
     }
 
     "composing two transformations results in the correct transformation"-{
@@ -68,7 +68,7 @@ object MobiusTransformationTestSuite extends TestSuite{
       val t2 = MoebiusTransformation(-1.0+0.0*i, 1.0+0.0*i, 0.0+0.0*i, 1.0*i)
       val expected = MoebiusTransformation(-1.0+0.0*i, 3.0+2.0*i, -5.0+0.0*i, 5.0 + 7.0*i)
       val composed = t1 compose t2
-      assert (composed equal expected)
+      assert (composed almostEquals expected)
     }
 
   }
