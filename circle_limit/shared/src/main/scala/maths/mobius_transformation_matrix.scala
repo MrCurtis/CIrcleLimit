@@ -4,6 +4,7 @@ import spire.math.{
   Complex
 }
 import spire.implicits._
+import Imaginary.i
 
 
 /**
@@ -53,6 +54,18 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
   def det = a*d - b*c
 
   /**
+   * Returns the inverse of the matrix
+   */
+  def inverse = {
+    val k = 1/det
+    new MoebiusTransformationMatrix(
+      k*d, -k*b,
+      -k*c, k*a
+    )
+
+  }
+
+  /**
    * If m is a matrix in GL, the general linear group, then m.returnNormalizedToSL
    * returns the canonical element in the equivalence class of SL, the special linear
    * group, which contains m.
@@ -97,4 +110,9 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
 object MoebiusTransformationMatrix {
   def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
     new MoebiusTransformationMatrix(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
+
+  /**
+   * The identity matrix
+   */
+  val identity = MoebiusTransformationMatrix(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
 }
