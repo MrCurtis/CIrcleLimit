@@ -85,6 +85,13 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
   
 }
 object MoebiusTransformation {
+
   def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
     new MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
+
+  /**
+   * The identity transformation.
+   */
+  val identity = MoebiusTransformation(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+
 }

@@ -71,5 +71,13 @@ object MobiusTransformationTestSuite extends TestSuite{
       assert (composed almostEquals expected)
     }
 
+    "has an identity element" - {
+      val expected = MoebiusTransformation(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+
+      val returned = MoebiusTransformation.identity
+
+      assert (expected almostEquals returned)
+    }
+
   }
 }
