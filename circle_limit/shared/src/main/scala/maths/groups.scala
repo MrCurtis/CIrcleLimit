@@ -28,8 +28,16 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
    * Returns the images of the geodesic under the elements of the group
    * corresponding to words of length less than or equal to wordLength.
    */
-  def getImagesOfGeodesic(geodesic: Geodesic): Set[Geodesic]= {
-    elements map (t => t.transform(geodesic))
+  def getImagesOfGeodesic(geodesic: Geodesic): Set[Geodesic] = {
+    elements map (t => t transform geodesic )
+  }
+
+  /**
+   * Returns the images of all the geodesics under all the elements of the group
+   * corresponding to words of length less than or equal to wordLength.
+   */
+  def getImagesOfGeodesics(geodesics: Set[Geodesic]): Set[Geodesic] = {
+      geodesics flatMap getImagesOfGeodesic
   }
 
   private def allWordsOfLength(wordLength: Int) = {

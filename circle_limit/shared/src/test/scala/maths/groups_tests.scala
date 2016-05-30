@@ -120,9 +120,67 @@ object GroupTestSuite extends TestSuite {
         (transform2Inverse compose transform1).transform(geodesic),
         (transform2Inverse compose transform1Inverse).transform(geodesic)
       )
+
       val returned = group.getImagesOfGeodesic(geodesic)
 
       assert ( expected == returned )
+    }
+
+    "getImagesOfGeodesics returns the images of the geodesics under the group" - {
+      val identity = MoebiusTransformation(1.0, 0.0, 0.0, 1.0)
+      val transform1 = MoebiusTransformation(3.0, 2.0+1.0*i, 2.0-1.0*i, 3.0)
+      val transform1Inverse = MoebiusTransformation(3.0, -2.0-1.0*i, -2.0+1.0*i, 3.0)
+      val transform2 = MoebiusTransformation(3.0, 2.0-1.0*i, 2.0+1.0*i, 3.0)
+      val transform2Inverse = MoebiusTransformation(3.0, -2.0+1.0*i, -2.0-1.0*i, 3.0)
+      val wordLength = 2
+      val group = Group(List(transform1, transform2), wordLength)
+      val geodesic1 = Geodesic(Complex[Double](-1.0, 0.0), Complex[Double](0.0, 1.0), SpaceType.PoincareDisc)
+      val geodesic2 = Geodesic(Complex[Double](-1.0, 0.0), Complex[Double](0.0, -1.0), SpaceType.PoincareDisc)
+      val geodesics = Set(geodesic1, geodesic2)
+
+      val expected = Set(
+        identity.transform(geodesic1),
+        transform1.transform(geodesic1),
+        transform1Inverse.transform(geodesic1),
+        transform2.transform(geodesic1),
+        transform2Inverse.transform(geodesic1),
+
+        (transform1 compose transform1).transform(geodesic1),
+        (transform1 compose transform2).transform(geodesic1),
+        (transform1 compose transform2Inverse).transform(geodesic1),
+        (transform1Inverse compose transform1Inverse).transform(geodesic1),
+        (transform1Inverse compose transform2).transform(geodesic1),
+        (transform1Inverse compose transform2Inverse).transform(geodesic1),
+        (transform2 compose transform2).transform(geodesic1),
+        (transform2 compose transform1).transform(geodesic1),
+        (transform2 compose transform1Inverse).transform(geodesic1),
+        (transform2Inverse compose transform2Inverse).transform(geodesic1),
+        (transform2Inverse compose transform1).transform(geodesic1),
+        (transform2Inverse compose transform1Inverse).transform(geodesic1),
+
+        identity.transform(geodesic2),
+        transform1.transform(geodesic2),
+        transform1Inverse.transform(geodesic2),
+        transform2.transform(geodesic2),
+        transform2Inverse.transform(geodesic2),
+
+        (transform1 compose transform1).transform(geodesic2),
+        (transform1 compose transform2).transform(geodesic2),
+        (transform1 compose transform2Inverse).transform(geodesic2),
+        (transform1Inverse compose transform1Inverse).transform(geodesic2),
+        (transform1Inverse compose transform2).transform(geodesic2),
+        (transform1Inverse compose transform2Inverse).transform(geodesic2),
+        (transform2 compose transform2).transform(geodesic2),
+        (transform2 compose transform1).transform(geodesic2),
+        (transform2 compose transform1Inverse).transform(geodesic2),
+        (transform2Inverse compose transform2Inverse).transform(geodesic2),
+        (transform2Inverse compose transform1).transform(geodesic2),
+        (transform2Inverse compose transform1Inverse).transform(geodesic2)
+      )
+
+      val returned = group.getImagesOfGeodesics(geodesics)
+
+      assert (expected == returned)
     }
 
   }
