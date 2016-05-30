@@ -79,6 +79,23 @@ object MobiusTransformationMatrixTestSuite extends TestSuite {
         "Cannot normalize matrix with determinant zero.")=>
       }
     }
+
+    "has an identity element" - {
+      val expected = MoebiusTransformationMatrix(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+
+      val returned = MoebiusTransformationMatrix.identity
+
+      assert (expected equals returned)
+    }
+
+    "each element has an inverse" - {
+      val matrix = MoebiusTransformationMatrix(
+        2.0+0.0*i, 0.0+1.0*i,
+        0.0+4.0*i, 0.0+2.0*i
+      )
+
+      assert (matrix * matrix.inverse equals MoebiusTransformationMatrix.identity)
+    }
   
   }
 }

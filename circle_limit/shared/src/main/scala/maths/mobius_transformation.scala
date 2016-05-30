@@ -64,14 +64,13 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
   }
 
   /**
-   * Equality is defined up to equivalence class of PSL(2,C)
+   * Almost equality is defined up to equivalence class of PSL(2,C)
    *
    * To avoid problems due to rounding errors we consider two transformations
-   * to be equal when they are 'close' with respect to the standard norm
-   * on PSL(2,C). This is not really a good defininition of 'equal' as it is
-   * not transitive.
+   * to be almost equal when they are 'close' with respect to the standard norm
+   * on PSL(2,C). This is not a true equality relation as it is not transitive.
    */
-  def equal(that: MoebiusTransformation): Boolean = {
+  def almostEquals(that: MoebiusTransformation): Boolean = {
     val errorBounds = 0.0000000000001
     val mt1 = this.theTransformationMatrix + that.theTransformationMatrix
     val mt2 = this.theTransformationMatrix - that.theTransformationMatrix
@@ -86,6 +85,13 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
   
 }
 object MoebiusTransformation {
+
   def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
     new MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
+
+  /**
+   * The identity transformation.
+   */
+  val identity = MoebiusTransformation(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+
 }
