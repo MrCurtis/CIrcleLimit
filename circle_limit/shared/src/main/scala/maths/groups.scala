@@ -24,6 +24,14 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
    */
   val elements = allWordsOfLength(wordLength)
 
+  /**
+   * Returns the images of the geodesic under the elements of the group
+   * corresponding to words of length less than or equal to wordLength.
+   */
+  def getImagesOfGeodesic(geodesic: Geodesic): Set[Geodesic]= {
+    elements map (t => t.transform(geodesic))
+  }
+
   private def allWordsOfLength(wordLength: Int) = {
     def allWordsRecurse(
         left: MoebiusTransformationMatrix,
@@ -42,7 +50,6 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
         Set(composed)
       }
     }
-    println("This bit get calledd")
     val id = MoebiusTransformationMatrix.identity
     allWordsRecurse(id, id, wordLength) map (m => MoebiusTransformation(m.a, m.b, m.c, m.d))
   }
