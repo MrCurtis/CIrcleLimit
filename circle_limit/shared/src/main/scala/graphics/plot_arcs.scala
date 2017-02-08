@@ -113,9 +113,19 @@ object ArcPlotter {
         val radius = (transformedStart - transformedCentre).abs
         val startAngle = (transformedStart - transformedCentre).arg
         val endAngle = (transformedFinish - transformedCentre).arg
-        "new Arc(%f, %f, %f, %f, %f, true).stroke('black', 2).addTo(stage);".format(
-          x, y, radius, startAngle, endAngle
-        )
+        val startX = transformedStart.real
+        val startY = transformedStart.imag
+        val finishX = transformedFinish.real
+        val finishY = transformedFinish.imag
+        //val string = "new Arc(%f, %f, %f, %f, %f, true).stroke('black', 2).addTo(stage);".format(
+          //x, y, radius, startAngle, endAngle
+        //)
+        //val string = "new Arc(250.0, 200.0, 100.0, 2.14, 3.14, false).stroke('black', 2).addTo(stage);new Circle(250, 200, 90).stroke('black', 2).addTo(stage);"
+        //val string = "new Circle(250, 200, 90).stroke('black', 2).addTo(stage);"
+        //val string = "new Arc(500.000000, 400.000000, 200.000000, 0.000000, 1.570796, true).stroke('black', 2).addTo(stage);" 
+        val string = "new Path().moveTo(%f, %f).arcTo(%f, %f, 0, 0, 0, %f, %f).stroke('black', 2).addTo(stage);".format(startX, startY, radius, radius, finishX, finishY)
+        println(string)
+        string
       }
       case line: Line => {
         val transformedStart = transformComplex(line.start)
