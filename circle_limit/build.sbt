@@ -19,6 +19,9 @@ lazy val circleLimit = crossProject.in(file(".")).
     libraryDependencies += "org.spire-math" %%% "spire" % "0.11.0",
     libraryDependencies += "com.lihaoyi" %%% "utest" % "0.3.1" % Test,
     libraryDependencies += "org.seleniumhq.selenium" % "selenium-java" % "2.53.0" % Test
+  ).
+  jsSettings(
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1"
   )
 
 lazy val circleLimitJVM = circleLimit.jvm
