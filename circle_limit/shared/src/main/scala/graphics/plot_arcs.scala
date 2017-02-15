@@ -124,7 +124,6 @@ object ArcPlotter {
         //val string = "new Circle(250, 200, 90).stroke('black', 2).addTo(stage);"
         //val string = "new Arc(500.000000, 400.000000, 200.000000, 0.000000, 1.570796, true).stroke('black', 2).addTo(stage);" 
         val string = "new Path().moveTo(%f, %f).arcTo(%f, %f, 0, 0, 0, %f, %f).stroke('black', 2).addTo(stage);".format(startX, startY, radius, radius, finishX, finishY)
-        println(string)
         string
       }
       case line: Line => {
