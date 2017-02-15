@@ -49,7 +49,8 @@ object CreateConstructorCallStringTestSuite extends TestSuite {
         simpleTestTransform _
       )
       val expected =
-        "new Arc(0.000000, 0.000000, 2.000000, 3.141593, -1.570796, true).stroke('black', 2).addTo(stage);"
+        "new Path().moveTo(-2.000000, 0.000000).arcTo(2.000000, 2.000000, 0, 0, 0, 0.000000, -2.000000)"+
+        ".stroke('black', 2).addTo(stage);"
       assert (returned == expected)
     }
 
