@@ -52,11 +52,28 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
   }
 
   /**
+   * If m is a matrix in GL, the general linear group, then m.returnNormalizedToSL
+   * returns the canonical element in the equivalence class of SL, the special linear
+   * group, which contains m.
+   *
+   * Canonical representives of a matrix in SL(2,C) have determinant
+   * equal to one.
+   */
+  private def returnNormalizedToSL(mat: MoebiusTransformationMatrix) = {
+    val d = mat.det
+    if (d == 0.0) throw NonInvertibleMatrixException(
+      "Cannot normalize matrix with determinant zero."
+    ) 
+    val scalar = MoebiusTransformationMatrix(1.0/d.sqrt, Complex(0.0+0.0), Complex(0.0+0.0), 1.0/d.sqrt)
+    scalar * mat
+  }
+
+  /**
    * The transformation represented as an element of PSL(2,C).
    */
   val theTransformationMatrix = {
     try {
-      MoebiusTransformationMatrix(a, b, c, d).returnNormalizedToSL
+      returnNormalizedToSL(MoebiusTransformationMatrix(a, b, c, d))
     } catch {
       case NonInvertibleMatrixException(_) => throw 
         NonInvertibleMatrixException("Attempting to create a non-invertible transformation.") 
