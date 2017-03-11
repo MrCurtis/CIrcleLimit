@@ -64,23 +64,6 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
     )
 
   }
-
-  /**
-   * If m is a matrix in GL, the general linear group, then m.returnNormalizedToSL
-   * returns the canonical element in the equivalence class of SL, the special linear
-   * group, which contains m.
-   *
-   * Canonical representives of a matrix in SL(2,C) have determinant
-   * equal to one.
-   */
-  def returnNormalizedToSL = {
-    val d = this.det
-    if (d == 0.0) throw NonInvertibleMatrixException(
-      "Cannot normalize matrix with determinant zero."
-    ) 
-    val scalar = MoebiusTransformationMatrix(1.0/d.sqrt, Complex(0.0+0.0), Complex(0.0+0.0), 1.0/d.sqrt)
-    scalar * this
-  }
   
   override def hashCode: Int = 
     41 * (

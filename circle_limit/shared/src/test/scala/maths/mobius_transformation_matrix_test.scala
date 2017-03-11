@@ -53,33 +53,6 @@ object MobiusTransformationMatrixTestSuite extends TestSuite {
       assert (m1.det == detOfm1)
     }
 
-    "returnNormalizedToSL returns the canonical element of SL if matrix invertible" - {
-      val m1  = MoebiusTransformationMatrix(0.4+1.0*i, 23.0-0.1*i, -12.0+109.0*i, 0.0+1.0*i)
-      val sqrtOfDetOfm1 = 37.32136137188219-33.597381068330606*i
-      val normalizedM1 = MoebiusTransformationMatrix(
-        (0.4+1.0*i) / sqrtOfDetOfm1,
-        (23.0-0.1*i) / sqrtOfDetOfm1,
-        (-12.0+109.0*i) / sqrtOfDetOfm1,
-        (0.0+1.0*i) / sqrtOfDetOfm1)
-      //We consider difference to deal with precision errors
-      val difference = m1.returnNormalizedToSL - normalizedM1
-      val error_margin = 0.00000000001
-      assert (difference.a.abs < error_margin)
-      assert (difference.b.abs < error_margin)
-      assert (difference.c.abs < error_margin)
-      assert (difference.d.abs < error_margin)
-    }
-
-    "returnNormalizedToSL throws exception if matrix not invertible" - {
-      val t = MoebiusTransformationMatrix(1.0+0.0*i, 1.0+0.0*i, 2.0+2.0*i, 2.0+2.0*i)
-      val e = intercept[NonInvertibleMatrixException]{
-        t.returnNormalizedToSL
-      }
-      assertMatch(e) {case NonInvertibleMatrixException(
-        "Cannot normalize matrix with determinant zero.")=>
-      }
-    }
-
     "has an identity element" - {
       val expected = MoebiusTransformationMatrix(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
 
