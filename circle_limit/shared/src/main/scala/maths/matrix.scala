@@ -90,12 +90,26 @@ class Matrix[F: Field](val a: F, val b: F, val c: F, val d:F) {
   }
 }
 
+//TODO - This is almost certainly not a good way to implement comlpex and double matrices.
 object ComplexMatrix {
 
   type ComplexMatrix = Matrix[Complex[Double]]
 
   def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
     new Matrix(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
+
+  /**
+   * The identity matrix
+   */
+  val identity = new Matrix(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+}
+
+object DoubleMatrix {
+
+  type DoubleMatrix = Matrix[Double]
+
+  def apply(a: Double, b: Double, c: Double, d: Double) = 
+    new Matrix(a: Double, b: Double, c: Double, d: Double)
 
   /**
    * The identity matrix
