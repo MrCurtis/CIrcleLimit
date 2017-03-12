@@ -3,23 +3,23 @@ package circle_limit.maths
 import spire.math.{
   Complex
 }
+import spire.algebra.Field
 import spire.implicits._
 import Imaginary.i
 
 
 /**
- * A two by two complex matrix used to represent a Moebius Transformation.
- *
- * The class is kept simple and only has the functionality needed for the
- * MoebiusTransformation class.
+ * A simple implementation of a two-by-two matrix. This is kept
+ * purposefully simple and only has the features needed elsewhere in the
+ * code.
  */
-class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double], val c: Complex[Double], val d:Complex[Double]) {
+class Matrix[F: Field](val a: F, val b: F, val c: F, val d:F) {
 
   /**
    * Matrix multiplication.
    */
-  def *(that: MoebiusTransformationMatrix) = 
-    new MoebiusTransformationMatrix(
+  def *(that: Matrix[F]) = 
+    new Matrix(
       this.a * that.a + this.b * that.c,
       this.a * that.b + this.b * that.d,
       this.c * that.a + this.d * that.c,
@@ -29,8 +29,8 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
   /*
    * Component-wise addition.
    */
-  def +(that: MoebiusTransformationMatrix) = 
-    new MoebiusTransformationMatrix(
+  def +(that: Matrix[F]) = 
+    new Matrix(
       this.a + that.a,
       this.b + that.b,
       this.c + that.c,
@@ -40,8 +40,8 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
   /**
    * Component-wise subtraction.
    */
-  def -(that: MoebiusTransformationMatrix) = 
-    new MoebiusTransformationMatrix(
+  def -(that: Matrix[F]) = 
+    new Matrix(
       this.a - that.a,
       this.b - that.b,
       this.c - that.c,
@@ -58,7 +58,7 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
    */
   def inverse = {
     val k = 1/det
-    new MoebiusTransformationMatrix(
+    new Matrix(
       k*d, -k*b,
       -k*c, k*a
     )
@@ -74,7 +74,7 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
       ) + c.hashCode
     ) + d.hashCode
 
-  def canEqual(other: Any) = other.isInstanceOf[MoebiusTransformationMatrix]
+  def canEqual(other: Any) = other.isInstanceOf[Matrix[F]]
 
   /**
    * Transformation matrices are equal iff their elements are equal.
@@ -83,19 +83,22 @@ class MoebiusTransformationMatrix(val a: Complex[Double], val b: Complex[Double]
    * before the matrices are compared.
    */
   override def equals (that: Any) = that match {
-    case that: MoebiusTransformationMatrix => 
+    case that: Matrix[F] => 
       (that canEqual this) &&
       this.a == that.a && this.b == that.b && this.c == that.c && this.d == that.d
     case _ => false
   }
 }
 
-object MoebiusTransformationMatrix {
+object ComplexMatrix {
+
+  type ComplexMatrix = Matrix[Complex[Double]]
+
   def apply(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double]) = 
-    new MoebiusTransformationMatrix(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
+    new Matrix(a: Complex[Double], b: Complex[Double], c: Complex[Double], d: Complex[Double])
 
   /**
    * The identity matrix
    */
-  val identity = MoebiusTransformationMatrix(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
+  val identity = new Matrix(1.0+0.0*i, 0.0 +0.0*i, 0.0+0.0*i, 1.0+0.0*i)
 }

@@ -6,6 +6,7 @@ import spire.math.{
 import spire.implicits._
 
 import Imaginary.i
+import ComplexMatrix.ComplexMatrix
 
 /**
  * A Moebius transformation of form az+b/cz+d.
@@ -59,12 +60,12 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
    * Canonical representives of a matrix in SL(2,C) have determinant
    * equal to one.
    */
-  private def returnNormalizedToSL(mat: MoebiusTransformationMatrix) = {
+  private def returnNormalizedToSL(mat: ComplexMatrix) = {
     val d = mat.det
     if (d == 0.0) throw NonInvertibleMatrixException(
       "Cannot normalize matrix with determinant zero."
     ) 
-    val scalar = MoebiusTransformationMatrix(1.0/d.sqrt, Complex(0.0+0.0), Complex(0.0+0.0), 1.0/d.sqrt)
+    val scalar = ComplexMatrix(1.0/d.sqrt, Complex(0.0+0.0), Complex(0.0+0.0), 1.0/d.sqrt)
     scalar * mat
   }
 
@@ -73,7 +74,7 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
    */
   val theTransformationMatrix = {
     try {
-      returnNormalizedToSL(MoebiusTransformationMatrix(a, b, c, d))
+      returnNormalizedToSL(ComplexMatrix(a, b, c, d))
     } catch {
       case NonInvertibleMatrixException(_) => throw 
         NonInvertibleMatrixException("Attempting to create a non-invertible transformation.") 
@@ -97,7 +98,7 @@ class MoebiusTransformation(a: Complex[Double], b: Complex[Double], c: Complex[D
   /**
    * The standard norm on PSL(2,C)
    */
-  private def matrixNorm(m: MoebiusTransformationMatrix): Double =
+  private def matrixNorm(m: ComplexMatrix): Double =
     (m.a.abs*m.a.abs + m.b.abs*m.b.abs + m.c.abs*m.c.abs + m.d.abs*m.d.abs).sqrt
   
 }
