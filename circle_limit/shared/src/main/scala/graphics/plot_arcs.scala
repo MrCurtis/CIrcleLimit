@@ -1,6 +1,7 @@
 package circle_limit.graphics
 
 import spire.math.Complex
+import spire.math.min
 import spire.implicits._
 
 import circle_limit.maths.{
@@ -8,11 +9,35 @@ import circle_limit.maths.{
   Curve,
   Line
 }
+import circle_limit.maths.DoubleMatrix
+import circle_limit.maths.DoubleMatrix.DoubleMatrix
 
 object ArcPlotter {
 
   /**
-   * Maps a rectangle in the mathematical space to a rectangle in the graphical space.
+   * Maps a rectangle in the mathematical space to into a rectangle in the graphical space.
+   *
+   * The mathematical rectangle in to the graphical rectangle in such a way that:
+   *   1 - The image of the mathematical rectangle is also a rectangle with the same aspect ratio
+   *     as the original. 
+   *   2 - The image of the mathematical rectangle takes up the maximum possible area in the 
+   *     graphical rectangle.
+   *     This means that:
+   *       - If the aspect ratio of the graphical rectangle is wider than that of the mathematical
+   *       rectangle then the tops of the graphical rectangle and the image of the mathematical
+   *       rectangle will be so linear, and similarly with the bottom edges.
+   *       - If the aspect ratio of the mathematical rectangle is wider than that of the graphical
+   *       rectangle then the left edges of the graphical rectangle and the image of the
+   *       mathematical rectangle will be co-linear, and similarly with the right edges.
+   *  3 - The centres of the graphical rectangle and the image of the mathematical rectangles
+   *    coincide.
+   *  4 - The image of the mathematical rectangle is upside down. In other words the lower edge of
+   *    the mathematical rectangle is mapped closer to the upper edge of the graphical rectangle
+   *    than the lower edge of the graphical rectangle. This is to account for the fact that in a
+   *    mathematical context the y-axis points upwards, whereas for in a graphics context - and
+   *    particularly with regard to positioning on a web-page - the y-axis points downward.
+   *
+   *  NOTE - This function is the inverse of convertFromGraphicalToMathematicalSpace.
    */
   def convertFromMathematicalToGraphicalSpace(
       mathematicalBottomLeft: (Double, Double),
@@ -23,58 +48,22 @@ object ArcPlotter {
       graphicalHeight: Double,
       point: (Double, Double)
   ): (Double, Double) = {
-    def aspectRatio(width: Double, height: Double) = width/height
-    def translateTopLeftToOrigin(z: Complex[Double]) = {
-      val a = Complex(mathematicalBottomLeft._1, mathematicalBottomLeft._2)
-      val b = Complex(0, mathematicalHeight)
-      z - a - b
-    }
-    def scaleSoHeightIsGraphicalHeight(z: Complex[Double]) = {
-      val k = graphicalHeight / mathematicalHeight
-      k * z
-    }
-    def scaleSoWidthIsGraphicalWidth(z: Complex[Double]) = {
-      val k = graphicalWidth / mathematicalWidth
-      k * z
-    }
-    def reflectInXAxis(z: Complex[Double]) = Complex(z.real, -z.imag)
-    def translateToBottomLeftOfGraphical(z: Complex[Double]) = {
-      val w = Complex(graphicalTopLeft._1, graphicalTopLeft._2)
-      z + w
-    }
-    def translateHorizontallyToCentreOfGraphical(z: Complex[Double]) = {
-      val k = graphicalHeight / mathematicalHeight
-      val x = Complex((graphicalWidth - k*mathematicalWidth)/2, 0.0)
-      z + x
-    }
-    def translateVerticallyToCentreOfGraphical(z: Complex[Double]) = {
-      val k = graphicalWidth / mathematicalWidth
-      val x = Complex(0.0, (graphicalHeight - k*mathematicalHeight)/2)
-      z + x
-    }
-    val transformWhenAspectOfMathematicalIsLessThanOrEqualToGraphical = {
-      translateTopLeftToOrigin _ andThen 
-      scaleSoHeightIsGraphicalHeight _ andThen 
-      reflectInXAxis _ andThen 
-      translateToBottomLeftOfGraphical _ andThen 
-      translateHorizontallyToCentreOfGraphical _
-    }
-    val transformWhenAspectOfMathematicalIsGreaterThanGraphical = {
-      translateTopLeftToOrigin _ andThen 
-      scaleSoWidthIsGraphicalWidth _ andThen 
-      reflectInXAxis _ andThen 
-      translateToBottomLeftOfGraphical _ andThen 
-      translateVerticallyToCentreOfGraphical _
-    }
+    def convertComplexToVector(complex: Complex[Double]) = (complex.real, complex.imag)
+    def convertVectorToComplex(vector: (Double, Double)) = Complex(vector._1, vector._2)
+    val centreOfMathsBox = Complex(
+      mathematicalBottomLeft._1+mathematicalWidth/2,
+      mathematicalBottomLeft._2+mathematicalHeight/2
+    )
+    val centreOfGraphicsBox = Complex(
+      graphicalTopLeft._1+graphicalWidth/2,
+      graphicalTopLeft._2+graphicalHeight/2
+    )
+    val scaleFactor = min(graphicalWidth/mathematicalWidth, graphicalHeight/mathematicalHeight)
+    def transform(z: Complex[Double]) = scaleFactor*(z - centreOfMathsBox).conjugate + centreOfGraphicsBox
 
-    val z = Complex(point._1, point._2)
-    val resultAsComplex = if (
-      aspectRatio(mathematicalWidth, mathematicalHeight) > aspectRatio(graphicalWidth, graphicalHeight)) {
-        transformWhenAspectOfMathematicalIsGreaterThanGraphical(z)
-      }else{
-        transformWhenAspectOfMathematicalIsLessThanOrEqualToGraphical(z)
-      }
-    (resultAsComplex.real, resultAsComplex.imag)
+    convertComplexToVector(
+      transform(
+        convertVectorToComplex(point)))
   }
 
   /**
