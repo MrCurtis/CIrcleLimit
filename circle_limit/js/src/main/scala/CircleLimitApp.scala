@@ -34,7 +34,7 @@ object CircleLimitApp {
       (0.0, 0.0),
       displayWidth,
       displayHeight,
-      _ : (Double, Double)
+      _ : Complex[Double]
     )
 
     val identity = MoebiusTransformation(1.0, 0.0, 0.0, 1.0)

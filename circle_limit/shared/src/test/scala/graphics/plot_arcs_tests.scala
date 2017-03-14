@@ -12,7 +12,7 @@ import circle_limit.maths.{Arc, Line}
 
 object CreateConstructorStringFromListTestSuite extends TestSuite {
 
-  def simpleTestTransform(z: (Double, Double)) = (2*z._1, 2*z._2)
+  def simpleTestTransform(z: Complex[Double]) = Vector(2*z.real, 2*z.imag)
 
   val tests = TestSuite {
 
@@ -40,7 +40,7 @@ object CreateConstructorStringFromListTestSuite extends TestSuite {
 
 object CreateConstructorCallStringTestSuite extends TestSuite {
 
-  def simpleTestTransform(z: (Double, Double)) = (2*z._1, 2*z._2)
+  def simpleTestTransform(z: Complex[Double]) = Vector(2*z.real, 2*z.imag)
 
   val tests = TestSuite{
 
@@ -76,8 +76,8 @@ object ConvertFromMathematicalToGraphicalSpaceTestSuite extends TestSuite {
 
   def square = pow(_: Double, 2)
 
-  def d(w:(Double, Double), z:(Double, Double)): Double = {
-    sqrt(square(w._1 - z._1) + square(w._2 - z._2))
+  def d(w:Vector, z:Vector): Double = {
+    sqrt(square(w.x - z.x) + square(w.y - z.y))
   }
 
   val tests = TestSuite {
@@ -96,14 +96,14 @@ object ConvertFromMathematicalToGraphicalSpaceTestSuite extends TestSuite {
         graphicalTopLeft, 
         graphicalWidth, 
         graphicalHeight, 
-        _: (Double, Double)
+        _: Complex[Double]
       ) 
-      val p1 = (mathematicalBottomLeft._1, mathematicalBottomLeft._2)
-      val p2 = (mathematicalBottomLeft._1 + mathematicalWidth, mathematicalBottomLeft._2)
-      val p3 = (mathematicalBottomLeft._1, mathematicalBottomLeft._2 + mathematicalHeight)
-      val p1Image = (graphicalTopLeft._1 + 100, graphicalTopLeft._2 + graphicalHeight)
-      val p2Image = (graphicalTopLeft._1 + graphicalWidth - 100, graphicalTopLeft._2 + graphicalHeight)
-      val p3Image = (graphicalTopLeft._1 + 100, graphicalTopLeft._2)
+      val p1 = Complex(mathematicalBottomLeft._1, mathematicalBottomLeft._2)
+      val p2 = Complex(mathematicalBottomLeft._1 + mathematicalWidth, mathematicalBottomLeft._2)
+      val p3 = Complex(mathematicalBottomLeft._1, mathematicalBottomLeft._2 + mathematicalHeight)
+      val p1Image = Vector(graphicalTopLeft._1 + 100, graphicalTopLeft._2 + graphicalHeight)
+      val p2Image = Vector(graphicalTopLeft._1 + graphicalWidth - 100, graphicalTopLeft._2 + graphicalHeight)
+      val p3Image = Vector(graphicalTopLeft._1 + 100, graphicalTopLeft._2)
 
       assert ( d(f(p1), p1Image) <= 0.0001 )
       assert ( d(f(p2), p2Image) <= 0.0001 )
@@ -124,14 +124,14 @@ object ConvertFromMathematicalToGraphicalSpaceTestSuite extends TestSuite {
         graphicalTopLeft, 
         graphicalWidth, 
         graphicalHeight, 
-        _: (Double, Double)
+        _: Complex[Double]
       ) 
-      val p1 = (mathematicalBottomLeft._1, mathematicalBottomLeft._2)
-      val p2 = (mathematicalBottomLeft._1 + mathematicalWidth, mathematicalBottomLeft._2)
-      val p3 = (mathematicalBottomLeft._1, mathematicalBottomLeft._2 + mathematicalHeight)
-      val p1Image = (graphicalTopLeft._1, graphicalTopLeft._2 + graphicalHeight - 100)
-      val p2Image = (graphicalTopLeft._1 + graphicalWidth, graphicalTopLeft._2 + graphicalHeight - 100)
-      val p3Image = (graphicalTopLeft._1, graphicalTopLeft._2 + 100)
+      val p1 = Complex(mathematicalBottomLeft._1, mathematicalBottomLeft._2)
+      val p2 = Complex(mathematicalBottomLeft._1 + mathematicalWidth, mathematicalBottomLeft._2)
+      val p3 = Complex(mathematicalBottomLeft._1, mathematicalBottomLeft._2 + mathematicalHeight)
+      val p1Image = Vector(graphicalTopLeft._1, graphicalTopLeft._2 + graphicalHeight - 100)
+      val p2Image = Vector(graphicalTopLeft._1 + graphicalWidth, graphicalTopLeft._2 + graphicalHeight - 100)
+      val p3Image = Vector(graphicalTopLeft._1, graphicalTopLeft._2 + 100)
 
       assert ( d(f(p1), p1Image) <= 0.0001 )
       assert ( d(f(p2), p2Image) <= 0.0001 )

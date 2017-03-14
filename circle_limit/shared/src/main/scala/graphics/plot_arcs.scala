@@ -12,6 +12,10 @@ import circle_limit.maths.{
 import circle_limit.maths.DoubleMatrix
 import circle_limit.maths.DoubleMatrix.DoubleMatrix
 
+
+case class Vector(x: Double, y: Double)
+
+
 object ArcPlotter {
 
   /**
@@ -46,9 +50,9 @@ object ArcPlotter {
       graphicalTopLeft: (Double, Double),
       graphicalWidth: Double,
       graphicalHeight: Double,
-      point: (Double, Double)
-  ): (Double, Double) = {
-    def convertComplexToVector(complex: Complex[Double]) = (complex.real, complex.imag)
+      point: Complex[Double]
+  ): Vector = {
+    def convertComplexToVector(complex: Complex[Double]) = Vector(complex.real, complex.imag)
     def convertVectorToComplex(vector: (Double, Double)) = Complex(vector._1, vector._2)
     val centreOfMathsBox = Complex(
       mathematicalBottomLeft._1+mathematicalWidth/2,
@@ -61,9 +65,7 @@ object ArcPlotter {
     val scaleFactor = min(graphicalWidth/mathematicalWidth, graphicalHeight/mathematicalHeight)
     def transform(z: Complex[Double]) = scaleFactor*(z - centreOfMathsBox).conjugate + centreOfGraphicsBox
 
-    convertComplexToVector(
-      transform(
-        convertVectorToComplex(point)))
+    convertComplexToVector( transform(point) )
   }
 
   /**
@@ -74,7 +76,7 @@ object ArcPlotter {
    */
   def createConstructorStringFromList(
     listOfArcs: List[Curve],
-    transform: Function[(Double, Double), (Double, Double)]
+    transform: Function[Complex[Double], Vector]
   ): String = {
     val stringForEachCurve = createConstructorCallString(_: Curve, transform)
     listOfArcs.map(stringForEachCurve).mkString
@@ -86,11 +88,10 @@ object ArcPlotter {
    * The coordinates are transformed by the transform function before being
    * formatted into the string.
    */
-  def createConstructorCallString(curve: Curve, transform: Function[(Double, Double), (Double, Double)]): String = {
+  def createConstructorCallString(curve: Curve, transform: Function[Complex[Double], Vector]): String = {
     def transformComplex(complex: Complex[Double]) = {
-      val pair = (complex.real, complex.imag)
-      val transformedPair = transform(pair)
-      Complex[Double](transformedPair._1, transformedPair._2)
+      val transformedVector = transform(complex)
+      Complex[Double](transformedVector.x, transformedVector.y)
     }
     curve match {
       case arc: Arc => {
@@ -106,12 +107,6 @@ object ArcPlotter {
         val startY = transformedStart.imag
         val finishX = transformedFinish.real
         val finishY = transformedFinish.imag
-        //val string = "new Arc(%f, %f, %f, %f, %f, true).stroke('black', 2).addTo(stage);".format(
-          //x, y, radius, startAngle, endAngle
-        //)
-        //val string = "new Arc(250.0, 200.0, 100.0, 2.14, 3.14, false).stroke('black', 2).addTo(stage);new Circle(250, 200, 90).stroke('black', 2).addTo(stage);"
-        //val string = "new Circle(250, 200, 90).stroke('black', 2).addTo(stage);"
-        //val string = "new Arc(500.000000, 400.000000, 200.000000, 0.000000, 1.570796, true).stroke('black', 2).addTo(stage);" 
         val string = "new Path().moveTo(%f, %f).arcTo(%f, %f, 0, 0, 0, %f, %f).stroke('black', 2).addTo(stage);".format(startX, startY, radius, radius, finishX, finishY)
         string
       }
