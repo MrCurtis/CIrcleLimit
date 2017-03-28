@@ -18,7 +18,7 @@ import circle_limit.maths.{
   SpaceType
 }
 import circle_limit.maths.Imaginary.i
-import circle_limit.graphics.ArcPlotter
+import circle_limit.graphics.{Converter, Box}
 
 @JSExport
 object CircleLimitApp {
@@ -27,15 +27,11 @@ object CircleLimitApp {
 
     val displayWidth = 1500
     val displayHeight = 1000
-    val transform = ArcPlotter.convertFromMathematicalToGraphicalSpace(
-      (-1.0, -1.0),
-      2.0,
-      2.0,
-      (0.0, 0.0),
-      displayWidth,
-      displayHeight,
-      _ : Complex[Double]
+    val converter = Converter(
+      Box(-1.0, -1.0, 2.0, 2.0),
+      Box(0.0, 0.0, displayWidth, displayHeight)
     )
+    val transform = converter.convertFromMathematicalToGraphicalSpace _
 
     val identity = MoebiusTransformation(1.0, 0.0, 0.0, 1.0)
     val transform1 = MoebiusTransformation(3.0, 2.0+1.0*i, 2.0-1.0*i, 3.0)
@@ -52,7 +48,7 @@ object CircleLimitApp {
     val allCurves = allGeodesics map (g => g.asCurve)
 
     val inputList = allCurves.toList
-    val curveString = ArcPlotter.createConstructorStringFromList(
+    val curveString = Converter.createConstructorStringFromList(
       inputList,
       transform
     )

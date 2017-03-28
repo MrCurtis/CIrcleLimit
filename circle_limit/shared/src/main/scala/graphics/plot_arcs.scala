@@ -16,12 +16,20 @@ import circle_limit.maths.DoubleMatrix.DoubleMatrix
 case class Vector(x: Double, y: Double)
 
 
-object ArcPlotter {
+/** 
+ *  Used to represent a rectangle.
+ */
+case class Box(originX: Double, originY: Double, width: Double, height: Double)
+
+
+class Converter (mathsBox: Box, graphicsBox: Box){
 
   /**
-   * Maps a rectangle in the mathematical space to into a rectangle in the graphical space.
+   * We make use of 'boxes' - rectangles with edges parralel to the x and y axes - to define a
+   * transformation between two planes.
    *
-   * The mathematical rectangle in to the graphical rectangle in such a way that:
+   * Given any two boxes - mathsBox and graphicsBox - the mapping is the unique Euclidean
+   * transformation which satisfies the following:
    *   1 - The image of the mathematical rectangle is also a rectangle with the same aspect ratio
    *     as the original. 
    *   2 - The image of the mathematical rectangle takes up the maximum possible area in the 
@@ -40,35 +48,41 @@ object ArcPlotter {
    *    than the lower edge of the graphical rectangle. This is to account for the fact that in a
    *    mathematical context the y-axis points upwards, whereas for in a graphics context - and
    *    particularly with regard to positioning on a web-page - the y-axis points downward.
-   *
-   *  NOTE - This function is the inverse of convertFromGraphicalToMathematicalSpace.
    */
-  def convertFromMathematicalToGraphicalSpace(
-      mathematicalBottomLeft: (Double, Double),
-      mathematicalWidth: Double,
-      mathematicalHeight: Double,
-      graphicalTopLeft: (Double, Double),
-      graphicalWidth: Double,
-      graphicalHeight: Double,
-      point: Complex[Double]
-  ): Vector = {
-    def convertComplexToVector(complex: Complex[Double]) = Vector(complex.real, complex.imag)
-    def convertVectorToComplex(vector: (Double, Double)) = Complex(vector._1, vector._2)
-    val centreOfMathsBox = Complex(
-      mathematicalBottomLeft._1+mathematicalWidth/2,
-      mathematicalBottomLeft._2+mathematicalHeight/2
-    )
-    val centreOfGraphicsBox = Complex(
-      graphicalTopLeft._1+graphicalWidth/2,
-      graphicalTopLeft._2+graphicalHeight/2
-    )
-    val scaleFactor = min(graphicalWidth/mathematicalWidth, graphicalHeight/mathematicalHeight)
-    def transform(z: Complex[Double]) = scaleFactor*(z - centreOfMathsBox).conjugate + centreOfGraphicsBox
+  private def convertComplexToVector(complex: Complex[Double]) = Vector(complex.real, complex.imag)
+  private def convertVectorToComplex(vector: Vector) = Complex(vector.x, vector.y)
+  private val centreOfMathsBox = Complex(
+    mathsBox.originX+mathsBox.width/2,
+    mathsBox.originY+mathsBox.height/2
+  )
+  private val centreOfGraphicsBox = Complex(
+    graphicsBox.originX+graphicsBox.width/2,
+    graphicsBox.originY+graphicsBox.height/2
+  )
+  private val scaleFactor = min(graphicsBox.width/mathsBox.width, graphicsBox.height/mathsBox.height)
 
+  /*
+   * Converts a single point from mathematical space to graphical space.
+   */
+  def convertFromMathematicalToGraphicalSpace(point: Complex[Double]): Vector = {
+    def transform(z: Complex[Double]) = scaleFactor*(z - centreOfMathsBox).conjugate + centreOfGraphicsBox
     convertComplexToVector( transform(point) )
   }
 
+  /*
+   * Converts a single point from graphical to mathematical space.
+   */
+  def convertFromGraphicalToMathematicalSpace(point: Vector): Complex[Double] = {
+    val z = convertVectorToComplex(point)
+    (z - centreOfGraphicsBox).conjugate/scaleFactor + centreOfMathsBox
+  }
+}
+
+object Converter {
+  def apply(mathsBox: Box, graphicsBox: Box) = new Converter(mathsBox, graphicsBox)
+
   /**
+   * DEPRECATED
    * Creates a string calling the JS constructor on each of the curves.
    *
    * The coordinates are transformed by the transform function before being
@@ -83,6 +97,7 @@ object ArcPlotter {
   }
 
   /**
+   * DEPRECATED
    * Creates a string representation of a bonsai contructor call.
    *
    * The coordinates are transformed by the transform function before being
