@@ -1,5 +1,7 @@
 package circle_limit.graphics
 
+import scala.math.round
+
 import spire.math.Complex
 import spire.math.min
 import spire.implicits._
@@ -75,6 +77,57 @@ class Converter (mathsBox: Box, graphicsBox: Box){
   def convertFromGraphicalToMathematicalSpace(point: Vector): Complex[Double] = {
     val z = convertVectorToComplex(point)
     (z - centreOfGraphicsBox).conjugate/scaleFactor + centreOfMathsBox
+  }
+
+  /*
+   * Takes the d attribute of an svg element and converts it in to an Arc instance.
+   */
+  def convertSvgToArc(svg: String): Arc = {
+    val regex = """^M (\d+), (\d+) A (\d+), (\d+), 0, 0, 0, (\d+), (\d+)$""".r
+    svg match {
+      case regex(initialX, initialY, radX, radY, finalX, finalY) => {
+        Arc(
+          startFromInitial(initialX, initialY),
+          finishFromFinal(finalX, finalY),
+          centreFromInitialFinalAndRadius(initialX, initialY, finalX, finalY, radX)
+        )
+      }
+    }
+  }
+
+  /*
+   * Takes an Arc instance and creates the corresponding d attribute of the svg element.
+   */
+  def convertArcToSvg(arc: Arc) = {
+    val radX = (arc.centre-arc.start).abs * scaleFactor
+    val initial = convertFromMathematicalToGraphicalSpace(arc.start)
+    val finall = convertFromMathematicalToGraphicalSpace(arc.finish)
+    "M %d, %d A %d, %d, 0, 0, 0, %d, %d".format(
+      round(initial.x),
+      round(initial.y),
+      round(radX),
+      round(radX),
+      round(finall.x),
+      round(finall.y))
+  }
+
+  private def startFromInitial(initialX: String, initialY: String) =
+    convertFromGraphicalToMathematicalSpace(Vector(initialX.toDouble, initialY.toDouble))
+
+  private def finishFromFinal(finalX: String, finalY: String) =
+    convertFromGraphicalToMathematicalSpace(Vector(finalX.toDouble, finalY.toDouble))
+
+  private def radiusFromRadX(radX: String) = radX.toDouble / scaleFactor
+
+  private def centreFromInitialFinalAndRadius(
+      initialX: String,
+      initialY: String,
+      finalX: String,
+      finalY: String,
+      radX: String) = {
+    val radius = radiusFromRadX(radX)
+    val z = finishFromFinal(finalX, finalY) - startFromInitial(initialX, initialY)
+    startFromInitial(initialX, initialY) + z/2.0*(1 + Complex(0.0, 1.0)*(4*radius*radius - z.abs*z.abs).sqrt/z.abs)
   }
 }
 

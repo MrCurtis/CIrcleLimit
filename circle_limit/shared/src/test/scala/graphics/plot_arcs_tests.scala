@@ -161,5 +161,29 @@ object ConverterTestSuite extends TestSuite {
         assert ( (f(p3)-p3Image).abs <= 0.0001 )
       }
     }
+
+    "Converts SVG for an arc to Arc" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val svg = "M 100, 0 A 100, 100, 0, 0, 0, 200, 100"
+      val expectedArc = Arc(Complex(0,1), Complex(1,0), Complex(1,1))
+
+      val returnedArc = Converter(mathsBox, graphicsBox).convertSvgToArc(svg)
+
+      assert ((returnedArc.start-expectedArc.start).abs < 0.0001)
+      assert ((returnedArc.finish-expectedArc.finish).abs < 0.0001)
+      assert ((returnedArc.centre-expectedArc.centre).abs < 0.0001)
+    }
+    "Converts Arc to SVG for an arc" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val arc = Arc(Complex(0,1), Complex(1,0), Complex(1,1))
+      val expectedSvg = "M 100, 0 A 100, 100, 0, 0, 0, 200, 100"
+
+      val returnedSvg = Converter(mathsBox, graphicsBox).convertArcToSvg(arc)
+
+      assert (expectedSvg == returnedSvg)
+    }
+    
   }
 }
