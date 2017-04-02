@@ -7,7 +7,7 @@ import spire.implicits._
 import utest._
 
 import circle_limit.maths.Imaginary.i
-import circle_limit.maths.{Arc, Line}
+import circle_limit.maths.{Arc, Circle, Line}
 
 
 object CreateConstructorStringFromListTestSuite extends TestSuite {
@@ -183,6 +183,28 @@ object ConverterTestSuite extends TestSuite {
       val returnedSvg = Converter(mathsBox, graphicsBox).convertArcToSvg(arc)
 
       assert (expectedSvg == returnedSvg)
+    }
+
+    "Converts SVG for a circle to a Circle" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val (cx, cy, r) = ("100", "80", "20")
+      val expectedCircle = Circle(Complex(0.0, 0.2), 0.2)
+
+      val returnedCircle = Converter(mathsBox, graphicsBox).convertSvgToCircle(cx, cy, r)
+
+      assert ((returnedCircle.centre-expectedCircle.centre).abs < 0.0001)
+      assert (returnedCircle.radius-expectedCircle.radius < 0.0001)
+    }
+    "Converts Circle to SVG for a circle" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val circle = Circle(Complex(0.0, 0.2), 0.2)
+      val expected = ("100", "80", "20")
+
+      val returned = Converter(mathsBox, graphicsBox).convertCircleToSvg(circle)
+
+      assert (returned == expected)
     }
     
   }

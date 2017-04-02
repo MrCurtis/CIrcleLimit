@@ -8,6 +8,7 @@ import spire.implicits._
 
 import circle_limit.maths.{
   Arc,
+  Circle,
   Curve,
   Line
 }
@@ -63,7 +64,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
   )
   private val scaleFactor = min(graphicsBox.width/mathsBox.width, graphicsBox.height/mathsBox.height)
 
-  /*
+  /**
    * Converts a single point from mathematical space to graphical space.
    */
   def convertFromMathematicalToGraphicalSpace(point: Complex[Double]): Vector = {
@@ -71,7 +72,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
     convertComplexToVector( transform(point) )
   }
 
-  /*
+  /**
    * Converts a single point from graphical to mathematical space.
    */
   def convertFromGraphicalToMathematicalSpace(point: Vector): Complex[Double] = {
@@ -79,7 +80,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
     (z - centreOfGraphicsBox).conjugate/scaleFactor + centreOfMathsBox
   }
 
-  /*
+  /**
    * Takes the d attribute of an svg element and converts it in to an Arc instance.
    */
   def convertSvgToArc(svg: String): Arc = {
@@ -95,7 +96,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
     }
   }
 
-  /*
+  /**
    * Takes an Arc instance and creates the corresponding d attribute of the svg element.
    */
   def convertArcToSvg(arc: Arc) = {
@@ -109,6 +110,24 @@ class Converter (mathsBox: Box, graphicsBox: Box){
       round(radX),
       round(finall.x),
       round(finall.y))
+  }
+
+  /**
+   * Takes the cx, cy, and r attibutes of a circle SVG element and returns a Circle instance.
+   */
+  def convertSvgToCircle(cx: String, cy:String, r:String): Circle = {
+    val centre = convertFromGraphicalToMathematicalSpace(Vector(cx.toDouble, cy.toDouble))
+    val radius = radiusFromRadX(r)
+    Circle(centre, radius)
+  }
+
+  /**
+   * Takes a circle instance and returns the cx, cy, and r attributes of an SVG circle element.
+   */
+  def convertCircleToSvg(circle: Circle) = {
+    val graphicalCentre = convertFromMathematicalToGraphicalSpace(circle.centre)
+    val graphicalRadius = circle.radius * scaleFactor
+    (round(graphicalCentre.x).toString, round(graphicalCentre.y).toString, round(graphicalRadius).toString)
   }
 
   private def startFromInitial(initialX: String, initialY: String) =
