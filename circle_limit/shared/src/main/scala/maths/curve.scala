@@ -6,12 +6,12 @@ import spire.math.{
 import spire.implicits._
 import Imaginary.i
 
-abstract class Curve(val start: Complex[Double], val finish: Complex[Double])
+abstract class Curve
 
 /**
  * Represents a Euclidean line, with end-points start and finish.
  */
-class Line(start: Complex[Double], finish: Complex[Double]) extends Curve(start, finish) {
+class Line(val start: Complex[Double], val finish: Complex[Double]) extends Curve {
 
   def canEqual(other: Any) = other.isInstanceOf[Line]
 
@@ -37,7 +37,7 @@ object Line {
  * be used to represent the segment of a circle with centre z_2, and 
  * radius |z_0 - z_2| drawn anti-clockwise from z_0 to z_1.
  */   
-class Arc(start: Complex[Double], finish: Complex[Double], val centre: Complex[Double]) extends Curve(start, finish) {
+class Arc(val start: Complex[Double], val finish: Complex[Double], val centre: Complex[Double]) extends Curve {
 
   def canEqual(other: Any) = other.isInstanceOf[Arc]
 
@@ -90,4 +90,27 @@ class Arc(start: Complex[Double], finish: Complex[Double], val centre: Complex[D
 }
 object Arc {
   def apply(start: Complex[Double], finish: Complex[Double], centre: Complex[Double]) = new Arc(start, finish, centre)
+}
+
+/**
+ * Represents a Euclidean circle.
+ */
+class Circle(val centre: Complex[Double], val radius: Double) extends Curve {
+
+  def canEqual(other: Any) = other.isInstanceOf[Circle]
+
+  override def hashCode: Int = 
+    41 * (
+      41 + centre.hashCode
+    ) + radius.hashCode
+
+  override def equals(other: Any) = other match {
+    case that: Circle => 
+      (that canEqual this) &&
+      that.centre == this.centre &&
+      that.radius == this.radius
+  }
+}
+object Circle {
+  def apply(centre: Complex[Double], radius: Double) = new Circle(centre, radius)
 }

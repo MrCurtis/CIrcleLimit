@@ -119,3 +119,33 @@ object ArcTestSuite extends TestSuite{
 
   }
 }
+
+
+object CircleTestSuite extends TestSuite {
+  val tests = TestSuite{
+
+    "test can be intantiated"-{
+      val circle = Circle(1.2+3.4*i, 5.6)
+    }
+
+    "values are accesible"-{
+      val circle = Circle(1.2+3.4*i, 5.6)
+      assert (circle.centre == 1.2+3.4*i)
+      assert (circle.radius == 5.6)
+    }
+
+    "two circles are equal if and only if their centres and radii are equal" - {
+      val circle1 = Circle(1.2+3.4*i, 5.6)
+      val circle2 = Circle(1.2+3.4*i, 5.6)
+      val circle3 = Circle(1.2+3.2*i, 5.6)
+      val circle4 = Circle(1.2+3.4*i, 5.8)
+
+      assert (circle1 == circle1)
+      assert (circle1 == circle2)
+      assert (circle1 != circle3)
+      assert (circle1 != circle4)
+      assert (circle3 != circle4)
+    }
+
+  }
+}
