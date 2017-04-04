@@ -25,49 +25,35 @@ object CircleLimitApp {
   @JSExport
   def main(movie: html.Div): Unit = {
 
-    val displayWidth = 1500
-    val displayHeight = 1000
+    val displayWidth = 880
+    val displayHeight = 880
     val converter = Converter(
       Box(-1.0, -1.0, 2.0, 2.0),
       Box(0.0, 0.0, displayWidth, displayHeight)
     )
-    val transform = converter.convertFromMathematicalToGraphicalSpace _
-
-    val identity = MoebiusTransformation(1.0, 0.0, 0.0, 1.0)
-    val transform1 = MoebiusTransformation(3.0, 2.0+1.0*i, 2.0-1.0*i, 3.0)
-    val transform1Inverse = MoebiusTransformation(3.0, -2.0-1.0*i, -2.0+1.0*i, 3.0)
-    val transform2 = MoebiusTransformation(3.0, 2.0-1.0*i, 2.0+1.0*i, 3.0)
-    val transform2Inverse = MoebiusTransformation(3.0, -2.0+1.0*i, -2.0-1.0*i, 3.0)
-    val wordLength = 6
-    val group = Group(List(transform1, transform2), wordLength)
-    val geodesic1 = Geodesic(Complex[Double](-1.0, 0.0), Complex[Double](0.0, 1.0), SpaceType.PoincareDisc)
-    val geodesic2 = Geodesic(Complex[Double](-1.0, 0.0), Complex[Double](0.0, -1.0), SpaceType.PoincareDisc)
-    val geodesics = Set(geodesic1, geodesic2)
-
-    val allGeodesics = group.getImagesOfGeodesics(geodesics)
-    val allCurves = allGeodesics map (g => g.asCurve)
-
-    val inputList = allCurves.toList
-    val curveString = Converter.createConstructorStringFromList(
-      inputList,
-      transform
-    )
+    val transformArc = converter.convertArcToSvg _
 
     val document = js.Dynamic.global.document
     val playground = document.getElementById("movie")
 
-    val newP = document.createElement("p")
-    newP.innerHTML = "Hello world! <i>-- DOM</i>"
-    playground.appendChild(newP)
-    println("Seems to be working")
-    val bonsai = js.Dynamic.global.bonsai
-    bonsai.run(
-      movie,
-      js.Dynamic.literal(
-        code = curveString,
-        width = displayWidth,
-        height = displayHeight 
-      )
-    )
+    var s = js.Dynamic.global.Snap(displayWidth, displayHeight)
+    var bigCircle = s.circle(displayWidth/2, displayHeight/2, 400).attr(
+      js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "boundary-circle"))
+    var startPoint = s.circle(0.4*displayWidth, 0.4*displayHeight, 16).attr(
+      js.Dictionary("fill" -> "red", "id" -> "end-point-1"))
+    var endPoint = s.circle(0.6*displayWidth, 0.4*displayHeight, 16).attr(
+      js.Dictionary("fill" -> "red", "id" -> "end-point-2"))
+    startPoint.drag(
+      ((el: js.Dynamic, dX: Int, dY: Int, posX: Int, posY: Int) => 
+        {
+          val cx = (el.ox.toInt+dX.toInt)
+          val cy = (el.oy.toInt+dY.toInt)
+          println(el.ox)
+          el.attr(js.Dictionary("cx" -> cx, "cy" -> cy))}): js.ThisFunction, 
+      ((el: js.Dynamic, x: Int, y: Int) => 
+        {
+          el.ox = el.attr("cx")
+          el.oy = el.attr("cy")}): js.ThisFunction, 
+      null)
   }
 }
