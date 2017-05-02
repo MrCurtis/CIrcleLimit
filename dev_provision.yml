@@ -1,6 +1,9 @@
 ---
 - hosts: all
   tasks:
+    - name: Install java
+      sudo: true
+      apt: pkg=default-jdk update_cache=true force=true
     - name: Add sbt repository
       sudo: true
       apt_repository: repo="deb http://dl.bintray.com/sbt/debian /"
