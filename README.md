@@ -16,13 +16,12 @@ Inside the vagrant box change in to the correct directory
 
 and then start sbt using xvfb for headless browser testing
 
-    Xvfb :7055 &
-    DISPLAY=:7055 sbt
+    xvfb-run sbt
 
 Once on the sbt command line type
 
     compile
 
-to compile the source. The finished reult can be viewed by putting 
+to compile the source. The finished result can be viewed by putting 
 
     <path>/<to>/<project>/circle_limit/circle_limit.html 
