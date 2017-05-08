@@ -106,8 +106,11 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
     val x2 = z2.real
     val y2 = z2.imag
 
-    val xC = (0.5)*(x1*x1 + y1*y1 + 1)*(y2 - y1)/(x1*y2 - x2*y1)
-    val yC = (0.5)*(x2*x2 + y2*y2 + 1)*(x1 - x2)/(x1*y2 - x2*y1)
+    val a = 1 + x1*x1 + y1*y1
+    val b = 1 + x2*x2 + y2*y2
+    val c = 2*(x1*y2 - x2*y1)
+    val xC = (a*y2 - b*y1)/c
+    val yC = (b*x1 - a*x2)/c
 
     val zC = xC + yC*i
 

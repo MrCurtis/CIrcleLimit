@@ -47,6 +47,13 @@ object GeodesicTestSuite extends TestSuite{
       assert (geodesic.asCurve == arc)
     }
 
+    "returns an Arc with correct centre when end points are not equidistant from origin, in Poincare disc model" - {
+      val geodesic  = Geodesic(Complex[Double](0.0, 1.0), Complex[Double](0.4, 0.2), SpaceType.PoincareDisc)
+      val returnedCentre = geodesic.asCurve.asInstanceOf[Arc].centre
+      val expectedCentre = 1.0+1.0*i
+      assert ((returnedCentre - expectedCentre).abs < 0.0001)
+    }
+
     "returns a Line for z1=0+0.2i, z2=0+0.8i, in Poincare disc model"-{
       val geodesic = Geodesic(Complex[Double](0.0, 0.2), Complex[Double](0.0, 0.8), SpaceType.PoincareDisc)
       val line = Line(0.0+0.2*i, 0.0+0.8*i)
