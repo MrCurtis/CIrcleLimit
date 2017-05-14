@@ -18,12 +18,12 @@ import circle_limit.maths.{
   SpaceType
 }
 import circle_limit.maths.Imaginary.i
-import circle_limit.graphics.{Converter, Box}
+import circle_limit.graphics.{Converter, Box, Vector}
 
 @JSExport
 object CircleLimitApp {
   @JSExport
-  def main(movie: html.Div): Unit = {
+  def main(): Unit = {
 
     val displayWidth = 880
     val displayHeight = 880
@@ -32,28 +32,72 @@ object CircleLimitApp {
       Box(0.0, 0.0, displayWidth, displayHeight)
     )
     val transformArc = converter.convertArcToSvg _
+    val toMathematical = converter.convertFromGraphicalToMathematicalSpace _
 
     val document = js.Dynamic.global.document
-    val playground = document.getElementById("movie")
 
     var s = js.Dynamic.global.Snap(displayWidth, displayHeight)
-    var bigCircle = s.circle(displayWidth/2, displayHeight/2, 400).attr(
+    var bigCircle = s.circle(displayWidth/2, displayHeight/2, 440).attr(
       js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "boundary-circle"))
     var startPoint = s.circle(0.4*displayWidth, 0.4*displayHeight, 16).attr(
       js.Dictionary("fill" -> "red", "id" -> "end-point-1"))
     var endPoint = s.circle(0.6*displayWidth, 0.4*displayHeight, 16).attr(
       js.Dictionary("fill" -> "red", "id" -> "end-point-2"))
+    var geodesic = s.path("M 100, 100 A 100, 100, 0, 0, 0, 150, 150").attr(
+      js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "geodesic"))
+    var startPointX = "0.0"
+    var startPointY = "0.0"
+    var endPointX = "0.0"
+    var endPointY = "0.0"
     startPoint.drag(
       ((el: js.Dynamic, dX: Int, dY: Int, posX: Int, posY: Int) => 
         {
-          val cx = (el.ox.toInt+dX.toInt)
-          val cy = (el.oy.toInt+dY.toInt)
-          println(el.ox)
-          el.attr(js.Dictionary("cx" -> cx, "cy" -> cy))}): js.ThisFunction, 
+          val cx = (startPointX.toInt+dX.toInt)
+          val cy = (startPointY.toInt+dY.toInt)
+          el.attr(js.Dictionary("cx" -> cx, "cy" -> cy))
+
+          val startPointVector = Vector(startPoint.attr("cx").toString.toDouble, startPoint.attr("cy").toString.toDouble)
+          val endPointVector = Vector(endPoint.attr("cx").toString.toDouble, endPoint.attr("cy").toString.toDouble)
+          val curve = Geodesic(
+            toMathematical(startPointVector),
+            toMathematical(endPointVector),
+            SpaceType.PoincareDisc
+          ).asCurve
+          val svg = curve match {
+            case arc: Arc => transformArc(arc)
+          }
+          geodesic.attr(js.Dictionary("d" -> svg))
+        }): js.ThisFunction, 
       ((el: js.Dynamic, x: Int, y: Int) => 
         {
-          el.ox = el.attr("cx")
-          el.oy = el.attr("cy")}): js.ThisFunction, 
+          startPointX = el.attr("cx").toString
+          startPointY = el.attr("cy").toString
+        }): js.ThisFunction, 
+      null)
+    endPoint.drag(
+      ((el: js.Dynamic, dX: Int, dY: Int, posX: Int, posY: Int) => 
+        {
+          val cx = (endPointX.toInt+dX.toInt)
+          val cy = (endPointY.toInt+dY.toInt)
+          el.attr(js.Dictionary("cx" -> cx, "cy" -> cy))
+
+          val startPointVector = Vector(startPoint.attr("cx").toString.toDouble, startPoint.attr("cy").toString.toDouble)
+          val endPointVector = Vector(endPoint.attr("cx").toString.toDouble, endPoint.attr("cy").toString.toDouble)
+          val curve = Geodesic(
+            toMathematical(startPointVector),
+            toMathematical(endPointVector),
+            SpaceType.PoincareDisc
+          ).asCurve
+          val svg = curve match {
+            case arc: Arc => transformArc(arc)
+          }
+          geodesic.attr(js.Dictionary("d" -> svg))
+        }): js.ThisFunction, 
+      ((el: js.Dynamic, x: Int, y: Int) => 
+        {
+          endPointX = el.attr("cx").toString
+          endPointY = el.attr("cy").toString
+        }): js.ThisFunction, 
       null)
   }
 }
