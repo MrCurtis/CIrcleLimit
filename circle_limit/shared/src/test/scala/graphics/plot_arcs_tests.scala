@@ -10,68 +10,6 @@ import circle_limit.maths.Imaginary.i
 import circle_limit.maths.{Arc, Circle, Line}
 
 
-object CreateConstructorStringFromListTestSuite extends TestSuite {
-
-  def simpleTestTransform(z: Complex[Double]) = Vector(2*z.real, 2*z.imag)
-
-  val tests = TestSuite {
-
-    "returns a list of constructors seperated by semi-colon as string" - {
-      val inputList = List(
-        Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i),
-        Line(0.0+1.0*i, 1.0+0.0*i),
-        Arc(1.0+1.0*i, -1.0+1.0*i, 0.0+1.0*i)
-      )
-      val expected = 
-      "new Path().moveTo(-2.000000, 0.000000).arcTo(2.000000, 2.000000, 0, 0, 0, 0.000000, -2.000000)"+
-      ".stroke('black', 2).addTo(stage);"+
-      "new Path().moveTo(0.000000, 2.000000).lineTo(2.000000, 0.000000).stroke('black', 2).addTo(stage);"+
-      "new Path().moveTo(2.000000, 2.000000).arcTo(2.000000, 2.000000, 0, 0, 0, -2.000000, 2.000000)"+
-      ".stroke('black', 2).addTo(stage);"
-      val returned = Converter.createConstructorStringFromList(
-        inputList,
-        simpleTestTransform _
-      )
-      assert (returned == expected)
-    }
-  }
-}
-
-
-object CreateConstructorCallStringTestSuite extends TestSuite {
-
-  def simpleTestTransform(z: Complex[Double]) = Vector(2*z.real, 2*z.imag)
-
-  val tests = TestSuite{
-
-    "For Arc argument - returns a valid javascript Arc constructor call as string" - {
-      val inputArc = Arc(-1.0+0.0*i, 0.0-1.0*i, 0.0+0.0*i)
-      val returned = Converter.createConstructorCallString(
-        inputArc,
-        simpleTestTransform _
-      )
-      val expected =
-        "new Path().moveTo(-2.000000, 0.000000).arcTo(2.000000, 2.000000, 0, 0, 0, 0.000000, -2.000000)"+
-        ".stroke('black', 2).addTo(stage);"
-      assert (returned == expected)
-    }
-
-    "For Line argument - returns a valid Path constructor with method call" - {
-      val inputLine = Line(-1.0+0.0*i, 0.0-1.0*i)
-      val returned = Converter.createConstructorCallString(
-        inputLine,
-        simpleTestTransform _
-      )
-      val expected =
-        "new Path().moveTo(-2.000000, 0.000000).lineTo(0.000000, -2.000000).stroke('black', 2).addTo(stage);"
-      assert (returned == expected)
-      
-    }
-
-  }
-}
-
-
 object ConverterTestSuite extends TestSuite {
 
   def square = pow(_: Double, 2)
