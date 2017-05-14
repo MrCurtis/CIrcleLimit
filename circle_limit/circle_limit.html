@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <title>Circle Limit</title>
   </head>
-  <body>
-    <div id="movie"></div>
+  <body style="margin: 0;">
     <script type="text/javascript" src="snap.svg-min.js"></script>
     <!-- Include Scala.js compiled code -->
       <script type="text/javascript" src="js/target/scala-2.11/circlelimit-test-fastopt.js"></script>
     <!-- Run tutorial.webapp.TutorialApp -->
       <script type="text/javascript">
-        circle_limit.CircleLimitApp().main(document.getElementById('movie'));
+        circle_limit.CircleLimitApp().main();
       </script>
   </body>
 </html>
