@@ -81,7 +81,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
   }
 
   /**
-   * Takes the d attribute of an svg element and converts it in to an Arc instance.
+   * Takes the d attribute of an svg path element and converts it in to an Arc instance.
    */
   def convertSvgToArc(svg: String): Arc = {
     val regex = """^M (\d+), (\d+) A (\d+), (\d+), 0, 0, 0, (\d+), (\d+)$""".r
@@ -97,7 +97,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
   }
 
   /**
-   * Takes an Arc instance and creates the corresponding d attribute of the svg element.
+   * Takes an Arc instance and creates the corresponding d attribute of the svg path element.
    */
   def convertArcToSvg(arc: Arc) = {
     val radX = (arc.centre-arc.start).abs * scaleFactor
@@ -110,6 +110,35 @@ class Converter (mathsBox: Box, graphicsBox: Box){
       round(radX),
       round(finall.x),
       round(finall.y))
+  }
+
+  /**
+   * Takes the d attribute of an svg path SVG element and returns a Line instance.
+   */
+  def convertSvgToLine(svg: String) = {
+    val regex = """^M (\d+) (\d+) L (\d+) (\d+)$""".r
+    svg match {
+      case regex(initialX, initialY, finalX, finalY) => {
+        Line(
+          startFromInitial(initialX, initialY),
+          finishFromFinal(finalX, finalY)
+        )
+      }
+    }
+  }
+
+  /**
+   * Takes an Line instance and returns the corresponding d attribute of the svg path element.
+   */
+  def convertLineToSvg(line: Line) = {
+    val startGraphical = convertFromMathematicalToGraphicalSpace(line.start)
+    val finishGraphical = convertFromMathematicalToGraphicalSpace(line.finish)
+    "M %d %d L %d %d".format(
+      round(startGraphical.x),
+      round(startGraphical.y),
+      round(finishGraphical.x),
+      round(finishGraphical.y)
+    )
   }
 
   /**

@@ -144,6 +144,30 @@ object ConverterTestSuite extends TestSuite {
 
       assert (returned == expected)
     }
+
+    "Convert SVG for a line to a Line" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val svg = "M 100 50 L 100 150"
+      val expected = Line(
+        Complex(0.0,  0.5),
+        Complex(0.0, -0.5)
+      )
+
+      val returned = Converter(mathsBox, graphicsBox).convertSvgToLine(svg)
+
+      assert (returned == expected)
+    }
+    "Converts Line to SVG for a line" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val line = Line(Complex(0.0,  0.5), Complex(0.0, -0.5))
+      val expected = "M 100 50 L 100 150"
+      
+      val returned = Converter(mathsBox, graphicsBox).convertLineToSvg(line)
+
+      assert (returned == expected)
+    }
     
   }
 }
