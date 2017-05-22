@@ -32,6 +32,7 @@ object CircleLimitApp {
       Box(0.0, 0.0, displayWidth, displayHeight)
     )
     val transformArc = converter.convertArcToSvg _
+    val transformLine = converter.convertLineToSvg _
     val toMathematical = converter.convertFromGraphicalToMathematicalSpace _
 
     val document = js.Dynamic.global.document
@@ -65,6 +66,7 @@ object CircleLimitApp {
           ).asCurve
           val svg = curve match {
             case arc: Arc => transformArc(arc)
+            case line: Line => transformLine(line)
           }
           geodesic.attr(js.Dictionary("d" -> svg))
         }): js.ThisFunction, 
@@ -90,6 +92,7 @@ object CircleLimitApp {
           ).asCurve
           val svg = curve match {
             case arc: Arc => transformArc(arc)
+            case line: Line => transformLine(line)
           }
           geodesic.attr(js.Dictionary("d" -> svg))
         }): js.ThisFunction, 

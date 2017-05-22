@@ -11,7 +11,7 @@ import org.openqa.selenium.interactions.Actions
 
 import org.openqa.selenium.firefox.FirefoxDriver
 
-import circle_limit.maths.{Arc, Geodesic, SpaceType}
+import circle_limit.maths.{Arc, Geodesic, SpaceType, Line}
 import circle_limit.graphics.{Converter, Box, Vector}
 import circle_limit.maths.CircleImplicits._
 
@@ -107,9 +107,6 @@ object MovableGeodisicTests extends TestSuite {
           driver.get(fileUrl)
           val circleStart = driver.findElement(By.id("end-point-1"))
           val circleEnd = driver.findElement(By.id("end-point-2"))
-          var builder = new Actions(driver)
-          var builder2 = new Actions(driver)
-          var builder3 = new Actions(driver)
           dragCentreOfCircleToMathematicalPoint(
             driver,
             "end-point-1",
@@ -129,8 +126,41 @@ object MovableGeodisicTests extends TestSuite {
       assert((returnedArc.finish-expectedArc.finish).abs < 0.0005 )
       assert((returnedArc.centre-expectedArc.centre).abs < 0.0005 )
     } 
-    "geodesic with both points on imaginary line should plot a line"-{
-      assert(false)
+    "geodesic with both points on line through the origin should plot a line segment"-{
+      val driver = new FirefoxDriver()
+      val displayWidth = 880
+      val displayHeight = 880
+      val converter = Converter(
+        Box(-1.0, -1.0, 2.0, 2.0),
+        Box(0.0, 0.0, displayWidth, displayHeight))
+      val toGraphical = converter.convertFromMathematicalToGraphicalSpace _
+      val toLine = converter.convertSvgToLine _
+      val startPoint = Complex(-0.5, 0.0)
+      val finishPoint = Complex(0.5, 0.0)
+      val expectedLine = Geodesic(startPoint, finishPoint, SpaceType.PoincareDisc).asCurve.asInstanceOf[Line]
+      val returnedLine = try {
+          driver.manage().window().maximize()
+          driver.get(fileUrl)
+          val circleStart = driver.findElement(By.id("end-point-1"))
+          val circleEnd = driver.findElement(By.id("end-point-2"))
+          dragCentreOfCircleToMathematicalPoint(
+            driver,
+            "end-point-2",
+            finishPoint,
+            converter)
+          dragCentreOfCircleToMathematicalPoint(
+            driver,
+            "end-point-1",
+            startPoint,
+            converter)
+          val geodesic = driver.findElement(By.id("geodesic"))
+          toLine(geodesic.getAttribute("d"))
+        } finally {
+          driver.close()
+        }
+      // NOTE - We have chosen end points so that we don't get any floating point errors. Thus we can use exact 
+      // equality here. This is important as small errors would result in an arc rather than a line being plotted.
+      assert(returnedLine == expectedLine)
     }
   }
 
