@@ -103,10 +103,10 @@ object ConverterTestSuite extends TestSuite {
     "Converts SVG for an arc to Arc" - {
       val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
       val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
-      val svg = "M 100, 0 A 100, 100, 0, 0, 0, 200, 100"
+      val svg = "M 100 0 A 100 100 0 0 0 200 100"
       val expectedArc = Arc(Complex(0,1), Complex(1,0), Complex(1,1))
 
-      val returnedArc = Converter(mathsBox, graphicsBox).convertSvgToArc(svg)
+      val returnedArc = Converter(mathsBox, graphicsBox).convertSvgToCurve(svg).asInstanceOf[Arc]
 
       assert ((returnedArc.start-expectedArc.start).abs < 0.0001)
       assert ((returnedArc.finish-expectedArc.finish).abs < 0.0001)
@@ -116,11 +116,35 @@ object ConverterTestSuite extends TestSuite {
       val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
       val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
       val arc = Arc(Complex(0,1), Complex(1,0), Complex(1,1))
-      val expectedSvg = "M 100, 0 A 100, 100, 0, 0, 0, 200, 100"
+      val expectedSvg = "M 100 0 A 100 100 0 0 0 200 100"
 
-      val returnedSvg = Converter(mathsBox, graphicsBox).convertArcToSvg(arc)
+      val returnedSvg = Converter(mathsBox, graphicsBox).convertCurveToSvg(arc)
 
       assert (expectedSvg == returnedSvg)
+    }
+
+    "Convert SVG for a line to a Line" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val svg = "M 100 50 L 100 150"
+      val expected = Line(
+        Complex(0.0,  0.5),
+        Complex(0.0, -0.5)
+      )
+
+      val returned = Converter(mathsBox, graphicsBox).convertSvgToCurve(svg).asInstanceOf[Line]
+
+      assert (returned == expected)
+    }
+    "Converts Line to SVG for a line" - {
+      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
+      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
+      val line = Line(Complex(0.0,  0.5), Complex(0.0, -0.5))
+      val expected = "M 100 50 L 100 150"
+      
+      val returned = Converter(mathsBox, graphicsBox).convertCurveToSvg(line)
+
+      assert (returned == expected)
     }
 
     "Converts SVG for a circle to a Circle" - {
@@ -141,30 +165,6 @@ object ConverterTestSuite extends TestSuite {
       val expected = ("100", "80", "20")
 
       val returned = Converter(mathsBox, graphicsBox).convertCircleToSvg(circle)
-
-      assert (returned == expected)
-    }
-
-    "Convert SVG for a line to a Line" - {
-      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
-      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
-      val svg = "M 100 50 L 100 150"
-      val expected = Line(
-        Complex(0.0,  0.5),
-        Complex(0.0, -0.5)
-      )
-
-      val returned = Converter(mathsBox, graphicsBox).convertSvgToLine(svg)
-
-      assert (returned == expected)
-    }
-    "Converts Line to SVG for a line" - {
-      val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
-      val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)
-      val line = Line(Complex(0.0,  0.5), Complex(0.0, -0.5))
-      val expected = "M 100 50 L 100 150"
-      
-      val returned = Converter(mathsBox, graphicsBox).convertLineToSvg(line)
 
       assert (returned == expected)
     }

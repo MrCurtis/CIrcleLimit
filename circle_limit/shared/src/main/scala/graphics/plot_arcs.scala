@@ -81,10 +81,44 @@ class Converter (mathsBox: Box, graphicsBox: Box){
   }
 
   /**
+   * Takes the d attribute of an svg path element and converts it in to a Curve instance.
+   */
+  def convertSvgToCurve(svg: String): Curve = {
+    val arcRegex = """^M (\d+) (\d+) A (\d+) (\d+) 0 0 0 (\d+) (\d+)$""".r
+    val lineRegex = """^M (\d+) (\d+) L (\d+) (\d+)$""".r
+    svg match {
+      case arcRegex(initialX, initialY, radX, radY, finalX, finalY) => {
+        Arc(
+          startFromInitial(initialX, initialY),
+          finishFromFinal(finalX, finalY),
+          centreFromInitialFinalAndRadius(initialX, initialY, finalX, finalY, radX)
+        )
+      }
+      case lineRegex(initialX, initialY, finalX, finalY) => {
+        Line(
+          startFromInitial(initialX, initialY),
+          finishFromFinal(finalX, finalY)
+        )
+      }
+    }
+  }
+
+  /**
+   * Takes a Curve instance and creates the corresponding d attribute of the svg path element.
+   */
+  def convertCurveToSvg(curve: Curve): String = {
+    curve match{
+      case arc: Arc => convertArcToSvg(arc)
+      case line: Line => convertLineToSvg(line)
+    }
+  }
+
+  // TODO - Remove
+  /**
    * Takes the d attribute of an svg path element and converts it in to an Arc instance.
    */
   def convertSvgToArc(svg: String): Arc = {
-    val regex = """^M (\d+), (\d+) A (\d+), (\d+), 0, 0, 0, (\d+), (\d+)$""".r
+    val regex = """^M (\d+) (\d+) A (\d+) (\d+) 0 0 0 (\d+) (\d+)$""".r
     svg match {
       case regex(initialX, initialY, radX, radY, finalX, finalY) => {
         Arc(
@@ -96,6 +130,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
     }
   }
 
+  // TODO - Make private
   /**
    * Takes an Arc instance and creates the corresponding d attribute of the svg path element.
    */
@@ -103,7 +138,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
     val radX = (arc.centre-arc.start).abs * scaleFactor
     val initial = convertFromMathematicalToGraphicalSpace(arc.start)
     val finall = convertFromMathematicalToGraphicalSpace(arc.finish)
-    "M %d, %d A %d, %d, 0, 0, 0, %d, %d".format(
+    "M %d %d A %d %d 0 0 0 %d %d".format(
       round(initial.x),
       round(initial.y),
       round(radX),
@@ -112,6 +147,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
       round(finall.y))
   }
 
+  // TODO - Remove
   /**
    * Takes the d attribute of an svg path SVG element and returns a Line instance.
    */
@@ -127,6 +163,7 @@ class Converter (mathsBox: Box, graphicsBox: Box){
     }
   }
 
+  // TODO - Make private
   /**
    * Takes an Line instance and returns the corresponding d attribute of the svg path element.
    */
