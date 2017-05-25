@@ -6,7 +6,15 @@ import spire.math.{
 import spire.implicits._
 import Imaginary.i
 
-abstract class Curve
+/**
+ * Represents all shapes that might be plotted.
+ */
+abstract class Shape
+
+/**
+ * Represents the geodesics.
+ */
+abstract class Curve extends Shape
 
 /**
  * Represents a Euclidean line, with end-points start and finish.
@@ -95,7 +103,7 @@ object Arc {
 /**
  * Represents a Euclidean circle.
  */
-class Circle(val centre: Complex[Double], val radius: Double) extends Curve {
+class Circle(val centre: Complex[Double], val radius: Double) extends Shape {
 
   def canEqual(other: Any) = other.isInstanceOf[Circle]
 
