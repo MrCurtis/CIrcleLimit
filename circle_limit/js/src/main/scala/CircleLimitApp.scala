@@ -41,11 +41,11 @@ object CircleLimitApp {
     var bigCircle = s.circle(displayWidth/2, displayHeight/2, 440).attr(
       js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "boundary-circle"))
     var startPoint = s.circle(0.4*displayWidth, 0.4*displayHeight, 16).attr(
-      js.Dictionary("fill" -> "red", "id" -> "end-point-1"))
+      js.Dictionary("fill" -> "red", "id" -> "end-point-1", "class" -> "handle"))
     var endPoint = s.circle(0.6*displayWidth, 0.4*displayHeight, 16).attr(
-      js.Dictionary("fill" -> "red", "id" -> "end-point-2"))
+      js.Dictionary("fill" -> "red", "id" -> "end-point-2", "class" -> "handle"))
     var geodesic = s.path("M 100, 100 A 100, 100, 0, 0, 0, 150, 150").attr(
-      js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "geodesic"))
+      js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "geodesic", "class" -> "geodesic"))
     var startPointX = "0.0"
     var startPointY = "0.0"
     var endPointX = "0.0"
