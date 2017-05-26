@@ -37,6 +37,8 @@ object CircleLimitApp {
 
     val document = js.Dynamic.global.document
 
+    println("Working")
+
     var s = js.Dynamic.global.Snap(displayWidth, displayHeight)
     var bigCircle = s.circle(displayWidth/2, displayHeight/2, 440).attr(
       js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "boundary-circle"))
@@ -44,7 +46,7 @@ object CircleLimitApp {
       js.Dictionary("fill" -> "red", "id" -> "end-point-1", "class" -> "handle"))
     var endPoint = s.circle(0.6*displayWidth, 0.4*displayHeight, 16).attr(
       js.Dictionary("fill" -> "red", "id" -> "end-point-2", "class" -> "handle"))
-    var geodesic = s.path("M 100, 100 A 100, 100, 0, 0, 0, 150, 150").attr(
+    var geodesic = s.path("M 100 100 A 100 100 0 0 0 150 150").attr(
       js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "geodesic", "class" -> "geodesic"))
     var startPointX = "0.0"
     var startPointY = "0.0"
@@ -102,5 +104,35 @@ object CircleLimitApp {
           endPointY = el.attr("cy").toString
         }): js.ThisFunction, 
       null)
+    var currentHandles = new js.Array[js.Dynamic]
+    s.dblclick(
+      (event: js.Dynamic) => {
+        val handle = s.circle(event.clientX, event.clientY, 16).attr(
+          js.Dictionary("fill" -> "red", "class" -> "handle"))
+        currentHandles.push(handle)
+        println("currentHandles.length: %s".format(currentHandles.length))
+        if (currentHandles.length == 2){
+          val vector1 = Vector(
+            currentHandles(0).attr("cx").toString.toDouble,
+            currentHandles(0).attr("cy").toString.toDouble)
+          val vector2 = Vector(
+            currentHandles(1).attr("cx").toString.toDouble,
+            currentHandles(1).attr("cy").toString.toDouble)
+          val curve = Geodesic(
+            toMathematical(vector1),
+            toMathematical(vector2),
+            SpaceType.PoincareDisc
+          ).asCurve
+          val svg = curve match {
+            case arc: Arc => transformArc(arc)
+            case line: Line => transformLine(line)
+          }
+          println("svg: %s".format(svg))
+          s.path(svg).attr(
+            js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "geodesic", "class" -> "geodesic"))
+          currentHandles = new js.Array[js.Dynamic]
+        }
+      }
+    )
   }
 }

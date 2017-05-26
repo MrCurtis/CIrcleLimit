@@ -66,6 +66,18 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     this
   }
 
+  def doubleClickAtMathematicalPoint(z: Complex[Double]) = {
+    val graphicalPoint = converter.convertFromMathematicalToGraphicalSpace(z)
+    val svgElement = driver.findElement(By.tagName("svg"))
+    new Actions(driver)
+      .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
+      .doubleClick()
+      .pause(1)
+      .build()
+      .perform()
+    this
+  }
+
   //TODO - This should be moved to the test helper object, and tests added.
   private def curvesAlmostEqual(curve1: Curve, curve2: Curve): Boolean = {
     (curve1, curve2) match {
