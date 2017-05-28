@@ -15,11 +15,28 @@ import circle_limit.maths.{Arc, Geodesic, SpaceType, Line}
 import circle_limit.graphics.{Converter, Box, Vector}
 import circle_limit.maths.CircleImplicits._
 
-object MovableGeodisicTests extends TestSuite {
+
+abstract class AcceptanceTestSuite extends TestSuite {
+
+  val fileUrl = "file:///vagrant/circle_limit/circle_limit.html"
+
+  def loadPage(driver: FirefoxDriver) = {
+    val displayWidth = 880
+    val displayHeight = 880
+    val converter = Converter(
+      Box(-1.0, -1.0, 2.0, 2.0),
+      Box(0.0, 0.0, displayWidth, displayHeight))
+    driver.get(fileUrl)
+    driver.manage().window().setSize(new Dimension(1024, 1024))
+    PageObject(driver, converter)
+  }
+
+}
+
+
+object InitialPageLayoutTests extends AcceptanceTestSuite {
 
   val tests = TestSuite {
-
-    val fileUrl = "file:///vagrant/circle_limit/circle_limit.html"
 
     "title should be \"Circle Limit\""-{
       val driver = new FirefoxDriver()
@@ -50,6 +67,14 @@ object MovableGeodisicTests extends TestSuite {
         driver.close()
       }
     }
+  }
+
+}
+
+object MovableGeodisicTests extends AcceptanceTestSuite {
+
+  val tests = TestSuite {
+
     "dragging should move handle point 1" - {
       val initialHandlePointMathematical = Complex(-0.2, 0.2)
       val destinationHandlePointMathematical = Complex(0.5, 0.0)
@@ -130,16 +155,6 @@ object MovableGeodisicTests extends TestSuite {
     
     }
 
-    def loadPage(driver: FirefoxDriver) = {
-      val displayWidth = 880
-      val displayHeight = 880
-      val converter = Converter(
-        Box(-1.0, -1.0, 2.0, 2.0),
-        Box(0.0, 0.0, displayWidth, displayHeight))
-      driver.get(fileUrl)
-      driver.manage().window().setSize(new Dimension(1024, 1024))
-      PageObject(driver, converter)
-    }
   }
 
 }
