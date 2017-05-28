@@ -19,7 +19,7 @@ abstract class Curve extends Shape
 /**
  * Represents a Euclidean line, with end-points start and finish.
  */
-class Line(val start: Complex[Double], val finish: Complex[Double]) extends Curve {
+case class Line(start: Complex[Double], finish: Complex[Double]) extends Curve {
 
   def canEqual(other: Any) = other.isInstanceOf[Line]
 
@@ -34,9 +34,6 @@ class Line(val start: Complex[Double], val finish: Complex[Double]) extends Curv
         (that.start == this.finish && that.finish == this.start))
   }
 }
-object Line {
-  def apply(start: Complex[Double], finish: Complex[Double]) = new Line(start, finish)
-}
 
 /**
  * Represents an arc of a circle.
@@ -45,7 +42,7 @@ object Line {
  * be used to represent the segment of a circle with centre z_2, and 
  * radius |z_0 - z_2| drawn anti-clockwise from z_0 to z_1.
  */   
-class Arc(val start: Complex[Double], val finish: Complex[Double], val centre: Complex[Double]) extends Curve {
+case class Arc(start: Complex[Double], finish: Complex[Double], centre: Complex[Double]) extends Curve {
 
   def canEqual(other: Any) = other.isInstanceOf[Arc]
 
@@ -96,14 +93,11 @@ class Arc(val start: Complex[Double], val finish: Complex[Double], val centre: C
   def getObtuse = if (this.isAcute) this.complement else this
     
 }
-object Arc {
-  def apply(start: Complex[Double], finish: Complex[Double], centre: Complex[Double]) = new Arc(start, finish, centre)
-}
 
 /**
  * Represents a Euclidean circle.
  */
-class Circle(val centre: Complex[Double], val radius: Double) extends Shape {
+case class Circle(centre: Complex[Double], radius: Double) extends Shape {
 
   def canEqual(other: Any) = other.isInstanceOf[Circle]
 
@@ -118,7 +112,4 @@ class Circle(val centre: Complex[Double], val radius: Double) extends Shape {
       that.centre == this.centre &&
       that.radius == this.radius
   }
-}
-object Circle {
-  def apply(centre: Complex[Double], radius: Double) = new Circle(centre, radius)
 }

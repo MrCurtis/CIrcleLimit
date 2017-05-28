@@ -10,10 +10,6 @@ import Imaginary.i
 object LineTestSuite extends TestSuite {
   val tests = TestSuite{
 
-    "test Line can be intantiated"-{
-      val line = Line(1.0+2.0*i, 3.0+4.0*i)
-    }
-
     "values are accesible"-{
       val line = Line(1.0+2.0*i, 3.0+4.0*i)
       assert (line.start == 1.0+2.0*i)
@@ -46,10 +42,6 @@ object LineTestSuite extends TestSuite {
 
 object ArcTestSuite extends TestSuite{
   val tests = TestSuite{
-
-    "test Arc can be intantiated"-{
-      val arc = Arc(1.0+2.0*i, 3.0+4.0*i, 5.0+6.0*i)
-    }
 
     "values are accesible"-{
       val arc = Arc(1.0+2.0*i, 3.0+4.0*i, 5.0+6.0*i)
@@ -123,10 +115,6 @@ object ArcTestSuite extends TestSuite{
 
 object CircleTestSuite extends TestSuite {
   val tests = TestSuite{
-
-    "test can be intantiated"-{
-      val circle = Circle(1.2+3.4*i, 5.6)
-    }
 
     "values are accesible"-{
       val circle = Circle(1.2+3.4*i, 5.6)
