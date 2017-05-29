@@ -37,6 +37,14 @@ object LineTestSuite extends TestSuite {
       assert (line6 != line1)
     }
 
+    "line not equal to object of different type" - {
+      val line = Line(1.0+2.0*i, 3.0+4.0*i)
+      val arc = Arc(-1.0+0.0*i, 0.0+1.0*i, 0.0+0.0*i)
+
+      assert (line != arc)
+      assert (arc  != line)
+    }
+
   }
 }
 
@@ -66,6 +74,14 @@ object ArcTestSuite extends TestSuite{
       assert (arc4 != arc1)
       assert (arc1 != arc5)
       assert (arc5 != arc1)
+    }
+
+    "arc not equal to object of different type" - {
+      val arc = Arc(-1.0+0.0*i, 0.0+1.0*i, 0.0+0.0*i)
+      val circle = Circle(1.2+3.4*i, 5.6)
+
+      assert (arc  != circle)
+      assert (circle != arc)
     }
 
     "has obtuse / acute functionality"-{
@@ -133,6 +149,14 @@ object CircleTestSuite extends TestSuite {
       assert (circle1 != circle3)
       assert (circle1 != circle4)
       assert (circle3 != circle4)
+    }
+
+    "circle not equal to object of different type" - {
+      val circle = Circle(1.2+3.4*i, 5.6)
+      val line = Line(1.2+3.4*i, 5.6)
+
+      assert (circle != line)
+      assert (line  != circle)
     }
 
   }

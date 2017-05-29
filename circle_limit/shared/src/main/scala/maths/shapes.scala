@@ -32,6 +32,7 @@ case class Line(start: Complex[Double], finish: Complex[Double]) extends Curve {
       (that canEqual this) &&
       ( (that.start == this.start && that.finish == this.finish) || 
         (that.start == this.finish && that.finish == this.start))
+    case _ => false
   }
 }
 
@@ -59,6 +60,7 @@ case class Arc(start: Complex[Double], finish: Complex[Double], centre: Complex[
       that.start == this.start &&
       that.finish == this.finish &&
       that.centre == this.centre
+    case _ => false
   }
 
   /**
@@ -111,5 +113,6 @@ case class Circle(centre: Complex[Double], radius: Double) extends Shape {
       (that canEqual this) &&
       that.centre == this.centre &&
       that.radius == this.radius
+    case _ => false
   }
 }
