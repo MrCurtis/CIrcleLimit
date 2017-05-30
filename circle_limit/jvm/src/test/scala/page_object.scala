@@ -40,9 +40,15 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
 
   def assertHandlePointLocatedAtMathematicalPoint(z: Complex[Double]) = {
     val pointGraphical = converter.convertFromMathematicalToGraphicalSpace(z)
-    val handles = driver.findElements(By.className("handle"))
-    val handlesAtPointGraphical = handles.asScala.filter(isElementAtLocation(pointGraphical)(_))
-    assert (!handlesAtPointGraphical.isEmpty)
+    val handles = driver.findElements(By.className("handle")).asScala.toList
+    val handlesAtPointGraphical = handles.filter(isElementAtLocation(pointGraphical)(_))
+    assert (
+      !handlesAtPointGraphical.isEmpty,
+      ("No handle found at mathematical point %s, which corresponds to graphical point %s."
+      + " Handles exist with the following attributes: %s").format(
+        z,
+        pointGraphical,
+        handles.map(getCircleAttributes).mkString(", ")))
     this
   }
 
@@ -53,16 +59,21 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
   }
 
   def assertGeodesicPlottedWithMathematicalEndpoints(z: Complex[Double], w: Complex[Double], exact: Boolean=false) = {
-    val geodesicAsCurve = Geodesic(z, w, SpaceType.PoincareDisc).asCurve
-    assert(
-      if (exact) {
-        getGeodesicsAsCurves
-          .exists( _ == geodesicAsCurve )
-      } else {
-        getGeodesicsAsCurves
-          .exists(curvesAlmostEqual(_, geodesicAsCurve))
-      }
-    )
+    val expectedCurve = Geodesic(z, w, SpaceType.PoincareDisc).asCurve
+    val actualCurves = getGeodesicsAsCurves
+    if (exact) {
+      assert(
+        actualCurves
+          .exists( _ == expectedCurve ),
+          "Curve %s not plotted exactly. Actual curves plotted: %s".format(
+            expectedCurve, actualCurves.mkString(", ")))
+    } else {
+      assert(
+        actualCurves
+          .exists(curvesAlmostEqual(_, expectedCurve)),
+          "No curve approximating %s plotted. Actual curves plotted: %s".format(
+            expectedCurve, actualCurves.mkString(", ")))
+    }
     this
   }
 
@@ -75,6 +86,20 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
       .pause(1)
       .build()
       .perform()
+    this
+  }
+
+  def createGeodesicWithHandlesAtMathematicalPoints(z: Complex[Double], w: Complex[Double]) = {
+    doubleClickAtMathematicalPoint(z)
+    doubleClickAtMathematicalPoint(w)
+    this
+  }
+
+  def assertNumberOfGeodesicsPlotted(expectedNumber: Int) = {
+    val actualNumber = getGeodesicsAsCurves.length
+    assert (
+      expectedNumber == actualNumber,
+      "Expected number of geodesics plotted: %d. Actual: %d".format(expectedNumber, actualNumber))
     this
   }
 
@@ -115,6 +140,7 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
   }
 
   private def dragHandleToMathematicalPoint(handle: WebElement, point: Complex[Double]) = {
+    println("dragHandleToMathematicalPoint being called")
     val handleRadius = handle.getAttribute("r")
     val position = handle.getLocation
     val relativePosition = Vector(position.x, position.y)
@@ -124,7 +150,11 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     val distanceToMoveX = relativeDestination.x - relativePosition.x
     val distanceToMoveY = relativeDestination.y - relativePosition.y
     var builder = new Actions(driver)
-    builder.dragAndDropBy(handle, round(distanceToMoveX.toFloat), round(distanceToMoveY.toFloat)).build().perform() 
+    builder
+      .pause(100)
+      .dragAndDropBy(handle, round(distanceToMoveX.toFloat), round(distanceToMoveY.toFloat))
+      .build()
+      .perform() 
   }
 
   private def getHandleAtMathematicalPoint(z: Complex[Double]) = {
