@@ -48,7 +48,7 @@ object CircleLimitApp {
   private def setUpCreateHandleHandler(svgElement: js.Dynamic) = {
     svgElement.dblclick(
       (event: js.Dynamic) => {
-        val handle = svgElement.circle(event.clientX, event.clientY, 16).attr(
+        val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
           js.Dictionary("fill" -> "red", "class" -> "handle"))
         currentHandles.push(handle)
         if (currentHandles.length == 2){

@@ -140,19 +140,12 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
   }
 
   private def dragHandleToMathematicalPoint(handle: WebElement, point: Complex[Double]) = {
-    println("dragHandleToMathematicalPoint being called")
-    val handleRadius = handle.getAttribute("r")
-    val position = handle.getLocation
-    val relativePosition = Vector(position.x, position.y)
-    val relativeDestination = Vector(
-      converter.convertFromMathematicalToGraphicalSpace(point).x-16,
-      converter.convertFromMathematicalToGraphicalSpace(point).y-16) //magic number
-    val distanceToMoveX = relativeDestination.x - relativePosition.x
-    val distanceToMoveY = relativeDestination.y - relativePosition.y
-    var builder = new Actions(driver)
-    builder
-      .pause(100)
-      .dragAndDropBy(handle, round(distanceToMoveX.toFloat), round(distanceToMoveY.toFloat))
+    val graphicalPoint = converter.convertFromMathematicalToGraphicalSpace(point)
+    val svgElement = driver.findElement(By.tagName("svg"))
+    new Actions(driver)
+      .clickAndHold(handle)
+      .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
+      .release()
       .build()
       .perform() 
   }
