@@ -66,6 +66,7 @@ object CircleLimitApp {
     var tempStoreY = "0.0"
     svgElement.selectAll("[class=handle]").forEach(
       (el: js.Dynamic) => {
+        el.undrag()
         el.drag(
           ((event: js.Dynamic, dX: Int, dY: Int, posX: Int, posY: Int) =>
             {
