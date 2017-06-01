@@ -32,8 +32,9 @@ object CircleLimitApp {
   )
   val convertCurveToSvg = converter.convertCurveToSvg _
   val toMathematical = converter.convertFromGraphicalToMathematicalSpace _
-  val allHandlePairs = ListBuffer[js.Array[js.Dynamic]]()
+  val allHandleLists = ListBuffer[js.Array[js.Dynamic]]()
   var currentHandles = new js.Array[js.Dynamic]
+  var currentlyDrawing = false
 
   @JSExport
   def main(): Unit = {
@@ -46,16 +47,25 @@ object CircleLimitApp {
   }
 
   private def setUpCreateHandleHandler(svgElement: js.Dynamic) = {
-    svgElement.dblclick(
+    svgElement.click(
       (event: js.Dynamic) => {
-        val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
-          js.Dictionary("fill" -> "red", "class" -> "handle"))
-        currentHandles.push(handle)
-        if (currentHandles.length == 2){
-          allHandlePairs += currentHandles
+        if (!currentlyDrawing && event.detail == 2) {
+          val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
+            js.Dictionary("fill" -> "red", "class" -> "handle"))
           currentHandles = new js.Array[js.Dynamic]
+          allHandleLists += currentHandles
+          currentHandles.push(handle)
           refreshHandleHandlers(svgElement)
           refreshGeodesics(svgElement)
+          currentlyDrawing = true
+        } else if (currentlyDrawing && event.detail == 1){
+          val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
+            js.Dictionary("fill" -> "red", "class" -> "handle"))
+          currentHandles.push(handle)
+          refreshHandleHandlers(svgElement)
+          refreshGeodesics(svgElement)
+        } else if (currentlyDrawing && event.detail == 2) {
+          currentlyDrawing = false
         }
       }
     )
@@ -94,21 +104,25 @@ object CircleLimitApp {
         el.remove()
       }
     )
-    allHandlePairs.foreach(
-      (pair: js.Array[js.Dynamic]) => {
-        val vector1 = Vector(
-          pair(0).attr("cx").toString.toDouble,
-          pair(0).attr("cy").toString.toDouble)
-        val vector2 = Vector(
-          pair(1).attr("cx").toString.toDouble,
-          pair(1).attr("cy").toString.toDouble)
-        val curve = Geodesic(
-          toMathematical(vector1),
-          toMathematical(vector2),
-          SpaceType.PoincareDisc
-        ).asCurve
-        svgElement.path(convertCurveToSvg(curve)).attr(
-          js.Dictionary("stroke" -> "black", "fill" -> "none",  "class" -> "geodesic"))
+    allHandleLists.foreach(
+      (handles: js.Array[js.Dynamic]) => {
+        handles.tail zip handles foreach {
+          (pair: (js.Dynamic, js.Dynamic)) => {
+            val vector1 = Vector(
+              pair._1.attr("cx").toString.toDouble,
+              pair._1.attr("cy").toString.toDouble)
+            val vector2 = Vector(
+              pair._2.attr("cx").toString.toDouble,
+              pair._2.attr("cy").toString.toDouble)
+            val curve = Geodesic(
+              toMathematical(vector1),
+              toMathematical(vector2),
+              SpaceType.PoincareDisc
+            ).asCurve
+            svgElement.path(convertCurveToSvg(curve)).attr(
+              js.Dictionary("stroke" -> "black", "fill" -> "none",  "class" -> "geodesic"))
+          }
+        }
       }
     )
   }

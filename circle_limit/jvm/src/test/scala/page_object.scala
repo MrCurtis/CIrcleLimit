@@ -77,14 +77,25 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     this
   }
 
+  def singleClickAtMathematicalPoint(z: Complex[Double]) = {
+    val graphicalPoint = converter.convertFromMathematicalToGraphicalSpace(z)
+    val svgElement = driver.findElement(By.tagName("svg"))
+    new Actions(driver)
+      .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
+      .click()
+      .pause(1)
+      .perform()
+    this
+  }
+
   def doubleClickAtMathematicalPoint(z: Complex[Double]) = {
     val graphicalPoint = converter.convertFromMathematicalToGraphicalSpace(z)
     val svgElement = driver.findElement(By.tagName("svg"))
     new Actions(driver)
       .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
+      .click() // This appears to necessary to emulate a double click properly.
       .doubleClick()
       .pause(1)
-      .build()
       .perform()
     this
   }
@@ -92,6 +103,22 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
   def createGeodesicWithHandlesAtMathematicalPoints(z: Complex[Double], w: Complex[Double]) = {
     doubleClickAtMathematicalPoint(z)
     doubleClickAtMathematicalPoint(w)
+    this
+  }
+
+  def createMultiGeodesicWithHandlesAtMathematicalPoints(points: List[Complex[Double]]) = {
+    def plotRecurse(points: List[Complex[Double]]): Unit = {
+      points match {
+        case Nil => throw PageObjectException("Cannot create multi-geodesic from less than two points")
+        case z :: Nil => doubleClickAtMathematicalPoint(z)
+        case z :: zs => {
+          singleClickAtMathematicalPoint(z)
+          plotRecurse(zs)
+        }
+      }
+    }
+    doubleClickAtMathematicalPoint(points.head)
+    plotRecurse(points.tail)
     this
   }
 
@@ -110,7 +137,7 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
       case (line1: Line, line2: Line) => linesAlmostEqual(line1, line2)
       case (arc1: Arc, line2: Line) => arcAndLineAlmostEqual(arc1, line2)
       case (line1: Line, arc2: Arc) => arcAndLineAlmostEqual(arc2, line1)
-    }  
+    }
   }
 
   private val errorDelta = 0.005
@@ -118,7 +145,7 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
   private def arcsAlmostEqual(arc1: Arc, arc2: Arc) = {
     (
       (((arc1.start - arc2.start).abs < errorDelta && (arc1.finish - arc2.finish).abs < errorDelta)
-        || ((arc1.start - arc2.finish).abs < errorDelta && (arc1.finish - arc2.start).abs < errorDelta)) 
+        || ((arc1.start - arc2.finish).abs < errorDelta && (arc1.finish - arc2.start).abs < errorDelta))
           && (arc1.centre - arc2.centre).abs < errorDelta
     )
   }
@@ -136,7 +163,7 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
         || ((arc.start - line.finish).abs < errorDelta && (arc.finish - line.start).abs < errorDelta))
           && (arc.centre).abs > 1.0/errorDelta
     )
-  
+
   }
 
   private def dragHandleToMathematicalPoint(handle: WebElement, point: Complex[Double]) = {
@@ -146,8 +173,7 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
       .clickAndHold(handle)
       .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
       .release()
-      .build()
-      .perform() 
+      .perform()
   }
 
   private def getHandleAtMathematicalPoint(z: Complex[Double]) = {
@@ -155,10 +181,10 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     val handles = driver.findElements(By.className("handle"))
     val handlesAtPointGraphical = handles.asScala.toList.filter(isElementAtLocation(pointGraphical)(_))
     if (handlesAtPointGraphical.isEmpty)
-      throw PageObjectException("No handle at graphical point (%d, %d)".format(pointGraphical.x, pointGraphical.y))
+      throw PageObjectException("No handle at graphical point (%f, %f)".format(pointGraphical.x, pointGraphical.y))
     if (handlesAtPointGraphical.length > 1 )
       throw PageObjectException(
-        "More than one handle at graphical point (%d, %d)".format(pointGraphical.x, pointGraphical.y))
+        "More than one handle at graphical point (%f, %f)".format(pointGraphical.x, pointGraphical.y))
     handlesAtPointGraphical.head
   }
 

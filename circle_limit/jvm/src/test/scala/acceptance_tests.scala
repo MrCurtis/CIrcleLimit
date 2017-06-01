@@ -119,6 +119,52 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
         driver.close()
       }
     }
+    "double-clicking then single clicking should allow the creation of piece-wise geodesics" - {
+      val point1 = Complex(0.4, -0.1)
+      val point2 = Complex(0.2, 0.5)
+      val point3 = Complex(0.3, -0.1)
+      val point4 = Complex(-0.2, 0.5)
+      val driver = new FirefoxDriver()
+
+      try {
+        loadPage(driver)
+          .doubleClickAtMathematicalPoint(point1)
+          .assertHandlePointLocatedAtMathematicalPoint(point1)
+          .singleClickAtMathematicalPoint(point2)
+          .assertHandlePointLocatedAtMathematicalPoint(point2)
+          .assertGeodesicPlottedWithMathematicalEndpoints(point1, point2)
+          .singleClickAtMathematicalPoint(point3)
+          .assertHandlePointLocatedAtMathematicalPoint(point3)
+          .assertGeodesicPlottedWithMathematicalEndpoints(point2, point3)
+          .doubleClickAtMathematicalPoint(point4)
+          .assertHandlePointLocatedAtMathematicalPoint(point4)
+          .assertGeodesicPlottedWithMathematicalEndpoints(point3, point4)
+          .assertNumberOfGeodesicsPlotted(3)
+      } finally {
+        driver.close()
+      }
+    }
+    "piece-wise geodesics should be movable using handles" - {
+      val point1 = Complex(0.4, -0.1)
+      val initialPoint2 = Complex(0.2, 0.5)
+      val destinationPoint2 = Complex(0.5, 0.2)
+      val point3 = Complex(0.3, -0.1)
+      val driver = new FirefoxDriver()
+
+      try {
+        loadPage(driver)
+          .createMultiGeodesicWithHandlesAtMathematicalPoints(List(point1, initialPoint2, point3))
+          .dragHandleFromMathematicalPointToPoint(initialPoint2, destinationPoint2)
+          .assertHandlePointLocatedAtMathematicalPoint(point1)
+          .assertHandlePointLocatedAtMathematicalPoint(destinationPoint2)
+          .assertHandlePointLocatedAtMathematicalPoint(point3)
+          .assertGeodesicPlottedWithMathematicalEndpoints(point1, destinationPoint2)
+          .assertGeodesicPlottedWithMathematicalEndpoints(destinationPoint2, point3)
+          .assertNumberOfGeodesicsPlotted(2)
+      } finally {
+        driver.close()
+      }
+    }
     "geodesic with both endpoint in top left quadrant should plot a circular arc"-{
       val point1 = Complex(0.5, -0.5)
       val point2 = Complex(-0.5, -0.5)
@@ -130,9 +176,9 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
         } finally {
           driver.close()
         }
-    } 
+    }
     "geodesic with both points on line through the origin should plot a line segment"-{
-      // NOTE - We have chosen end points so that we don't get any floating point errors. Thus we can use exact 
+      // NOTE - We have chosen end points so that we don't get any floating point errors. Thus we can use exact
       // equality here. This is important as small errors would result in an arc rather than a line being plotted.
       val point1 = Complex(-0.6, 0.0)
       val point2 = Complex(0.6, 0.0)
@@ -159,10 +205,11 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertHandlePointLocatedAtMathematicalPoint(destinationPoint1)
           .assertHandlePointLocatedAtMathematicalPoint(destinationPoint2)
           .assertGeodesicPlottedWithMathematicalEndpoints(destinationPoint1, destinationPoint2)
+          .assertNumberOfGeodesicsPlotted(1)
       } finally {
         driver.close()
       }
-    
+
     }
 
   }
