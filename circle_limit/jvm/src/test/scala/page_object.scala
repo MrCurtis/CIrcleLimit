@@ -100,6 +100,32 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     this
   }
 
+  def tripleClickAtMathematicalPoint(z: Complex[Double]) = {
+    // TODO - This method 'works' - at least for current purposes. However I'm pretty certain that
+    // it does not trigger the correct number of mouseUp and mouseDown event. Same goes for
+    // doubleClickAtMathematicalPoint above.
+    val graphicalPoint = converter.convertFromMathematicalToGraphicalSpace(z)
+    val svgElement = driver.findElement(By.tagName("svg"))
+    val jsTripleClick = """
+      arguments[0][0].dispatchEvent(
+        new MouseEvent(
+          'click',
+          {detail: 3, clientX: arguments[0][1], clientY: arguments[0][2]}));"""
+    new Actions(driver)
+      .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
+      .click() // This appears to necessary to emulate a double click properly.
+      .doubleClick()
+      .pause(1)
+      .perform()
+    driver.executeScript(
+      jsTripleClick,
+      List(
+        svgElement,
+        round(graphicalPoint.x.toFloat),
+        round(graphicalPoint.y.toFloat)).asJava)
+    this
+  }
+
   def createGeodesicWithHandlesAtMathematicalPoints(z: Complex[Double], w: Complex[Double]) = {
     doubleClickAtMathematicalPoint(z)
     doubleClickAtMathematicalPoint(w)
