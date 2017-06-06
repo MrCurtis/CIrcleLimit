@@ -83,7 +83,6 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     new Actions(driver)
       .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
       .click()
-      .pause(1)
       .perform()
     this
   }
@@ -95,7 +94,6 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
       .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
       .click() // This appears to necessary to emulate a double click properly.
       .doubleClick()
-      .pause(1)
       .perform()
     this
   }
@@ -106,6 +104,12 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     // doubleClickAtMathematicalPoint above.
     val graphicalPoint = converter.convertFromMathematicalToGraphicalSpace(z)
     val svgElement = driver.findElement(By.tagName("svg"))
+    val svgElementPosition = svgElement.getLocation()
+    val posX = round(graphicalPoint.x.toFloat) + svgElementPosition.x
+    val posY = round(graphicalPoint.y.toFloat) + svgElementPosition.y
+    val elementToClick = driver.executeScript(
+      "return document.elementFromPoint(arguments[0][0], arguments[0][1]);",
+      List(posX, posY).asJava)
     val jsTripleClick = """
       arguments[0][0].dispatchEvent(
         new MouseEvent(
@@ -115,12 +119,11 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
       .moveToElement(svgElement, round(graphicalPoint.x.toFloat), round(graphicalPoint.y.toFloat))
       .click() // This appears to necessary to emulate a double click properly.
       .doubleClick()
-      .pause(1)
       .perform()
     driver.executeScript(
       jsTripleClick,
       List(
-        svgElement,
+        elementToClick,
         round(graphicalPoint.x.toFloat),
         round(graphicalPoint.y.toFloat)).asJava)
     this
@@ -153,6 +156,14 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
     assert (
       expectedNumber == actualNumber,
       "Expected number of geodesics plotted: %d. Actual: %d".format(expectedNumber, actualNumber))
+    this
+  }
+
+  def assertNumberOfHandlesPlotted(expectedNumber: Int) = {
+    val actualNumber = driver.findElements(By.className("handle")).asScala.toList.length
+    assert (
+      expectedNumber == actualNumber,
+      "Expected number of handles plotted: %d. Actual: %d".format(expectedNumber, actualNumber))
     this
   }
 

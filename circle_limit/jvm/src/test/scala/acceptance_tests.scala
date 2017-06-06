@@ -209,9 +209,37 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       } finally {
         driver.close()
       }
-
     }
-
+    "triple-clicking on handle points should delete them" - {
+      val point1 = Complex(-0.1, 0.1)
+      val point2 = Complex(0.2, 0.2)
+      val point3 = Complex(0.3, -0.3)
+      val point4 = Complex(-0.4, -0.4)
+      val driver = new FirefoxDriver()
+      try {
+        loadPage(driver)
+          .createMultiGeodesicWithHandlesAtMathematicalPoints(List(point1, point2, point3, point4))
+          .tripleClickAtMathematicalPoint(point2)
+          .assertNumberOfHandlesPlotted(3)
+          .assertGeodesicPlottedWithMathematicalEndpoints(point1, point3)
+          .assertGeodesicPlottedWithMathematicalEndpoints(point3, point4)
+      } finally {
+        driver.close()
+      }
+    }
+    "if only two handles exist for a piece-wise geodesic then triple clicking one should delete whole geodesic" - {
+      val point1 = Complex(-0.1, 0.1)
+      val point2 = Complex(0.2, 0.2)
+      val driver = new FirefoxDriver()
+      try {
+        loadPage(driver)
+          .createGeodesicWithHandlesAtMathematicalPoints(point1, point2)
+          .tripleClickAtMathematicalPoint(point2)
+          .assertNumberOfHandlesPlotted(0)
+          .assertNumberOfGeodesicsPlotted(0)
+      } finally {
+        driver.close()
+      }
+    }
   }
-
 }

@@ -32,18 +32,21 @@ object CircleLimitApp {
   )
   val convertCurveToSvg = converter.convertCurveToSvg _
   val toMathematical = converter.convertFromGraphicalToMathematicalSpace _
-  val allHandleLists = ListBuffer[js.Array[js.Dynamic]]()
-  var currentHandles = new js.Array[js.Dynamic]
+  val allHandleLists = ListBuffer[ListBuffer[js.Dynamic]]()
+  var currentHandles = ListBuffer[js.Dynamic]()
   var currentlyDrawing = false
 
   @JSExport
   def main(): Unit = {
 
-    val document = js.Dynamic.global.document
     var svgElement = js.Dynamic.global.Snap(displayWidth, displayHeight)
-    var boundaryCircle = svgElement.circle(displayWidth/2, displayHeight/2, 440).attr(
-      js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "boundary-circle"))
+    createBoundaryCircle(svgElement)
     setUpCreateHandleHandler(svgElement)
+  }
+
+  private def createBoundaryCircle(svgElement: js.Dynamic) = {
+    svgElement.circle(displayWidth/2, displayHeight/2, 440).attr(
+          js.Dictionary("stroke" -> "black", "fill" -> "none", "id" -> "boundary-circle"))
   }
 
   private def setUpCreateHandleHandler(svgElement: js.Dynamic) = {
@@ -52,16 +55,16 @@ object CircleLimitApp {
         if (!currentlyDrawing && event.detail == 2) {
           val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
             js.Dictionary("fill" -> "red", "class" -> "handle"))
-          currentHandles = new js.Array[js.Dynamic]
+          currentHandles = ListBuffer[js.Dynamic]()
           allHandleLists += currentHandles
-          currentHandles.push(handle)
+          currentHandles.append(handle)
           refreshHandleHandlers(svgElement)
           refreshGeodesics(svgElement)
           currentlyDrawing = true
         } else if (currentlyDrawing && event.detail == 1){
           val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
             js.Dictionary("fill" -> "red", "class" -> "handle"))
-          currentHandles.push(handle)
+          currentHandles.append(handle)
           refreshHandleHandlers(svgElement)
           refreshGeodesics(svgElement)
         } else if (currentlyDrawing && event.detail == 2) {
@@ -94,18 +97,41 @@ object CircleLimitApp {
             {
             }): js.ThisFunction
         )
+        el.unclick()
+        el.click(
+          (event: js.Dynamic) => {
+            if (!currentlyDrawing) {
+              event.stopPropagation()
+            }
+            if (event.detail == 3){
+              el.remove()
+              val handleList = getListContainingHandle(el)
+              handleList -= el
+              if (handleList.length < 2) {
+                handleList.foreach( _.remove() )
+                allHandleLists -= handleList
+              }
+            }
+            refreshGeodesics(svgElement)
+          }
+        )
       }
     )
   }
 
+  private def getListContainingHandle(handle: js.Dynamic) = {
+    allHandleLists.find(_.contains(handle)).get
+  }
+
   private def refreshGeodesics(svgElement: js.Dynamic) = {
+    var boundaryCircle = svgElement.select("[id=boundary-circle]")
     svgElement.selectAll("[class=geodesic]").forEach(
       (el: js.Dynamic) => {
         el.remove()
       }
     )
     allHandleLists.foreach(
-      (handles: js.Array[js.Dynamic]) => {
+      (handles: ListBuffer[js.Dynamic]) => {
         handles.tail zip handles foreach {
           (pair: (js.Dynamic, js.Dynamic)) => {
             val vector1 = Vector(
@@ -119,8 +145,11 @@ object CircleLimitApp {
               toMathematical(vector2),
               SpaceType.PoincareDisc
             ).asCurve
-            svgElement.path(convertCurveToSvg(curve)).attr(
+            val geodesic = svgElement.path(convertCurveToSvg(curve)).attr(
               js.Dictionary("stroke" -> "black", "fill" -> "none",  "class" -> "geodesic"))
+            // We insert after the boundary circle element in the markup to ensure that handles are
+            // rendered 'above' the geodesics.
+            geodesic.insertAfter(boundaryCircle)
           }
         }
       }
