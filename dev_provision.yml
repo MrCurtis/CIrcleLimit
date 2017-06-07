@@ -12,7 +12,7 @@
       apt: pkg=sbt state=installed update_cache=true force=true
     - name: Install firefox - for browser testing
       sudo: true
-      apt: pkg=firefox=28.0+build2-0ubuntu2 state=installed update_cache=true force=true
+      apt: pkg=firefox state=installed update_cache=true force=true
     - name: Packages to get rid of warnings when running headless browser
       sudo: true
       apt: pkg=dbus-x11,xfonts-100dpi,xfonts-75dpi,xfonts-cyrillic state=installed update_cache=true force=true
