@@ -13,6 +13,8 @@ import circle_limit.maths.{Curve, Arc, Line, Geodesic, SpaceType}
 import circle_limit.graphics.{Vector, Converter}
 import circle_limit.maths.CircleImplicits._
 
+case class CircleAttributes(x: Int, y: Int, r: Double)
+
 case class PageObjectException(err_msg: String) extends Exception(err_msg)
 
 class PageObject(driver: RemoteWebDriver, converter: Converter) {
