@@ -42,7 +42,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
         loadPage(driver)
           .assertTitle("Circle Limit")
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "border circle should have correct position and radius" - {
@@ -52,7 +52,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
           .assertBoundaryCircleCentredAtGraphicalPoint(440, 440)
           .assertBoundaryCircleHasGraphicalRadius(440)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "no geodesics should be displayed" - {
@@ -61,7 +61,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
         loadPage(driver)
           .assertNumberOfGeodesicsPlotted(0)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
   }
@@ -84,7 +84,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertHandlePointLocatedAtMathematicalPoint(point2)
           .assertGeodesicPlottedWithMathematicalEndpoints(point1, point2)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "should be able to create multiple geodesics by double clicking" - {
@@ -114,7 +114,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertGeodesicPlottedWithMathematicalEndpoints(pointC1, pointC2)
           .assertNumberOfGeodesicsPlotted(3)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "double-clicking then single clicking should allow the creation of piece-wise geodesics" - {
@@ -139,7 +139,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertGeodesicPlottedWithMathematicalEndpoints(point3, point4)
           .assertNumberOfGeodesicsPlotted(3)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "piece-wise geodesics should be movable using handles" - {
@@ -160,7 +160,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertGeodesicPlottedWithMathematicalEndpoints(destinationPoint2, point3)
           .assertNumberOfGeodesicsPlotted(2)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "geodesic with both endpoint in top left quadrant should plot a circular arc"-{
@@ -172,7 +172,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .createGeodesicWithHandlesAtMathematicalPoints(point1, point2)
           .assertGeodesicPlottedWithMathematicalEndpoints(point1, point2)
         } finally {
-          driver.close()
+          driver.quit()
         }
     }
     "geodesic with both points on line through the origin should plot a line segment"-{
@@ -186,7 +186,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .createGeodesicWithHandlesAtMathematicalPoints(point1, point2)
           .assertGeodesicPlottedWithMathematicalEndpoints(point1, point2, exact=true)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "geodesic should be moveable using handles" - {
@@ -205,7 +205,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertGeodesicPlottedWithMathematicalEndpoints(destinationPoint1, destinationPoint2)
           .assertNumberOfGeodesicsPlotted(1)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "triple-clicking on handle points should delete them" - {
@@ -222,7 +222,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertGeodesicPlottedWithMathematicalEndpoints(point1, point3)
           .assertGeodesicPlottedWithMathematicalEndpoints(point3, point4)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
     "if only two handles exist for a piece-wise geodesic then triple clicking one should delete whole geodesic" - {
@@ -236,7 +236,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
           .assertNumberOfHandlesPlotted(0)
           .assertNumberOfGeodesicsPlotted(0)
       } finally {
-        driver.close()
+        driver.quit()
       }
     }
   }
