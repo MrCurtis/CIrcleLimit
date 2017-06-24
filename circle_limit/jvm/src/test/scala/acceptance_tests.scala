@@ -6,10 +6,8 @@ import spire.math.Complex
 import spire.implicits._
 import utest._
 import org.openqa.selenium.{By, WebElement, Dimension}
-import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.interactions.Actions
-
-import org.openqa.selenium.firefox.FirefoxDriver
 
 import circle_limit.maths.{Arc, Geodesic, SpaceType, Line}
 import circle_limit.graphics.{Converter, Box, Vector}
@@ -20,7 +18,7 @@ abstract class AcceptanceTestSuite extends TestSuite {
 
   val fileUrl = "file:///vagrant/circle_limit/circle_limit.html"
 
-  def loadPage(driver: FirefoxDriver) = {
+  def loadPage(driver: ChromeDriver) = {
     val displayWidth = 880
     val displayHeight = 880
     val converter = Converter(
@@ -39,7 +37,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
   val tests = TestSuite {
 
     "title should be \"Circle Limit\""-{
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try{
         loadPage(driver)
           .assertTitle("Circle Limit")
@@ -48,7 +46,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
       }
     }
     "border circle should have correct position and radius" - {
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try{
         loadPage(driver)
           .assertBoundaryCircleCentredAtGraphicalPoint(440, 440)
@@ -58,7 +56,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
       }
     }
     "no geodesics should be displayed" - {
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try{
         loadPage(driver)
           .assertNumberOfGeodesicsPlotted(0)
@@ -77,7 +75,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
     "double clicking on two points should create a geodesic with handle points" - {
       val point1 = Complex(0.4, -0.1)
       val point2 = Complex(0.2, 0.5)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .doubleClickAtMathematicalPoint(point1)
@@ -96,7 +94,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       val pointB2 = Complex(0.1, -0.5)
       val pointC1 = Complex(-0.2, -0.5)
       val pointC2 = Complex(0.3, 0.6)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .doubleClickAtMathematicalPoint(pointA1)
@@ -124,7 +122,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       val point2 = Complex(0.2, 0.5)
       val point3 = Complex(0.3, -0.1)
       val point4 = Complex(-0.2, 0.5)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
 
       try {
         loadPage(driver)
@@ -149,7 +147,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       val initialPoint2 = Complex(0.2, 0.5)
       val destinationPoint2 = Complex(0.5, 0.2)
       val point3 = Complex(0.3, -0.1)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
 
       try {
         loadPage(driver)
@@ -168,7 +166,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
     "geodesic with both endpoint in top left quadrant should plot a circular arc"-{
       val point1 = Complex(0.5, -0.5)
       val point2 = Complex(-0.5, -0.5)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .createGeodesicWithHandlesAtMathematicalPoints(point1, point2)
@@ -182,7 +180,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       // equality here. This is important as small errors would result in an arc rather than a line being plotted.
       val point1 = Complex(-0.6, 0.0)
       val point2 = Complex(0.6, 0.0)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .createGeodesicWithHandlesAtMathematicalPoints(point1, point2)
@@ -196,7 +194,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       val destinationPoint1= Complex(0.5, -0.5)
       val initialPoint2 = Complex(0.2, 0.2)
       val destinationPoint2 = Complex(-0.5, -0.5)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .createGeodesicWithHandlesAtMathematicalPoints(initialPoint1, initialPoint2)
@@ -215,7 +213,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       val point2 = Complex(0.2, 0.2)
       val point3 = Complex(0.3, -0.3)
       val point4 = Complex(-0.4, -0.4)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .createMultiGeodesicWithHandlesAtMathematicalPoints(List(point1, point2, point3, point4))
@@ -230,7 +228,7 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
     "if only two handles exist for a piece-wise geodesic then triple clicking one should delete whole geodesic" - {
       val point1 = Complex(-0.1, 0.1)
       val point2 = Complex(0.2, 0.2)
-      val driver = new FirefoxDriver()
+      val driver = new ChromeDriver()
       try {
         loadPage(driver)
           .createGeodesicWithHandlesAtMathematicalPoints(point1, point2)

@@ -6,7 +6,7 @@ import collection.JavaConverters._
 import spire.math.Complex
 import spire.implicits._
 import org.openqa.selenium.{By, WebElement}
-import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.interactions.Actions
 
 import circle_limit.maths.{Curve, Arc, Line, Geodesic, SpaceType}
@@ -15,7 +15,7 @@ import circle_limit.maths.CircleImplicits._
 
 case class PageObjectException(err_msg: String) extends Exception(err_msg)
 
-class PageObject(driver: FirefoxDriver, converter: Converter) {
+class PageObject(driver: RemoteWebDriver, converter: Converter) {
 
   def assertTitle(expectedTitle: String) = {
     val actualTitle = driver.getTitle
@@ -250,5 +250,5 @@ class PageObject(driver: FirefoxDriver, converter: Converter) {
 }
 
 object PageObject {
-  def apply(driver: FirefoxDriver, converter: Converter) = new PageObject(driver, converter)
+  def apply(driver: RemoteWebDriver, converter: Converter) = new PageObject(driver, converter)
 }
