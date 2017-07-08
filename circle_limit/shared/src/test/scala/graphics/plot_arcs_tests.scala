@@ -100,6 +100,23 @@ object ConverterTestSuite extends TestSuite {
       }
     }
 
+    "Scales from mathematical to graphical correctly when" - {
+      "aspect-ratio of mathematical is less than graphical" - {
+        val mathsBox = Box(-1.0, -1.0, 4.0, 2.0)
+        val graphicsBox = Box(1.0, 2.0, 1200.0, 400.0)
+        val f = Converter(mathsBox, graphicsBox).scaleFromMathematicalToGraphicalSpace _
+
+        assert (f(2.0) == 400.0)
+      }
+      "aspect-ratio of mathematical is greater than graphical" - {
+        val mathsBox = Box(-1.0, -1.0, 4.0, 2.0)
+        val graphicsBox = Box(1.0, 2.0, 600.0, 400.0)
+        val f = Converter(mathsBox, graphicsBox).scaleFromMathematicalToGraphicalSpace _
+
+        assert (f(2.0) == 300.0)
+      }
+    }
+
     "Converts SVG for an arc to Arc" - {
       val mathsBox = Box(-1.0, -1.0, 2.0, 2.0)
       val graphicsBox = Box(0.0, 0.0, 200.0, 200.0)

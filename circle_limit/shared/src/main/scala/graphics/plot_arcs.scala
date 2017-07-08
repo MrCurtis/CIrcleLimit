@@ -65,6 +65,12 @@ class Converter (mathsBox: Box, graphicsBox: Box){
   private val scaleFactor = min(graphicsBox.width/mathsBox.width, graphicsBox.height/mathsBox.height)
 
   /**
+   * Converts a Euclidean distance in the mathematical space to the corresponding distance in the
+   * graphical space.
+   */
+  def scaleFromMathematicalToGraphicalSpace(distance: Double) = scaleFactor*distance
+
+  /**
    * Converts a single point from mathematical space to graphical space.
    */
   def convertFromMathematicalToGraphicalSpace(point: Complex[Double]): Vector = {
