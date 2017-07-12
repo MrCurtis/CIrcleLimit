@@ -5,7 +5,7 @@ import collection.JavaConverters._
 
 import spire.math.Complex
 import spire.implicits._
-import org.openqa.selenium.{By, WebElement}
+import org.openqa.selenium.{By, WebElement, Dimension}
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.interactions.Actions
 
@@ -54,6 +54,16 @@ class PageObject(driver: RemoteWebDriver, converter: Converter) {
     this
   }
 
+  def assertBoundaryCircleCentredInViewPort() = {
+    assert (false)
+    this
+  }
+
+  def assertBoundaryCircleToHeightRatioApproximately(ratio: Double) = {
+    assert (false)
+    this
+  }
+
   def dragHandleFromMathematicalPointToPoint(initial: Complex[Double], destination: Complex[Double]) = {
     val handle = getHandleAtMathematicalPoint(initial)
     dragHandleToMathematicalPoint(handle, destination)
@@ -76,6 +86,40 @@ class PageObject(driver: RemoteWebDriver, converter: Converter) {
           "No curve approximating %s plotted. Actual curves plotted: %s".format(
             expectedCurve, actualCurves.mkString(", ")))
     }
+    this
+  }
+
+  def assertHandleAtGraphicalPoint(x: Int, y: Int) = {
+    val graphicalPoint = Vector(x,y)
+    val handles = driver.findElements(By.className("handle")).asScala.toList
+    val handlesAtPointGraphical = handles.filter(isElementAtLocation(graphicalPoint)(_))
+    assert (
+      !handlesAtPointGraphical.isEmpty,
+      ("No handle found at graphical point %s."
+      + " Handles exist with the following attributes: %s").format(
+        graphicalPoint,
+        handles.map(getCircleAttributes).mkString(", ")))
+    this
+
+  }
+
+  def assertGeodesicPlottedWithGraphicalEndpoints(x1: Int, y1: Int, x2: Int, y2: Int) = {
+    assert(false, "Not implemented yet")
+    this
+  }
+
+  def resizeViewport(width: Int, height: Int) = {
+    driver.manage().window().setSize(new Dimension(width, height))
+    this
+  }
+
+  def doubleClickAtGraphicalPoint(x: Int, y: Int) = {
+    val svgElement = driver.findElement(By.tagName("svg"))
+    new Actions(driver)
+      .moveToElement(svgElement, x, y)
+      .click() // This appears to necessary to emulate a double click properly.
+      .doubleClick()
+      .perform()
     this
   }
 

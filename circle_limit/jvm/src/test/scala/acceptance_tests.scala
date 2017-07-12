@@ -32,6 +32,89 @@ abstract class AcceptanceTestSuite extends TestSuite {
 }
 
 
+object ResizingTests extends AcceptanceTestSuite {
+
+  val tests = TestSuite {
+
+    "boundary circle should be centred in browser window on initial load" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .assertBoundaryCircleCentredInViewPort()
+      } finally {
+        driver.quit()
+      }
+    }
+    "boundary circle diameter should be approximately 98% of viewport height on initial load" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .assertBoundaryCircleToHeightRatioApproximately(0.98)
+      } finally {
+        driver.quit()
+      }
+    }
+    "boundary circle re-sizes on viewport resize - portrait" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 300)
+          .assertBoundaryCircleCentredInViewPort()
+          .assertBoundaryCircleToHeightRatioApproximately(0.98)
+      } finally {
+        driver.quit()
+      }
+    }
+    "boundary circle re-sizes on viewport resize - landscape" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 500)
+          .assertBoundaryCircleCentredInViewPort()
+          .assertBoundaryCircleToHeightRatioApproximately(0.98)
+      } finally {
+        driver.quit()
+      }
+    }
+    "handles and geodesics should be correctly placed after resize - portrait" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 300)
+          .doubleClickAtGraphicalPoint(150, 150)
+          .doubleClickAtGraphicalPoint(250, 150)
+          .resizeViewport(800, 600)
+          .assertHandleAtGraphicalPoint(300, 300)
+          .assertHandleAtGraphicalPoint(500, 300)
+          .assertGeodesicPlottedWithGraphicalEndpoints(
+            300, 300,
+            500, 300)
+      } finally {
+        driver.quit()
+      }
+    }
+    "handles and geodesics should be correctly placed after resize - landscape" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 500)
+          .doubleClickAtGraphicalPoint(150, 150)
+          .doubleClickAtGraphicalPoint(250, 150)
+          .resizeViewport(800, 1000)
+          .assertHandleAtGraphicalPoint(300, 500)
+          .assertHandleAtGraphicalPoint(500, 500)
+          .assertGeodesicPlottedWithGraphicalEndpoints(
+            300, 500,
+            500, 500)
+      } finally {
+        driver.quit()
+      }
+    }
+  }
+
+}
+
+
 object InitialPageLayoutTests extends AcceptanceTestSuite {
 
   val tests = TestSuite {
