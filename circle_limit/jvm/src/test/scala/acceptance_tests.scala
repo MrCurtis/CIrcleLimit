@@ -19,97 +19,10 @@ abstract class AcceptanceTestSuite extends TestSuite {
   val fileUrl = "file:///vagrant/circle_limit/circle_limit.html"
 
   def loadPage(driver: ChromeDriver) = {
-    val displayWidth = 880
-    val displayHeight = 880
-    val converter = Converter(
-      Box(-1.0, -1.0, 2.0, 2.0),
-      Box(0.0, 0.0, displayWidth, displayHeight))
+    val displayWidth = 924
+    val displayHeight = 924
     driver.get(fileUrl)
-    driver.manage().window().setSize(new Dimension(1024, 1024))
-    PageObject(driver, converter)
-  }
-
-}
-
-
-object ResizingTests extends AcceptanceTestSuite {
-
-  val tests = TestSuite {
-
-    "boundary circle should be centred in browser window on initial load" - {
-      val driver = new ChromeDriver()
-      try{
-        loadPage(driver)
-          .assertBoundaryCircleCentredInViewPort()
-      } finally {
-        driver.quit()
-      }
-    }
-    "boundary circle diameter should be approximately 98% of viewport height on initial load" - {
-      val driver = new ChromeDriver()
-      try{
-        loadPage(driver)
-          .assertBoundaryCircleToHeightRatioApproximately(0.98)
-      } finally {
-        driver.quit()
-      }
-    }
-    "boundary circle re-sizes on viewport resize - portrait" - {
-      val driver = new ChromeDriver()
-      try{
-        loadPage(driver)
-          .resizeViewport(400, 300)
-          .assertBoundaryCircleCentredInViewPort()
-          .assertBoundaryCircleToHeightRatioApproximately(0.98)
-      } finally {
-        driver.quit()
-      }
-    }
-    "boundary circle re-sizes on viewport resize - landscape" - {
-      val driver = new ChromeDriver()
-      try{
-        loadPage(driver)
-          .resizeViewport(400, 500)
-          .assertBoundaryCircleCentredInViewPort()
-          .assertBoundaryCircleToHeightRatioApproximately(0.98)
-      } finally {
-        driver.quit()
-      }
-    }
-    "handles and geodesics should be correctly placed after resize - portrait" - {
-      val driver = new ChromeDriver()
-      try{
-        loadPage(driver)
-          .resizeViewport(400, 300)
-          .doubleClickAtGraphicalPoint(150, 150)
-          .doubleClickAtGraphicalPoint(250, 150)
-          .resizeViewport(800, 600)
-          .assertHandleAtGraphicalPoint(300, 300)
-          .assertHandleAtGraphicalPoint(500, 300)
-          .assertGeodesicPlottedWithGraphicalEndpoints(
-            300, 300,
-            500, 300)
-      } finally {
-        driver.quit()
-      }
-    }
-    "handles and geodesics should be correctly placed after resize - landscape" - {
-      val driver = new ChromeDriver()
-      try{
-        loadPage(driver)
-          .resizeViewport(400, 500)
-          .doubleClickAtGraphicalPoint(150, 150)
-          .doubleClickAtGraphicalPoint(250, 150)
-          .resizeViewport(800, 1000)
-          .assertHandleAtGraphicalPoint(300, 500)
-          .assertHandleAtGraphicalPoint(500, 500)
-          .assertGeodesicPlottedWithGraphicalEndpoints(
-            300, 500,
-            500, 500)
-      } finally {
-        driver.quit()
-      }
-    }
+    PageObject(driver).resizeViewport(displayWidth, displayHeight)
   }
 
 }
@@ -128,12 +41,20 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
         driver.quit()
       }
     }
-    "border circle should have correct position and radius" - {
+    "boundary circle should be centred in browser window" - {
       val driver = new ChromeDriver()
       try{
         loadPage(driver)
-          .assertBoundaryCircleCentredAtGraphicalPoint(440, 440)
-          .assertBoundaryCircleHasGraphicalRadius(440)
+          .assertBoundaryCircleCentredInViewPort()
+      } finally {
+        driver.quit()
+      }
+    }
+    "boundary circle diameter should be approximately 95% of viewport height" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .assertBoundaryCircleToHeightRatioApproximately(0.95)
       } finally {
         driver.quit()
       }
@@ -150,6 +71,7 @@ object InitialPageLayoutTests extends AcceptanceTestSuite {
   }
 
 }
+
 
 object MovableGeodisicTests extends AcceptanceTestSuite {
 
@@ -323,4 +245,69 @@ object MovableGeodisicTests extends AcceptanceTestSuite {
       }
     }
   }
+}
+
+
+object ResizingTests extends AcceptanceTestSuite {
+
+  val tests = TestSuite {
+
+    "boundary circle re-sizes on viewport resize - landscape" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 300)
+          .assertBoundaryCircleCentredInViewPort()
+          .assertBoundaryCircleToHeightRatioApproximately(0.95)
+      } finally {
+        driver.quit()
+      }
+    }
+    "boundary circle re-sizes on viewport resize - portrait" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 500)
+          .assertBoundaryCircleCentredInViewPort()
+          .assertBoundaryCircleToWidthRatioApproximately(0.95)
+      } finally {
+        driver.quit()
+      }
+    }
+    "handles and geodesics should be correctly placed after resize - portrait" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 300)
+          .doubleClickAtGraphicalPoint(150, 150)
+          .doubleClickAtGraphicalPoint(250, 150)
+          .resizeViewport(800, 600)
+          .assertHandleAtGraphicalPoint(300, 300)
+          .assertHandleAtGraphicalPoint(500, 300)
+          .assertGeodesicPlottedWithGraphicalEndpoints(
+            300, 300,
+            500, 300)
+      } finally {
+        driver.quit()
+      }
+    }
+    "handles and geodesics should be correctly placed after resize - landscape" - {
+      val driver = new ChromeDriver()
+      try{
+        loadPage(driver)
+          .resizeViewport(400, 500)
+          .doubleClickAtGraphicalPoint(150, 150)
+          .doubleClickAtGraphicalPoint(250, 150)
+          .resizeViewport(800, 1000)
+          .assertHandleAtGraphicalPoint(300, 300)
+          .assertHandleAtGraphicalPoint(500, 300)
+          .assertGeodesicPlottedWithGraphicalEndpoints(
+            300, 300,
+            500, 300)
+      } finally {
+        driver.quit()
+      }
+    }
+  }
+
 }
