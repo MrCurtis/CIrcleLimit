@@ -9,7 +9,7 @@ import spire.implicits._
 import Imaginary.i
 import CircleImplicits._
 
-import TestHelpers.checkSetsOfMoebiusTransformationAlmostEqual
+import circle_limit.test_helpers.TestHelpers.setsOfMoebiusTransformationAlmostEqual
 
 object GroupTestSuite extends TestSuite {
 
@@ -87,7 +87,7 @@ object GroupTestSuite extends TestSuite {
 
       val returned = group.elements
 
-      assert ( checkSetsOfMoebiusTransformationAlmostEqual ( expected, returned ) )
+      assert ( setsOfMoebiusTransformationAlmostEqual ( expected, returned ) )
     } 
 
     "getImagesOfGeodesic returns the images of geodesic under the group" - {

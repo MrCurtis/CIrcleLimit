@@ -1,12 +1,150 @@
-package circle_limit.maths
+package circle_limit.test_helpers
 
 import utest._
 
 import spire.implicits._
 
-import Imaginary.i
+import circle_limit.maths.Imaginary.i
+import circle_limit.maths.CircleImplicits._
 
-import TestHelpers.checkSetsOfMoebiusTransformationAlmostEqual
+import circle_limit.maths.{Arc, Curve, Line, MoebiusTransformation}
+import TestHelpers.{setsOfMoebiusTransformationAlmostEqual, curvesAlmostEqual}
+
+
+object CurvesAlmostEqualTestSuite extends TestSuite {
+
+  val testSet = Set(
+    Arc(1,2,3),
+    Line(1,2),
+    Line(2,1),
+    Arc(0.456, 0.123, 1.2),
+    Arc(0.466, 0.123, 1.2),
+    Arc(0.456, 0.113, 1.2),
+    Arc(0.456, 0.133, 1.2),
+    Arc(0.456, 0.123, 1.21),
+    Arc(0.466, 0.123, 1.2),
+    Arc(0.113, 0.456, 1.2),
+    Arc(0.112, 0.452, 1.2),
+    Arc(0.112, 0.452, 23.4),
+    Arc(0.456, 0.11323, 1.23),
+    Line(0.456, 0.123),
+    Line(0.454, 0.123),
+    Line(0.454, 0.120),
+    Line(0.454, 0.120),
+    Line(0.123, 0.454),
+    Line(0.124, 0.454),
+    Line(0.123, 0.455),
+    Line(0.230, 0.450),
+    Line(-3019.0001, 234.2),
+    Line(0.124, -0.454),
+    Arc(12.4, 45.7, 199.0),
+    Arc(12.4, 45.7, 204.0),
+    Arc(12.4, 45.7, 204.0),
+    Line(12.4, 45.7),
+    Line(45.7, 12.401),
+    Arc(0.456+0.2*i, 0.123, 1.2+0.123*i),
+    Arc(0.466, 0.123, 1.2),
+    Arc(145.67*i, 0.456, 0.001),
+    Arc(0.112, 0.452, 1.2),
+    Arc(12+0.000*i, 0.452, 23.4),
+    Arc(0.456, 0.11323, 1.23),
+    Line(0.456, 0.123),
+    Line(0.454, 0.123),
+    Line(0.454, 0.120),
+    Line(0.454, 0.120),
+    Line(0.123, 0.454),
+    Line(0.124, 0.454),
+    Arc(12.4, 45.7, 199.0+19.9*i),
+    Arc(12.4, 45.7, 199.0+20*i),
+    Line(12.4+0.0001*i, 45.7)
+  )
+
+  val testProducts = for{x <- testSet; y <- testSet} yield (x, y)
+
+  val tests = TestSuite {
+
+    val almostEqual = testProducts.filter(x => curvesAlmostEqual(x._1, x._2))
+    val notAlmostEqual = testProducts -- almostEqual
+
+    "Curves should be almost equal if they are equal" - {
+      val equal = testProducts.filter(x => x._1 == x._2)
+      assert (equal subsetOf almostEqual)
+    }
+    "curvesAlmostEqual should be symetric" - {
+      assert (almostEqual == almostEqual.map(x => (x._2, x._1)))
+    }
+    "Using notation x~=y to mean abs(x-y) < 0.005:" -  {
+      "Arc(s1, f1, c1) and Arc(s1, f1, c1) should not be almost equal if !(s1~=s2)" - {
+        val arcsWithStartNotAlmostEqual =
+          testProducts.filter{
+            case (Arc(s1,_,_), Arc(s2,_,_)) => (s2-s1).abs >= 0.005
+            case _ => false
+          }
+        assert (arcsWithStartNotAlmostEqual subsetOf notAlmostEqual)
+      }
+      "Arc(s1, f1, c1) and Arc(s1, f1, c1) should not be almost equal if !(f1~=f2)" - {
+        val arcsWithFinishNotAlmostEqual =
+          testProducts.filter{
+            case (Arc(_,f1,_), Arc(_,f2,_)) => (f2-f1).abs >= 0.005
+            case _ => false
+          }
+        assert (arcsWithFinishNotAlmostEqual subsetOf notAlmostEqual)
+      }
+      "Arc(s1, f1, c1) and Arc(s1, f1, c1) should not be almost equal if !(c1~=c2)" - {
+        val arcsWithCentreNotAlmostEqual =
+          testProducts.filter{
+            case (Arc(_,_,c1), Arc(_,_,c2)) => (c2-c1).abs >= 0.005
+            case _ => false
+          }
+        assert (arcsWithCentreNotAlmostEqual subsetOf notAlmostEqual)
+      }
+      "Line(s1, f1) and Line(s2, f2) should be almost equal if s1~=s2 and f1~=f2" - {
+        val linesWithStartsAlmostEqualAndFinishesAlmostEqual =
+          testProducts.filter{
+            case (Line(s1,f1), Line(s2,f2)) => (s2-s1).abs < 0.005 && (f2-f1).abs < 0.005
+            case _ => false
+          }
+        assert(linesWithStartsAlmostEqualAndFinishesAlmostEqual subsetOf almostEqual)
+      }
+      "Line(s1, f1) and Line(s2, f2) should be almost equal if s1~=f2 and f1~=s2" - {
+        val linesWithStartsAndFinishesAlmostEqual =
+          testProducts.filter {
+            case (Line(s1,f1), Line(s2,f2)) => (s2-f1).abs < 0.005 && (f2-s1).abs < 0.005
+            case _ => false
+          }
+        assert(linesWithStartsAndFinishesAlmostEqual subsetOf almostEqual)
+      }
+      "Arc(s1, f1, c1) and Line(s2, f2) should not be almost equal if abs(c1) <= 200" - {
+        val arcsWithCentreDistanceSmall =
+          testProducts.filter {
+            case (Arc(_, _,c), Line(_,_)) => c.abs <= 200
+            case _ => false
+          }
+        assert(arcsWithCentreDistanceSmall subsetOf notAlmostEqual)
+      }
+      "Arc(s1, f1, c1) and Line(s2, f2) should be almost equal if s1~=s2, f1~=f2 and c1 > 200" - {
+        val pointsAlmostEqualAndCentreDistanceLarge =
+          testProducts.filter {
+            case (Arc(s1,f1,c1), Line(s2,f2)) => {
+              (s2-s1).abs < 0.005 && (f2-f1).abs < 0.005 && c1.abs > 200
+            }
+            case _ => false
+          }
+        assert(pointsAlmostEqualAndCentreDistanceLarge subsetOf almostEqual)
+      }
+      "Arc(s1, f1, c1) and Line(s2, f2) should be almost equal if s1~=f2, f1~=s2 and c1 > 200" - {
+        val pointsReversedAlmostEqualAndCentreDistanceLarge =
+          testProducts.filter {
+            case (Arc(s1,f1,c1), Line(s2,f2)) => {
+              (s2-f1).abs < 0.005 && (f2-s1).abs < 0.005 && c1.abs > 200
+            }
+            case _ => false
+          }
+        assert(pointsReversedAlmostEqualAndCentreDistanceLarge subsetOf almostEqual)
+      }
+    }
+  }
+}
 
 object CheckSetsOfMoebiusTransformationsAlmostEqual extends TestSuite {
 
@@ -16,7 +154,7 @@ object CheckSetsOfMoebiusTransformationsAlmostEqual extends TestSuite {
       val set1 = Set[MoebiusTransformation]()
       val set2 = Set[MoebiusTransformation]()
       assert (
-        checkSetsOfMoebiusTransformationAlmostEqual(set1, set2)
+        setsOfMoebiusTransformationAlmostEqual(set1, set2)
       )
     }
 
@@ -63,7 +201,7 @@ object CheckSetsOfMoebiusTransformationsAlmostEqual extends TestSuite {
       ) // only the last two digits of some entries vary
 
       assert (
-        checkSetsOfMoebiusTransformationAlmostEqual(set1, set2)
+        setsOfMoebiusTransformationAlmostEqual(set1, set2)
       )
 
     }
@@ -111,7 +249,7 @@ object CheckSetsOfMoebiusTransformationsAlmostEqual extends TestSuite {
       )
 
       assert (
-        ! checkSetsOfMoebiusTransformationAlmostEqual(set1, set2)
+        ! setsOfMoebiusTransformationAlmostEqual(set1, set2)
       )
 
     }
@@ -153,7 +291,7 @@ object CheckSetsOfMoebiusTransformationsAlmostEqual extends TestSuite {
       )
 
       assert (
-        ! checkSetsOfMoebiusTransformationAlmostEqual(set1, set2)
+        ! setsOfMoebiusTransformationAlmostEqual(set1, set2)
       )
 
     }
@@ -195,7 +333,7 @@ object CheckSetsOfMoebiusTransformationsAlmostEqual extends TestSuite {
       )
 
       assert (
-        ! checkSetsOfMoebiusTransformationAlmostEqual(set1, set2)
+        ! setsOfMoebiusTransformationAlmostEqual(set1, set2)
       )
 
     }

@@ -44,9 +44,21 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
   }
 
   private def createArcFromComplexInUpperHalfPlane(z1: Complex[Double], z2: Complex[Double]): Arc = {
-    //TODO - Explain the maths for calculating the centre.
-    val k = (z2.imag + z1.imag) / (2 * (z2.real - z1.real)) 
-    val zCentre = (z2 * (1 -2*k*i) + z1 * (1 + 2*k*i))/2.0+0.0*i
+    /*
+    * A note on the calculations:
+    *
+    * If z_c is any point which is the centre of a circle which passes through both z_1 and z_2
+    * then we have
+    *   1) |z_1 - z_c| = |z_2 - z_c|
+    * and thus
+    *   2) (x_1 - x_c)^2 + (y_1 - y_c)^2 = (x_1 - x_c)^2 + (y_1 - y_c)^2
+    * where x_2, y_2, x_1, y_1, and x_c, y_c are the real and imaginary parts of z_2, z_1, and
+    * z_c respectively. If we further specify that z_c is is on the real line then we can
+    * substitute in y_c = 0 in to (2) and rearrange to obtain the desired value of x_c.
+    */
+    def sq(x: Double) = x*x
+    val zCentre =
+      ( (sq(z2.real) + sq(z2.imag)) - (sq(z1.real) + sq(z1.imag)) ) / (2*(z2.real - z1.real))
     if (z1.real > z2.real) {
       Arc(z1, z2, zCentre)
     } else {
@@ -80,25 +92,25 @@ class Geodesic(val z1: ProjectiveComplex, val z2: ProjectiveComplex, val spaceTy
   }
 
   private def createArcFromComplexInPoincareDisc(z1: Complex[Double], z2: Complex[Double]): Arc = {
-    /*  
-    *  A note on the calculations:
+    /*
+    * A note on the calculations:
     *
-    *  If z_c is any point outside of the closed unit disc, then the circle 
-    *  centred at z_c which intersects the unit circle orthoganaly has radius
-    *  r determined (using Pythogaras' theorem) by:
-    *    1) r^2 = |z_c|^2 - 1
-    *  If, furthermore, this circle passes through both z_1 and z_2 then we
-    *  have:
-    *    2) |z_c - z_1|^2 = r^2
-    *  and 
-    *    3) |z_c - z_2|^2 = r^2
-    *  Substituting the RHS of (1) for the RHS of (2) and rearranging we get 
-    *    4) x_c*x_1 + y_c*y_1 = (1/2) * (x_1^2 + y_1^2 + 1)
-    *  where x_c,y_c and x_1, y_1 are the real and imaginary parts of z_c and 
-    *  z_1 respectively.
-    *  Similarly we have
-    *    5) x_c*x_2 + y_c*y_2 = (1/2) * (x_2^2 + y_2^2 + 1)
-    *  Solving for x_c and y_c gives us the results below.
+    * If z_c is any point outside of the closed unit disc, then the circle
+    * centred at z_c which intersects the unit circle orthogonally has radius
+    * r determined (using Pythagoras' theorem) by:
+    *   1) r^2 = |z_c|^2 - 1
+    * If, furthermore, this circle passes through both z_1 and z_2 then we
+    * have:
+    *   2) |z_c - z_1|^2 = r^2
+    * and
+    *   3) |z_c - z_2|^2 = r^2
+    * Substituting the RHS of (1) for the RHS of (2) and rearranging we get
+    *   4) x_c*x_1 + y_c*y_1 = (1/2) * (x_1^2 + y_1^2 + 1)
+    * where x_c,y_c and x_1, y_1 are the real and imaginary parts of z_c and
+    * z_1 respectively.
+    * Similarly we have
+    *   5) x_c*x_2 + y_c*y_2 = (1/2) * (x_2^2 + y_2^2 + 1)
+    * Solving for x_c and y_c gives us the results below.
     */
     
     val x1 = z1.real

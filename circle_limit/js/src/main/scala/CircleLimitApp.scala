@@ -197,12 +197,7 @@ object CircleLimitApp {
       _.foreach(
         el => {
           val elementId = el.attr("id").toString
-          val handleRecord = handleRecords.filter(
-            hr => hr match {
-              case HandleRecord(_, `elementId`) => true
-              case _ => false
-            }
-          ).head
+          val handleRecord = handleRecords.filter(_.id == elementId).head
           val positionGraphical = getCurrentConverter().convertFromMathematicalToGraphicalSpace(
             handleRecord.mathematicalPosition
           )

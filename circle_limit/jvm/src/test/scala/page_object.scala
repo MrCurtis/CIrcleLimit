@@ -10,6 +10,7 @@ import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.interactions.Actions
 
 import circle_limit.maths.{Curve, Arc, Line, Geodesic, SpaceType}
+import circle_limit.test_helpers.TestHelpers.curvesAlmostEqual
 import circle_limit.graphics.{Box, Vector, Converter}
 import circle_limit.maths.CircleImplicits._
 
@@ -287,42 +288,6 @@ class PageObject(driver: RemoteWebDriver) {
       Box(-1.05, -1.05, 2.10, 2.10),
       Box(0.0, 0.0, svgWidth, svgHeight)
     )
-  }
-
-  //TODO - This should be moved to the test helper object, and tests added.
-  private def curvesAlmostEqual(curve1: Curve, curve2: Curve): Boolean = {
-    (curve1, curve2) match {
-      case (arc1: Arc, arc2: Arc) => arcsAlmostEqual(arc1, arc2)
-      case (line1: Line, line2: Line) => linesAlmostEqual(line1, line2)
-      case (arc1: Arc, line2: Line) => arcAndLineAlmostEqual(arc1, line2)
-      case (line1: Line, arc2: Arc) => arcAndLineAlmostEqual(arc2, line1)
-    }
-  }
-
-  private val errorDelta = 0.005
-
-  private def arcsAlmostEqual(arc1: Arc, arc2: Arc) = {
-    (
-      (((arc1.start - arc2.start).abs < errorDelta && (arc1.finish - arc2.finish).abs < errorDelta)
-        || ((arc1.start - arc2.finish).abs < errorDelta && (arc1.finish - arc2.start).abs < errorDelta))
-          && (arc1.centre - arc2.centre).abs < errorDelta
-    )
-  }
-
-  private def linesAlmostEqual(line1: Line, line2: Line) = {
-    (
-      ((line1.start - line2.start).abs < errorDelta && (line1.finish - line2.finish).abs < errorDelta)
-        || ((line1.start - line2.finish).abs < errorDelta && (line1.finish - line2.start).abs < errorDelta)
-    )
-  }
-
-  private def arcAndLineAlmostEqual(arc: Arc, line: Line) = {
-    (
-      (((arc.start - line.start).abs < errorDelta && (arc.finish - line.finish).abs < errorDelta)
-        || ((arc.start - line.finish).abs < errorDelta && (arc.finish - line.start).abs < errorDelta))
-          && (arc.centre).abs > 1.0/errorDelta
-    )
-
   }
 
   private def dragHandleToMathematicalPoint(handle: WebElement, point: Complex[Double]) = {
