@@ -3,6 +3,7 @@ Circle Limit
 
 A small application for plotting figures in the Poincaré disc.
 
+![Screenshot](https://raw.github.com/MrCurtis/CircleLimit/gh-pages/circle_limit_screenshot.png)
 
 For Users
 ---------
@@ -13,6 +14,7 @@ The app can be found [here](http://mrcurtis.github.io/CircleLimit/).
 * Each subsequent single-click will add another handle point.
 * Double-click again to finish drawing.
 * Triple-clicking on a handle point deletes it.
+* Drag handles to move them.
 
 For Developers
 ---------------
@@ -30,7 +32,7 @@ and then start sbt using xvfb for headless browser testing
 
     xvfb-run sbt
 
-Once on the sbt command run the tests to check that everything is working
+Once on the sbt command-line run the tests to check that everything is working
 correctly.
 
     test
