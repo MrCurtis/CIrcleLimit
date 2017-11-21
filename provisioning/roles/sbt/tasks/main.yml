@@ -1,0 +1,9 @@
+- name: Add sbt repository
+  apt_repository:
+    repo: "deb http://dl.bintray.com/sbt/debian /"
+- name: Install sbt
+  apt:
+    pkg: sbt
+    state: installed
+    update_cache: true
+    force: true

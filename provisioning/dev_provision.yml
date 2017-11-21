@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  roles:
+    - java
+    - sbt
+    - nodejs
+    - browser_testing

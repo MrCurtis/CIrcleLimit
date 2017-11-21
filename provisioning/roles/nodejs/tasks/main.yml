@@ -1,0 +1,19 @@
+- name: Install nodejs
+  apt:
+    pkg: nodejs
+    state: installed
+    update_cache: true
+- name: Make symlink node->nodejs - this is a temporary measure
+  file:
+    src: /usr/bin/nodejs
+    dest: /usr/bin/node
+    state: link
+- name: Install npm
+  apt:
+    pkg: npm
+    state: installed
+    update_cache: true
+- name: Install source map support for node js
+  npm:
+    name: source-map-support
+    global: true
