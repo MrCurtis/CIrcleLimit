@@ -1,4 +1,8 @@
 package circle_limit.maths
+
+import spire.implicits._
+
+import Imaginary.i
 import ComplexMatrix.ComplexMatrix
 
 /**
@@ -89,4 +93,12 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
 object Group {
   def apply(generators: List[MoebiusTransformation], wordLength: Int) = 
     new Group(generators, wordLength)
+
+  def torsionFreeGroup(iterationDepth: Int) = apply(
+    List(
+      MoebiusTransformation(3.0, 2.0+1.0*i, 2.0-1.0*i, 3.0),
+      MoebiusTransformation(3.0, 2.0-1.0*i, 2.0+1.0*i, 3.0)
+    ),
+    iterationDepth
+  )
 }
