@@ -55,6 +55,7 @@ object CircleLimitApp {
     var svgElement = js.Dynamic.global.Snap().attr(js.Dictionary("id" -> svgElementId))
     setUpResizeHandler(svgElement)
     createBoundaryCircle(svgElement)
+    createIterationButton(svgElement)
     setUpCreateHandleHandler(svgElement)
   }
 
@@ -66,6 +67,26 @@ object CircleLimitApp {
       Box(-1.05, -1.05, 2.10, 2.10),
       Box(0.0, 0.0, svgWidth, svgHeight)
     )
+  }
+
+  private def createIterationButton(svgElement: js.Dynamic) = {
+    val converter = getCurrentConverter()
+    val centre = converter.convertFromMathematicalToGraphicalSpace(Complex(0.95, 0.95))
+    val radius = converter.scaleFromMathematicalToGraphicalSpace(0.04)
+    val el = svgElement.circle(centre.x, centre.y, radius).attr(
+          js.Dictionary("stroke" -> "black", "fill" -> "black", "id" -> "iteration-button"))
+    el.click(
+      (event: js.Dynamic) => {
+        iterateGeodesics(svgElement)
+      }
+    )
+  }
+
+  private def resizeIterationButton(svgElement: js.Dynamic) = {
+    val converter = getCurrentConverter()
+    val centre = converter.convertFromMathematicalToGraphicalSpace(Complex(0.95, 0.95))
+    val radius = converter.scaleFromMathematicalToGraphicalSpace(0.04)
+    svgElement.select("[id=iteration-button]").attr(js.Dictionary("cx" -> centre.x, "cy" -> centre.y, "r" -> radius))
   }
 
   private def createBoundaryCircle(svgElement: js.Dynamic) = {
@@ -240,9 +261,48 @@ object CircleLimitApp {
     )
   }
 
+  private def iterateGeodesics(svgElement: js.Dynamic) = {
+    println("Calling iterateGeodesic")
+    var boundaryCircle = svgElement.select("[id=boundary-circle]")
+    svgElement.selectAll("[class=geodesic]").forEach(
+      (el: js.Dynamic) => {
+        el.remove()
+      }
+    )
+    allHandleLists.foreach(
+      (handles: ListBuffer[js.Dynamic]) => {
+        handles.tail zip handles foreach {
+          (pair: (js.Dynamic, js.Dynamic)) => {
+            val vector1 = Vector(
+              pair._1.attr("cx").toString.toDouble,
+              pair._1.attr("cy").toString.toDouble)
+            val vector2 = Vector(
+              pair._2.attr("cx").toString.toDouble,
+              pair._2.attr("cy").toString.toDouble)
+            val curve = Geodesic(
+              getCurrentConverter().convertFromGraphicalToMathematicalSpace(vector1),
+              getCurrentConverter().convertFromGraphicalToMathematicalSpace(vector2),
+              SpaceType.PoincareDisc
+            )
+            val group = Group.torsionFreeGroup(3)
+            val images = group.getImagesOfGeodesic(curve)
+            images foreach {
+              (image: Geodesic) => {
+                val geodesic = svgElement.path(getCurrentConverter().convertCurveToSvg(image.asCurve)).attr(
+                  js.Dictionary("stroke" -> "black", "fill" -> "none",  "class" -> "geodesic"))
+                  geodesic.insertAfter(boundaryCircle)
+                }
+            }
+          }
+        }
+      }
+    )
+  }
+
   private def setUpResizeHandler(svgElement: js.Dynamic) = {
     window.addEventListener("resize", (event: js.Dynamic) => {
       resizeBoundaryCircle(svgElement)
+      resizeIterationButton(svgElement)
       refreshHandles(svgElement)
       refreshGeodesics(svgElement)
     })
