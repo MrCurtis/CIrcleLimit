@@ -15,6 +15,7 @@ The app can be found [here](http://mrcurtis.github.io/CircleLimit/).
 * Double-click again to finish drawing.
 * Triple-clicking on a handle point deletes it.
 * Drag handles to move them.
+* Clicking on the black dot plots images of the curve under a group.
 
 For Developers
 ---------------

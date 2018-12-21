@@ -8,6 +8,7 @@ import scala.scalajs.js.annotation.JSExport
 import scala.scalajs.js.DynamicImplicits.number2dynamic
 import org.scalajs.dom.window
 import org.scalajs.dom.document
+import org.scalajs.dom.raw.MouseEvent
 import spire.math.Complex
 import spire.implicits._
 import circle_limit.maths.CircleImplicits._
@@ -57,6 +58,22 @@ object CircleLimitApp {
     createBoundaryCircle(svgElement)
     createIterationButton(svgElement)
     setUpCreateHandleHandler(svgElement)
+    setUpFading(svgElement)
+  }
+
+  private def setUpFading(svgElement: js.Dynamic) = {
+    def makeDisapear() {
+      var elements = svgElement.selectAll("[class~=control]")
+      elements.forEach((el: js.Dynamic) => el.toggleClass("hide-away", true))
+    }
+    var t = window.setTimeout(() => makeDisapear, 3000)
+    def resetTimer() {
+      var elements = svgElement.selectAll("[class~=control]")
+      elements.forEach((el: js.Dynamic) => el.toggleClass("hide-away", false))
+      window.clearTimeout(t)
+      t = window.setTimeout(() => makeDisapear, 3000)
+    }
+    document.onmousemove = (event: MouseEvent) => resetTimer
   }
 
   private def getCurrentConverter() = {
@@ -74,7 +91,7 @@ object CircleLimitApp {
     val centre = converter.convertFromMathematicalToGraphicalSpace(Complex(0.95, 0.95))
     val radius = converter.scaleFromMathematicalToGraphicalSpace(0.04)
     val el = svgElement.circle(centre.x, centre.y, radius).attr(
-          js.Dictionary("stroke" -> "black", "fill" -> "black", "id" -> "iteration-button"))
+      js.Dictionary("class" -> "control", "stroke" -> "black", "fill" -> "black", "id" -> "iteration-button"))
     el.click(
       (event: js.Dynamic) => {
         iterateGeodesics(svgElement)
@@ -110,7 +127,7 @@ object CircleLimitApp {
         if (!currentlyDrawing && event.detail == 2) {
           val handleId = nextId.get()
           val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
-            js.Dictionary("fill" -> "red", "class" -> "handle", "id" -> handleId))
+            js.Dictionary("fill" -> "red", "class" -> "handle control", "id" -> handleId))
           val posMathematical = getCurrentConverter().convertFromGraphicalToMathematicalSpace(
             Vector(event.clientX.toString.toDouble, event.clientY.toString.toDouble))
           handleRecords += HandleRecord(posMathematical, handleId)
@@ -123,7 +140,7 @@ object CircleLimitApp {
         } else if (currentlyDrawing && event.detail == 1){
           val handleId = nextId.get()
           val handle = svgElement.circle(event.clientX, event.clientY, 4).attr(
-            js.Dictionary("fill" -> "red", "class" -> "handle", "id" -> handleId))
+            js.Dictionary("fill" -> "red", "class" -> "handle control", "id" -> handleId))
           val posMathematical = getCurrentConverter().convertFromGraphicalToMathematicalSpace(
             Vector(event.clientX.toString.toDouble, event.clientY.toString.toDouble))
           handleRecords += HandleRecord(posMathematical, handleId)
@@ -140,7 +157,7 @@ object CircleLimitApp {
   private def refreshHandleHandlers(svgElement: js.Dynamic) = {
     var tempStoreX = "0.0"
     var tempStoreY = "0.0"
-    svgElement.selectAll("[class=handle]").forEach(
+    svgElement.selectAll("[class~=handle]").forEach(
       (el: js.Dynamic) => {
         el.undrag()
         el.drag(
@@ -262,7 +279,6 @@ object CircleLimitApp {
   }
 
   private def iterateGeodesics(svgElement: js.Dynamic) = {
-    println("Calling iterateGeodesic")
     var boundaryCircle = svgElement.select("[id=boundary-circle]")
     svgElement.selectAll("[class=geodesic]").forEach(
       (el: js.Dynamic) => {

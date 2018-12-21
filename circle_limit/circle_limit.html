@@ -19,6 +19,18 @@
         height: 100%;
         width: 100%
       }
+      .hide-away {
+	opacity: 0;
+	animation: hide-away 2s;
+      }
+      @keyframes hide-away {
+	from {
+		opacity:1;
+	}
+	to {
+		opacity:0;
+	}
+      }
     </style>
     <script type="text/javascript" src="snap.svg-min.js"></script>
     <!-- Include Scala.js compiled code -->
