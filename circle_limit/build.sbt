@@ -17,6 +17,7 @@ lazy val circleLimit = crossProject.in(file(".")).
       "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
     ),
     libraryDependencies += "org.typelevel" %%% "spire" % "0.14.1",
+    libraryDependencies += "io.suzaku" %%% "diode" % "1.1.4",
     libraryDependencies += "com.lihaoyi" %%% "utest" % "0.6.0" % Test,
     libraryDependencies += "org.seleniumhq.selenium" % "selenium-java" % "3.7.1" % Test
   ).
