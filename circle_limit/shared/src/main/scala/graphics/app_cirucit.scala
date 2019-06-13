@@ -14,7 +14,8 @@ object AppCircuit extends Circuit[Root] {
 
   override val actionHandler: HandlerFunction = composeHandlers (
     new ConverterHandler(zoomTo(_.converter)),
-    new GeometryHandler(zoomTo(_.geometry))
+    new GeometryHandler(zoomTo(_.geometry)),
+    new GroupHandler(zoomTo(_.group))
   )
 
 }

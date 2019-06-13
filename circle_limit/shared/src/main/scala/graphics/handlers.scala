@@ -13,7 +13,7 @@ case class Geometry(
   geodesics: Set[(Int,Int)]=Set(),
   lastActive: Option[Int]=None
 )
-case class Root(converter: Converter, geometry: Geometry=Geometry(), group: Group=Group.torsionFreeGroup(3))
+case class Root(converter: Converter, geometry: Geometry=Geometry(), group: Group=Group.trivialGroup)
 
 
 case class MoveVertex(index: Int, position: Complex[Double]) extends Action
@@ -22,6 +22,7 @@ case class CanvasDoubleClick(position:  Complex[Double]) extends Action
 case class CanvasSingleClick(position:  Complex[Double]) extends Action
 case class VertexDoubleClick(id: Int) extends Action
 case class VertexTripleClick(id: Int) extends Action
+case class SelectGroup(group: Group) extends Action
 
 
 class ConverterHandler[M](modelRW: ModelRW[M, Converter]) extends ActionHandler(modelRW) {
@@ -124,4 +125,11 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
     )
   }
 
+}
+
+
+class GroupHandler[M](modelRW: ModelRW[M, Group]) extends ActionHandler(modelRW) {
+  override def handle = {
+    case SelectGroup(g) => updated(g)
+  }
 }

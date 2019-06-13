@@ -9,6 +9,7 @@ import diode.ActionResult.{ModelUpdate, NoChange}
 import spire.implicits._
 
 import circle_limit.maths.Imaginary.i
+import circle_limit.maths.Group
 import circle_limit.graphics.{Converter, Box, Vector}
 
 
@@ -298,5 +299,24 @@ object GeometryHandlerTestSuite extends TestSuite {
       }
     }
 
+  }
+}
+
+
+object GroupHandlerTestSuite extends TestSuite {
+  val tests = TestSuite {
+
+    "Sets group to selected" - {
+      val initial = Group.torsionFreeGroup(2)
+      val newGroup  = Group.torsionFreeGroup(2)
+      val groupHandler = new GroupHandler(new RootModelRW(initial))
+
+      val result = groupHandler(initial, SelectGroup(newGroup))
+
+      result match {
+        case Some(ModelUpdate(`newGroup`)) =>
+        case _ => assert (false)
+      }
+    }
   }
 }

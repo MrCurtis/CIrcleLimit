@@ -94,6 +94,11 @@ object Group {
   def apply(generators: List[MoebiusTransformation], wordLength: Int) = 
     new Group(generators, wordLength)
 
+  val trivialGroup = apply(
+    List(MoebiusTransformation.identity),
+    0
+  )
+
   def torsionFreeGroup(iterationDepth: Int) = apply(
     List(
       MoebiusTransformation(3.0, 2.0+1.0*i, 2.0-1.0*i, 3.0),

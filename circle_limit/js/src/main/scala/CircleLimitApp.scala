@@ -14,7 +14,7 @@ import diode.ModelRO
 
 import circle_limit.maths.CircleImplicits._
 import circle_limit.maths.Imaginary.i
-import circle_limit.maths.{Geodesic, SpaceType}
+import circle_limit.maths.{Geodesic, SpaceType, Group}
 import circle_limit.graphics.{Converter, Box, Vector}
 import circle_limit.graphics.AppCircuit
 import circle_limit.graphics.{
@@ -22,6 +22,7 @@ import circle_limit.graphics.{
   CanvasSingleClick,
   CanvasDoubleClick,
   MoveVertex,
+  SelectGroup,
   VertexDoubleClick,
   VertexTripleClick,
   Resize
@@ -53,6 +54,24 @@ object CircleLimitApp {
     svgElement.selectAll("[class~=handle]").forEach((el: js.Dynamic) => el.remove())
     val convert = converter.convertFromMathematicalToGraphicalSpace(_)
     createBoundaryCircle(svgElement, converter)
+    svgElement.selectAll("[id=iteration-button]").forEach((el: js.Dynamic) => el.remove())
+    val centre = converter.convertFromMathematicalToGraphicalSpace(Complex(0.95, 0.95))
+    val radius = converter.scaleFromMathematicalToGraphicalSpace(0.04)
+    val el = svgElement.circle(centre.x, centre.y, radius).attr(
+      js.Dictionary(
+        "stroke" -> "black",
+        "fill" -> {if (group == Group.trivialGroup) "white" else "black"},
+        "id" -> "iteration-button",
+        "class" -> "control"
+      )
+    )
+    el.click(
+      (event: js.Dynamic) => {
+        AppCircuit(
+          SelectGroup(if (group == Group.trivialGroup) Group.torsionFreeGroup(3) else Group.trivialGroup)
+        )
+      }
+    )
     val (createdGeodesics, changedGeodesics, deletedGeodesics) = getGeodesicsDiff(root.value, cachedRoot)
     (changedGeodesics.map(_._1) union deletedGeodesics).foreach(
       x => {
@@ -136,7 +155,7 @@ object CircleLimitApp {
         Set()
        )
       }
-      case Some(cached) if cached.converter != root.converter => {
+      case Some(cached) if (cached.converter != root.converter || cached.group != root.group) => {
         val handles = root.geometry.handles
         val geodesics = root.geometry.geodesics
         (
