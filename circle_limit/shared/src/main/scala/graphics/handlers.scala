@@ -1,6 +1,7 @@
 package circle_limit.graphics
 
 import spire.math.Complex
+import spire.implicits._
 import diode.{Action, ActionHandler, ModelRW}
 
 import circle_limit.maths.Group
@@ -48,38 +49,46 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
   }
 
   private def handleCanvasSingleClick(position: Complex[Double]) = {
-    val geometry = modelRW.value
-    geometry.lastActive match {
-      case Some(lastIndex) => updated(
-        geometry.copy(
-          index = geometry.index + 1,
-          handles = geometry.handles union Set(Handle(geometry.index,position)),
-          geodesics = geometry.geodesics union Set((lastIndex, geometry.index)),
-          lastActive = Some(geometry.index)
+    if (position.norm > 1) {
+      noChange
+    } else {
+      val geometry = modelRW.value
+      geometry.lastActive match {
+        case Some(lastIndex) => updated(
+          geometry.copy(
+            index = geometry.index + 1,
+            handles = geometry.handles union Set(Handle(geometry.index,position)),
+            geodesics = geometry.geodesics union Set((lastIndex, geometry.index)),
+            lastActive = Some(geometry.index)
+          )
         )
-      )
-      case None => noChange
+        case None => noChange
+      }
     }
   }
 
   private def handleCanvasDoubleClick(position: Complex[Double]) = {
-    val geometry = modelRW.value
-    geometry.lastActive match {
-      case Some(_) => {
-        updated(
-          geometry.copy(
-            lastActive = None
+    if (position.norm > 1) {
+      noChange
+    } else {
+      val geometry = modelRW.value
+      geometry.lastActive match {
+        case Some(_) => {
+          updated(
+            geometry.copy(
+              lastActive = None
+            )
           )
-        )
-      }
-      case None => {
-        updated(
-          geometry.copy(
-            index = geometry.index + 1,
-            handles = geometry.handles union Set(Handle(geometry.index,position)),
-            lastActive = Some(geometry.index)
+        }
+        case None => {
+          updated(
+            geometry.copy(
+              index = geometry.index + 1,
+              handles = geometry.handles union Set(Handle(geometry.index,position)),
+              lastActive = Some(geometry.index)
+            )
           )
-        )
+        }
       }
     }
   }
@@ -90,7 +99,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
       geometry.copy(
         handles = geometry.handles.map(
           _ match {
-            case Handle(`id`, _) => Handle(id, position)
+            case Handle(`id`, _) => Handle(id, position/(1 max position.norm))
             case h => h
           }
         )

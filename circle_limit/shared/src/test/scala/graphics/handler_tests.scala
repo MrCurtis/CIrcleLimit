@@ -1,6 +1,7 @@
 package circle_limit.graphics
 
 import scala.collection.immutable.Queue
+import scala.math.sqrt
 
 import utest._
 import diode.{ActionHandler,RootModelRW}
@@ -53,6 +54,23 @@ object GeometryHandlerTestSuite extends TestSuite {
 
       result match {
         case Some(ModelUpdate(x: Geometry)) => assert( x.handles contains Handle(initial.index, 0.5+0.1*i) )
+        case _ => assert (false)
+      }
+    }
+
+    "Double-click has no effect if outside circle" - {
+      val initial = Geometry(
+        index = 25,
+        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i)),
+        geodesics = Set((23,24)),
+        lastActive = Some(24)
+      )
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, CanvasDoubleClick(2.5+0.1*i))
+
+      result match {
+        case Some(NoChange) =>
         case _ => assert (false)
       }
     }
@@ -178,6 +196,20 @@ object GeometryHandlerTestSuite extends TestSuite {
       }
     }
 
+    "Single-click outside of circle does not create vertex" - {
+      val initial = Geometry(
+        lastActive = Some(13)
+      )
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, CanvasSingleClick(1.5+0.1*i))
+
+      result match {
+        case Some(NoChange) =>
+        case _ => assert (false)
+      }
+    }
+
     "Move action moves the specified vertex" - {
       val initial = Geometry(
         handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i))
@@ -188,6 +220,19 @@ object GeometryHandlerTestSuite extends TestSuite {
 
       result match {
         case Some(ModelUpdate(g: Geometry)) => assert ( g.handles contains Handle(23, 0.6+0.2*i) )
+        case _ => assert (false)
+      }
+    }
+
+    "Move action only moves vertex to boundary" - {
+      val initial = Geometry(
+        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i))
+      )
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MoveVertex(23, 1+1*i))
+      result match {
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles contains Handle(23, 1.0/2.0.sqrt+1.0/2.0.sqrt*i))
         case _ => assert (false)
       }
     }
@@ -251,7 +296,6 @@ object GeometryHandlerTestSuite extends TestSuite {
         case Some(ModelUpdate(g: Geometry)) => assert ( g.lastActive.isEmpty )
         case _ => assert (false)
       }
-
     }
 
   }
