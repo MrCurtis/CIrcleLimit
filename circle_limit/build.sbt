@@ -1,5 +1,12 @@
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
+enablePlugins(ScalaJSBundlerPlugin)
+
+npmDependencies in Compile ++= Seq(
+  "react" -> "16.7.0",
+  "react-dom" -> "16.7.0"
+)
+
 name := "CircleLimit root project"
 
 lazy val root = project.in(file(".")).
@@ -24,6 +31,7 @@ lazy val circleLimit = crossProject(JSPlatform, JVMPlatform).
     libraryDependencies += "com.lihaoyi" %%% "utest" % "0.7.1" % Test,
   ).
   jsSettings(
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.4.2",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.7",
   )
 
