@@ -5,12 +5,16 @@ import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import scala.scalajs.js.DynamicImplicits.number2dynamic
 
+import org.scalajs.dom
 import org.scalajs.dom.window
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.MouseEvent
 import spire.math.Complex
 import spire.implicits._
 import diode.ModelRO
+
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.svg_<^._
 
 import circle_limit.maths.CircleImplicits._
 import circle_limit.maths.Imaginary.i
@@ -29,10 +33,29 @@ import circle_limit.graphics.{
 }
 
 
+object BoundaryCircle {
+  val component = ScalaComponent.builder[Unit]("BoundaryCircle")
+    .renderStatic(
+      <.circle(
+        ^.id := "boundary-circle",
+        ^.cx := "960",
+        ^.cy := "372",
+        ^.r := "354.2857142857143",
+        ^.stroke := "#000000",
+        ^.fill := "none",
+      )
+    )
+    .build
+
+    def apply() = component()
+}
+
+//<circle cx="960" cy="372" r="354.2857142857143" style="" stroke="#000000" fill="none" id="boundary-circle"></circle>
+
 object CircleLimitApp {
 
   def main(args: Array[String]): Unit = {
-    println()
+    BoundaryCircle().renderIntoDOM(dom.document.getElementById("main-display"))
   }
 }
 
