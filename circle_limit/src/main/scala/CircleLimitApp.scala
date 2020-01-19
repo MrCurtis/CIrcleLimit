@@ -5,13 +5,13 @@ import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import scala.scalajs.js.DynamicImplicits.number2dynamic
 
-import org.scalajs.dom
 import org.scalajs.dom.window
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.MouseEvent
 import spire.math.Complex
 import spire.implicits._
 import diode.ModelRO
+import diode.react.ModelProxy
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
@@ -34,28 +34,53 @@ import circle_limit.graphics.{
 
 
 object BoundaryCircle {
-  val component = ScalaComponent.builder[Unit]("BoundaryCircle")
-    .renderStatic(
+  case class Props(converterProxy: ModelProxy[Converter])
+
+  class Backend(bs: BackendScope[Props, Unit]) {
+
+    def render(props: Props) = {
+      val converter: Converter = props.converterProxy()
+      val centre = converter.convertFromMathematicalToGraphicalSpace(Complex(0.0, 0.0))
+      val radius = converter.scaleFromMathematicalToGraphicalSpace(1.0)
       <.circle(
         ^.id := "boundary-circle",
-        ^.cx := "960",
-        ^.cy := "372",
-        ^.r := "354.2857142857143",
+        ^.cx := centre.x,
+        ^.cy := centre.y,
+        ^.r := radius,
         ^.stroke := "#000000",
         ^.fill := "none",
       )
-    )
+    }
+  }
+
+  val component = ScalaComponent.builder[Props]("BoundaryCircle")
+    .renderBackend[Backend]
     .build
 
-    def apply() = component()
+  def apply(converterProxy: ModelProxy[Converter]) = component(Props(converterProxy))
 }
-
-//<circle cx="960" cy="372" r="354.2857142857143" style="" stroke="#000000" fill="none" id="boundary-circle"></circle>
 
 object CircleLimitApp {
 
+  val svgElementId = "main-display"
+
+  val boundaryCircleConnection = AppCircuit.connect(_.converter)
+
   def main(args: Array[String]): Unit = {
-    BoundaryCircle().renderIntoDOM(dom.document.getElementById("main-display"))
+    setUpResizeHandler()
+    resize()
+    boundaryCircleConnection(p => BoundaryCircle(p)).renderIntoDOM(document.getElementById(svgElementId))
+  }
+
+  private def setUpResizeHandler() = {
+    window.addEventListener("resize", (event: js.Dynamic) => resize() )
+  }
+
+  private def resize() = {
+      val svgElement = document.getElementById(svgElementId)
+      val svgWidth = svgElement.getBoundingClientRect().width.toDouble
+      val svgHeight = svgElement.getBoundingClientRect().height.toDouble
+      AppCircuit(Resize(svgWidth, svgHeight))
   }
 }
 

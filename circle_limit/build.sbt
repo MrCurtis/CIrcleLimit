@@ -12,6 +12,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
 	"org.typelevel"                     %%% "spire"       % "0.14.1",
 	"io.suzaku"                         %%% "diode"       % "1.1.5",
+	"io.suzaku"                         %%% "diode-react" % "1.1.5.142",
 	"com.lihaoyi"                       %%% "utest"       % "0.7.1" % Test,
 	"com.github.japgolly.scalajs-react" %%% "core"        % "1.4.2",
 	"org.scala-js"                      %%% "scalajs-dom" % "0.9.7",

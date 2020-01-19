@@ -1,9 +1,10 @@
 package circle_limit.graphics
 
 import diode.{Circuit, RootModelRW}
+import diode.react.ReactConnector
 
 
-object AppCircuit extends Circuit[Root] {
+object AppCircuit extends Circuit[Root] with ReactConnector[Root]{
 
   def initialModel = Root(
     Converter(
