@@ -33,13 +33,35 @@ import circle_limit.graphics.{
 }
 
 
+object Canvas {
+  case class Props(modelProxy: ModelProxy[Root])
+
+  class Backend(bs: BackendScope[Props, Unit]) {
+    def render(props: Props) = {
+      val model = props.modelProxy()
+      <.svg(
+        ^.id := "canvas",
+        BoundaryCircle(model.converter)
+      )
+    }
+  }
+
+  val component = ScalaComponent.builder[Props]("Canvas")
+    .renderBackend[Backend]
+    .build
+
+  def apply(modelProxy: ModelProxy[Root]) = component(Props(modelProxy))
+
+}
+
+
 object BoundaryCircle {
-  case class Props(converterProxy: ModelProxy[Converter])
+  case class Props(converter: Converter)
 
   class Backend(bs: BackendScope[Props, Unit]) {
 
     def render(props: Props) = {
-      val converter: Converter = props.converterProxy()
+      val converter: Converter = props.converter
       val centre = converter.convertFromMathematicalToGraphicalSpace(Complex(0.0, 0.0))
       val radius = converter.scaleFromMathematicalToGraphicalSpace(1.0)
       <.circle(
@@ -57,19 +79,21 @@ object BoundaryCircle {
     .renderBackend[Backend]
     .build
 
-  def apply(converterProxy: ModelProxy[Converter]) = component(Props(converterProxy))
+  def apply(converter: Converter) = component(Props(converter))
 }
+
+
 
 object CircleLimitApp {
 
   val svgElementId = "main-display"
 
-  val boundaryCircleConnection = AppCircuit.connect(_.converter)
+  val connection = AppCircuit.connect(AppCircuit.zoom(identity))
 
   def main(args: Array[String]): Unit = {
     setUpResizeHandler()
     resize()
-    boundaryCircleConnection(p => BoundaryCircle(p)).renderIntoDOM(document.getElementById(svgElementId))
+    connection(p => Canvas(p)).renderIntoDOM(document.getElementById(svgElementId))
   }
 
   private def setUpResizeHandler() = {
