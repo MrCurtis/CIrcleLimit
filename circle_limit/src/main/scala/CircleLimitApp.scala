@@ -15,6 +15,8 @@ import diode.react.ModelProxy
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
+import japgolly.scalajs.react.vdom.html_<^.<.button
+import japgolly.scalajs.react.vdom.html_<^.^.{key, onClick}
 
 import circle_limit.maths.CircleImplicits._
 import circle_limit.maths.Imaginary.i
@@ -34,16 +36,50 @@ import circle_limit.graphics.{
 
 
 object Canvas {
+
   case class Props(modelProxy: ModelProxy[Root])
 
   class Backend(bs: BackendScope[Props, Unit]) {
     def render(props: Props) = {
+
       val model = props.modelProxy()
+
+      def handleClick(event: ReactMouseEventFromInput) = {
+        props.modelProxy.dispatchCB({
+          println(props.modelProxy())
+          val converter = props.modelProxy().converter
+          val posMathematical = converter.convertFromGraphicalToMathematicalSpace(
+            Vector(event.clientX.toString.toDouble, event.clientY.toString.toDouble))
+          if (event.detail == 2) {
+            CanvasDoubleClick(posMathematical)
+          } else {
+            CanvasSingleClick(posMathematical)
+          }
+        })
+      }
+
+      val vertices = model.geometry.handles
+      val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
+      val vertexElements = vertices.map(
+        vertex => {
+          VertexHandle(vertex.id, toGraphical(vertex.position))
+        }
+      )
+
       <.svg(
-        ^.id := "canvas",
-        BoundaryCircle(model.converter)
+        <.rect(
+          ^.id := "canvas",
+          ^.height := "100%",
+          ^.width := "100%",
+          ^.fill := "white",
+          onClick ==> handleClick,
+        ),
+        BoundaryCircle(model.converter),
+        vertexElements.toTagMod,
       )
     }
+
+
   }
 
   val component = ScalaComponent.builder[Props]("Canvas")
@@ -82,6 +118,32 @@ object BoundaryCircle {
   def apply(converter: Converter) = component(Props(converter))
 }
 
+
+object VertexHandle {
+  case class Props(key: Int, position: Vector)
+
+  class Backend(bs: BackendScope[Props, Unit]) {
+
+    def render(props: Props) = {
+      val position = props.position
+      <.circle(
+        key := props.key,
+        ^.`class` := "handle control",
+        ^.cx := position.x.toString,
+        ^.cy := position.y.toString,
+        ^.r := "4",
+        ^.stroke := "none",
+        ^.fill := "red",
+      )
+    }
+  }
+
+  val component = ScalaComponent.builder[Props]("VertexHandle")
+    .renderBackend[Backend]
+    .build
+
+  def apply(key: Int, position: Vector) = component(Props(key, position))
+}
 
 
 object CircleLimitApp {
