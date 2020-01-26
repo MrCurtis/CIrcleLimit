@@ -62,7 +62,7 @@ object Canvas {
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       val vertexElements = vertices.map(
         vertex => {
-          VertexHandle(vertex.id, toGraphical(vertex.position))
+          VertexHandle(toGraphical(vertex.position), key=Some(vertex.id))
         }
       )
 
@@ -120,14 +120,13 @@ object BoundaryCircle {
 
 
 object VertexHandle {
-  case class Props(key: Int, position: Vector)
+  case class Props(position: Vector)
 
   class Backend(bs: BackendScope[Props, Unit]) {
 
     def render(props: Props) = {
       val position = props.position
       <.circle(
-        key := props.key,
         ^.`class` := "handle control",
         ^.cx := position.x.toString,
         ^.cy := position.y.toString,
@@ -142,7 +141,12 @@ object VertexHandle {
     .renderBackend[Backend]
     .build
 
-  def apply(key: Int, position: Vector) = component(Props(key, position))
+  def apply(position: Vector, key: Option[Int]=None) = {
+    key match {
+      case Some(x) => component.withKey(x)(Props(position))
+      case None => component(Props(position))
+    }
+  }
 }
 
 
