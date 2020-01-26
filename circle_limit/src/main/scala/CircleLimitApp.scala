@@ -16,7 +16,7 @@ import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
 import japgolly.scalajs.react.vdom.html_<^.<.button
-import japgolly.scalajs.react.vdom.html_<^.^.{key, onClick}
+import japgolly.scalajs.react.vdom.html_<^.^.{key, onClick, onMouseDown, onMouseMove}
 
 import circle_limit.maths.CircleImplicits._
 import circle_limit.maths.Imaginary.i
@@ -62,7 +62,7 @@ object Canvas {
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       val vertexElements = vertices.map(
         vertex => {
-          VertexHandle(toGraphical(vertex.position), key=Some(vertex.id))
+          VertexHandle(toGraphical(vertex.position), props.modelProxy, key=Some(vertex.id))
         }
       )
 
@@ -120,9 +120,11 @@ object BoundaryCircle {
 
 
 object VertexHandle {
-  case class Props(position: Vector)
+  case class Props(position: Vector, modelProxy: ModelProxy[Root])
 
-  class Backend(bs: BackendScope[Props, Unit]) {
+  case class State(mouseIsDown: Boolean)
+
+  class Backend(bs: BackendScope[Props, State]) {
 
     def render(props: Props) = {
       val position = props.position
@@ -133,18 +135,25 @@ object VertexHandle {
         ^.r := "4",
         ^.stroke := "none",
         ^.fill := "red",
+        onMouseMove ==> {
+          (e: ReactMouseEventFromInput) => {
+            val newPosition = props.modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
+            props.modelProxy.dispatchCB(MoveVertex(1, newPosition))
+          }
+        },
       )
     }
   }
 
   val component = ScalaComponent.builder[Props]("VertexHandle")
+    .initialState(State(false))
     .renderBackend[Backend]
     .build
 
-  def apply(position: Vector, key: Option[Int]=None) = {
+  def apply(position: Vector, modelProxy: ModelProxy[Root], key: Option[Int]=None) = {
     key match {
-      case Some(x) => component.withKey(x)(Props(position))
-      case None => component(Props(position))
+      case Some(x) => component.withKey(x)(Props(position, modelProxy))
+      case None => component(Props(position, modelProxy))
     }
   }
 }
