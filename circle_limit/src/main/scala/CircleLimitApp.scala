@@ -10,13 +10,13 @@ import org.scalajs.dom.document
 import org.scalajs.dom.raw.MouseEvent
 import spire.math.Complex
 import spire.implicits._
-import diode.ModelRO
+import diode.{ModelRO, NoAction}
 import diode.react.ModelProxy
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
 import japgolly.scalajs.react.vdom.html_<^.<.button
-import japgolly.scalajs.react.vdom.html_<^.^.{key, onClick, onMouseDown, onMouseMove}
+import japgolly.scalajs.react.vdom.html_<^.^.{key, onClick, onMouseUp, onMouseDown, onMouseMove}
 
 import circle_limit.maths.CircleImplicits._
 import circle_limit.maths.Imaginary.i
@@ -39,8 +39,10 @@ object Canvas {
 
   case class Props(modelProxy: ModelProxy[Root])
 
-  class Backend(bs: BackendScope[Props, Unit]) {
-    def render(props: Props) = {
+  case class State(vertexSelected: Option[Int])
+
+  class Backend(bs: BackendScope[Props,State]) {
+    def render(props: Props, state: State) = {
 
       val model = props.modelProxy()
 
@@ -58,11 +60,26 @@ object Canvas {
         })
       }
 
+      def handleMouseDown(elementID: Int) = bs.setState(State(Some(elementID)))
+      def handleMouseUp() = {println("mouse up"); bs.setState(State(None))}
+      def handleMouseMove(e: ReactMouseEventFromInput) = {
+          println(state.vertexSelected)
+          state.vertexSelected match {
+            case Some(id) => {
+              val newPosition = props.modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
+              props.modelProxy.dispatchCB(MoveVertex(1, newPosition))
+            }
+            case None => {
+              props.modelProxy.dispatchCB(NoAction)
+            }
+          }
+        }
+
       val vertices = model.geometry.handles
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       val vertexElements = vertices.map(
         vertex => {
-          VertexHandle(toGraphical(vertex.position), props.modelProxy, key=Some(vertex.id))
+          VertexHandle(toGraphical(vertex.position), props.modelProxy, handleMouseDown, key=Some(vertex.id))
         }
       )
 
@@ -73,6 +90,8 @@ object Canvas {
           ^.width := "100%",
           ^.fill := "white",
           onClick ==> handleClick,
+          onMouseMove ==> handleMouseMove,
+          onMouseUp --> handleMouseUp
         ),
         BoundaryCircle(model.converter),
         vertexElements.toTagMod,
@@ -83,6 +102,7 @@ object Canvas {
   }
 
   val component = ScalaComponent.builder[Props]("Canvas")
+    .initialState(State(None))
     .renderBackend[Backend]
     .build
 
@@ -120,11 +140,13 @@ object BoundaryCircle {
 
 
 object VertexHandle {
-  case class Props(position: Vector, modelProxy: ModelProxy[Root])
+  case class Props(
+    position: Vector,
+    modelProxy: ModelProxy[Root],
+    handleMouseDown: Int => Callback
+  )
 
-  case class State(mouseIsDown: Boolean)
-
-  class Backend(bs: BackendScope[Props, State]) {
+  class Backend(bs: BackendScope[Props, Unit]) {
 
     def render(props: Props) = {
       val position = props.position
@@ -135,25 +157,24 @@ object VertexHandle {
         ^.r := "4",
         ^.stroke := "none",
         ^.fill := "red",
-        onMouseMove ==> {
-          (e: ReactMouseEventFromInput) => {
-            val newPosition = props.modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
-            props.modelProxy.dispatchCB(MoveVertex(1, newPosition))
-          }
-        },
+        onMouseDown --> props.handleMouseDown(1),
       )
     }
   }
 
   val component = ScalaComponent.builder[Props]("VertexHandle")
-    .initialState(State(false))
     .renderBackend[Backend]
     .build
 
-  def apply(position: Vector, modelProxy: ModelProxy[Root], key: Option[Int]=None) = {
+  def apply(
+    position: Vector,
+    modelProxy: ModelProxy[Root],
+    handleMouseDown: Int => Callback,
+    key: Option[Int]=None
+  ) = {
     key match {
-      case Some(x) => component.withKey(x)(Props(position, modelProxy))
-      case None => component(Props(position, modelProxy))
+      case Some(x) => component.withKey(x)(Props(position, modelProxy, handleMouseDown))
+      case None => component(Props(position, modelProxy, handleMouseDown))
     }
   }
 }
