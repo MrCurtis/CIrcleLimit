@@ -78,7 +78,7 @@ object Canvas {
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       val vertexElements = vertices.map(
         vertex => {
-          VertexHandle(toGraphical(vertex.position), props.modelProxy, handleMouseDown, handleMouseUp, vertex.id)
+          VertexHandle(toGraphical(vertex.position), handleMouseDown, handleMouseUp, vertex.id)
         }
       )
 
@@ -141,7 +141,6 @@ object BoundaryCircle {
 object VertexHandle {
   case class Props(
     position: Vector,
-    modelProxy: ModelProxy[Root],
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
     key: Int,
@@ -170,11 +169,10 @@ object VertexHandle {
 
   def apply(
     position: Vector,
-    modelProxy: ModelProxy[Root],
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
     key: Int,
-  ) = component.withKey(key)(Props(position, modelProxy, handleMouseDown, handleMouseUp, key))
+  ) = component.withKey(key)(Props(position, handleMouseDown, handleMouseUp, key))
 }
 
 
