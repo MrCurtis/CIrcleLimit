@@ -48,7 +48,6 @@ object Canvas {
 
       def handleClick(event: ReactMouseEventFromInput) = {
         props.modelProxy.dispatchCB({
-          println(props.modelProxy())
           val converter = props.modelProxy().converter
           val posMathematical = converter.convertFromGraphicalToMathematicalSpace(
             Vector(event.clientX.toString.toDouble, event.clientY.toString.toDouble))
@@ -79,7 +78,7 @@ object Canvas {
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       val vertexElements = vertices.map(
         vertex => {
-          VertexHandle(toGraphical(vertex.position), props.modelProxy, handleMouseDown, key=Some(vertex.id))
+          VertexHandle(toGraphical(vertex.position), props.modelProxy, handleMouseDown, handleMouseUp, key=Some(vertex.id))
         }
       )
 
@@ -143,7 +142,8 @@ object VertexHandle {
   case class Props(
     position: Vector,
     modelProxy: ModelProxy[Root],
-    handleMouseDown: Int => Callback
+    handleMouseDown: Int => Callback,
+    handleMouseUp: Callback,
   )
 
   class Backend(bs: BackendScope[Props, Unit]) {
@@ -158,6 +158,7 @@ object VertexHandle {
         ^.stroke := "none",
         ^.fill := "red",
         onMouseDown --> props.handleMouseDown(1),
+        onMouseUp --> props.handleMouseUp
       )
     }
   }
@@ -170,11 +171,12 @@ object VertexHandle {
     position: Vector,
     modelProxy: ModelProxy[Root],
     handleMouseDown: Int => Callback,
+    handleMouseUp: Callback,
     key: Option[Int]=None
   ) = {
     key match {
-      case Some(x) => component.withKey(x)(Props(position, modelProxy, handleMouseDown))
-      case None => component(Props(position, modelProxy, handleMouseDown))
+      case Some(x) => component.withKey(x)(Props(position, modelProxy, handleMouseDown, handleMouseUp))
+      case None => component(Props(position, modelProxy, handleMouseDown, handleMouseUp))
     }
   }
 }
