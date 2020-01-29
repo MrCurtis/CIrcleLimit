@@ -66,7 +66,7 @@ object Canvas {
           state.vertexSelected match {
             case Some(id) => {
               val newPosition = props.modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
-              props.modelProxy.dispatchCB(MoveVertex(1, newPosition))
+              props.modelProxy.dispatchCB(MoveVertex(id, newPosition))
             }
             case None => {
               props.modelProxy.dispatchCB(NoAction)
@@ -78,7 +78,7 @@ object Canvas {
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       val vertexElements = vertices.map(
         vertex => {
-          VertexHandle(toGraphical(vertex.position), props.modelProxy, handleMouseDown, handleMouseUp, key=Some(vertex.id))
+          VertexHandle(toGraphical(vertex.position), props.modelProxy, handleMouseDown, handleMouseUp, vertex.id)
         }
       )
 
@@ -144,6 +144,7 @@ object VertexHandle {
     modelProxy: ModelProxy[Root],
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
+    key: Int,
   )
 
   class Backend(bs: BackendScope[Props, Unit]) {
@@ -157,7 +158,7 @@ object VertexHandle {
         ^.r := "4",
         ^.stroke := "none",
         ^.fill := "red",
-        onMouseDown --> props.handleMouseDown(1),
+        onMouseDown --> props.handleMouseDown(props.key),
         onMouseUp --> props.handleMouseUp
       )
     }
@@ -172,13 +173,8 @@ object VertexHandle {
     modelProxy: ModelProxy[Root],
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
-    key: Option[Int]=None
-  ) = {
-    key match {
-      case Some(x) => component.withKey(x)(Props(position, modelProxy, handleMouseDown, handleMouseUp))
-      case None => component(Props(position, modelProxy, handleMouseDown, handleMouseUp))
-    }
-  }
+    key: Int,
+  ) = component.withKey(key)(Props(position, modelProxy, handleMouseDown, handleMouseUp, key))
 }
 
 
