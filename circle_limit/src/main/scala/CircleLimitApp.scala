@@ -20,13 +20,14 @@ import japgolly.scalajs.react.vdom.html_<^.^.{key, onClick, onMouseUp, onMouseDo
 
 import circle_limit.maths.CircleImplicits._
 import circle_limit.maths.Imaginary.i
-import circle_limit.maths.{Geodesic, SpaceType, Group}
+import circle_limit.maths.{Geodesic, SpaceType, Group, MoebiusTransformation}
 import circle_limit.graphics.{Converter, Box, Vector}
 import circle_limit.graphics.AppCircuit
 import circle_limit.graphics.{
   Root,
   CanvasSingleClick,
   CanvasDoubleClick,
+  Handle,
   MoveVertex,
   SelectGroup,
   VertexDoubleClick,
@@ -81,6 +82,10 @@ object Canvas {
           VertexHandle(toGraphical(vertex.position), handleMouseDown, handleMouseUp, vertex.id)
         }
       )
+      val geodesicElements = for {
+        handlePair <- handlePairsFromGeodesics(model.geometry.handles, model.geometry.geodesics)
+        groupElement <- model.group.elements
+      } yield GeodesicView(handlePair._1, handlePair._2, groupElement, model.converter)
 
       <.svg(
         <.rect(
@@ -93,10 +98,13 @@ object Canvas {
           onMouseUp --> handleMouseUp
         ),
         BoundaryCircle(model.converter),
+        geodesicElements.toTagMod,
         vertexElements.toTagMod,
       )
     }
 
+    private def handlePairsFromGeodesics(handles: Set[Handle], geodesics:Set[(Int,Int)])
+      = geodesics.map {g => (handles.filter(_.id == g._1).head, handles.filter(_.id == g._2).head)}
 
   }
 
@@ -173,6 +181,32 @@ object VertexHandle {
     handleMouseUp: Callback,
     key: Int,
   ) = component.withKey(key)(Props(position, handleMouseDown, handleMouseUp, key))
+}
+
+
+object GeodesicView {
+  case class Props(startPoint: Complex[Double], endPoint: Complex[Double], transformation: MoebiusTransformation, converter: Converter)
+
+  class Backend(bs: BackendScope[Props, Unit]) {
+    def render(props: Props) = {
+      <.path(
+        ^.stroke := "black",
+        ^.fill := "none",
+        ^.d := props.converter.convertCurveToSvg(
+          props.transformation transform Geodesic(props.startPoint, props.endPoint, SpaceType.PoincareDisc) asCurve
+        )
+      )
+    }
+  }
+
+  val component = ScalaComponent.builder[Props]("GeodesicView")
+    .renderBackend[Backend]
+    .build
+
+  def apply(startPoint: Handle, endPoint: Handle, transformation: MoebiusTransformation, converter: Converter) = {
+    val key = "%s-%s-%s".format(startPoint.id, endPoint.id, transformation.toString)
+    component.withKey(key)(Props(startPoint.position, endPoint.position, transformation, converter))
+  }
 }
 
 
