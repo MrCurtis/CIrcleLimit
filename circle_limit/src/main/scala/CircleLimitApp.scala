@@ -1,5 +1,7 @@
 package circle_limit
 
+import scala.collection.immutable.SortedMap
+
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
@@ -27,7 +29,6 @@ import circle_limit.graphics.{
   Root,
   CanvasSingleClick,
   CanvasDoubleClick,
-  Handle,
   MoveVertex,
   SelectGroup,
   VertexDoubleClick,
@@ -77,8 +78,11 @@ object Canvas {
 
       val vertices = model.geometry.handles
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
-      def vertexElement(vertex: Handle) =
-          VertexHandle(toGraphical(vertex.position), handleMouseDown, handleMouseUp, vertex.id)
+      def vertexElement(vertex: (Int, Complex[Double])) = {
+          vertex match {
+            case (id, position) => VertexHandle(toGraphical(position), handleMouseDown, handleMouseUp, id)
+          }
+      }
       val geodesicElements = for {
         handlePair <- handlePairsFromGeodesics(model.geometry.handles, model.geometry.geodesics)
         groupElement <- model.group.elements
@@ -100,8 +104,8 @@ object Canvas {
       )
     }
 
-    private def handlePairsFromGeodesics(handles: Set[Handle], geodesics:Set[(Int,Int)])
-      = geodesics.map {g => (handles.filter(_.id == g._1).head, handles.filter(_.id == g._2).head)}
+    private def handlePairsFromGeodesics(handles: SortedMap[Int, Complex[Double]], geodesics:Set[(Int,Int)])
+      = geodesics.map {g => ((g._1, handles(g._1)), (g._2, handles(g._2)))}
 
   }
 
@@ -200,9 +204,9 @@ object GeodesicView {
     .renderBackend[Backend]
     .build
 
-  def apply(startPoint: Handle, endPoint: Handle, transformation: MoebiusTransformation, converter: Converter) = {
-    val key = "%s-%s-%s".format(startPoint.id, endPoint.id, transformation.toString)
-    component.withKey(key)(Props(startPoint.position, endPoint.position, transformation, converter))
+  def apply(startPoint: (Int, Complex[Double]), endPoint: (Int, Complex[Double]), transformation: MoebiusTransformation, converter: Converter) = {
+    val key = "%s-%s-%s".format(startPoint._1, endPoint._1, transformation.toString)
+    component.withKey(key)(Props(startPoint._2, endPoint._2, transformation, converter))
   }
 }
 

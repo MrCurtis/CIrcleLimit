@@ -1,15 +1,16 @@
 package circle_limit.graphics
 
+import scala.collection.immutable.SortedMap
+
 import spire.math.Complex
 import spire.implicits._
 import diode.{Action, ActionHandler, ModelRW}
 
 import circle_limit.maths.Group
 
-case class Handle(id: Int, position: Complex[Double])
 case class Geometry(
   index: Int=1,
-  handles: Set[Handle]=Set(),
+  handles: SortedMap[Int, Complex[Double]]=SortedMap(),
   geodesics: Set[(Int,Int)]=Set(),
   lastActive: Option[Int]=None
 )
@@ -58,7 +59,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
         case Some(lastIndex) => updated(
           geometry.copy(
             index = geometry.index + 1,
-            handles = geometry.handles union Set(Handle(geometry.index,position)),
+            handles = geometry.handles + (geometry.index -> position),
             geodesics = geometry.geodesics union Set((lastIndex, geometry.index)),
             lastActive = Some(geometry.index)
           )
@@ -85,7 +86,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
           updated(
             geometry.copy(
               index = geometry.index + 1,
-              handles = geometry.handles union Set(Handle(geometry.index,position)),
+              handles = geometry.handles + (geometry.index -> position),
               lastActive = Some(geometry.index)
             )
           )
@@ -98,12 +99,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
     val geometry = modelRW.value
     updated(
       geometry.copy(
-        handles = geometry.handles.map(
-          _ match {
-            case Handle(`id`, _) => Handle(id, position/(1 max position.norm))
-            case h => h
-          }
-        )
+        handles = geometry.handles + (id -> position/(1 max position.norm))
       )
     )
   }
@@ -118,7 +114,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
     val keptVerticesIds = keptGeodesics.foldLeft(Set(): Set[Int])((s, g) => s union Set(g._1, g._2))
     updated(
       geometry.copy(
-        handles = geometry.handles.filter(keptVerticesIds contains _.id),
+        handles = geometry.handles.filterKeys(keptVerticesIds contains _),
         geodesics = keptGeodesics,
         lastActive = None
       )
