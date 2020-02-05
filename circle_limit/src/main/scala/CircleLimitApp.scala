@@ -77,11 +77,8 @@ object Canvas {
 
       val vertices = model.geometry.handles
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
-      val vertexElements = vertices.map(
-        vertex => {
+      def vertexElement(vertex: Handle) =
           VertexHandle(toGraphical(vertex.position), handleMouseDown, handleMouseUp, vertex.id)
-        }
-      )
       val geodesicElements = for {
         handlePair <- handlePairsFromGeodesics(model.geometry.handles, model.geometry.geodesics)
         groupElement <- model.group.elements
@@ -99,7 +96,7 @@ object Canvas {
         ),
         BoundaryCircle(model.converter),
         geodesicElements.toTagMod,
-        vertexElements.toTagMod,
+        vertices.toTagMod(vertexElement _),
       )
     }
 
