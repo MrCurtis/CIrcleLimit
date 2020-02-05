@@ -10,7 +10,6 @@ import spire.implicits._
 
 import circle_limit.maths.Imaginary.i
 import circle_limit.maths.Group
-import circle_limit.graphics.{Converter, Box, Vector}
 
 
 object ConverterHandlerTestSuite extends TestSuite {
