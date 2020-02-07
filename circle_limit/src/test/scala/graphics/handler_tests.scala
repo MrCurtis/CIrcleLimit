@@ -62,7 +62,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val initial = Geometry(
         index = 25,
         handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i)),
-        geodesics = Set((23,24)),
+        geodesics = List((23,24)),
         lastActive = Some(24)
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
@@ -169,7 +169,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val initial = Geometry(
         index = 25,
         handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i)),
-        geodesics = Set((23,24)),
+        geodesics = List((23,24)),
         lastActive = Some(24)
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
@@ -191,7 +191,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val result = geometryHandler(initial, CanvasSingleClick(0.5+0.1*i))
 
       result match {
-        case Some(ModelUpdate(x: Geometry)) => assert( x.geodesics contains (13, initial.index) )
+        case Some(ModelUpdate(x: Geometry)) => assert( x.geodesics.toSet contains (13, initial.index) )
         case _ => assert (false)
       }
     }
@@ -254,14 +254,14 @@ object GeometryHandlerTestSuite extends TestSuite {
     "Triple-click on vertex deletes any geodesics attached to it" - {
       val initial = Geometry(
         handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i), (25, -0.5+0.4*i)),
-        geodesics = Set((23, 24), (24, 25), (25, 23))
+        geodesics = List((23, 24), (24, 25), (25, 23))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 
       val result = geometryHandler(initial, VertexTripleClick(23))
 
       result match {
-        case Some(ModelUpdate(g: Geometry)) => assert ( g.geodesics == Set((24, 25)) )
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.geodesics == List((24, 25)) )
         case _ => assert (false)
       }
     }
@@ -271,7 +271,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val verticesToBeKept = SortedMap((25, -0.5+0.4*i), (26, -0.2+0.2*i))
       val initial = Geometry(
         handles = verticesToBeDeleted ++ verticesToBeKept,
-        geodesics = Set((23, 24), (25, 26))
+        geodesics = List((23, 24), (25, 26))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 

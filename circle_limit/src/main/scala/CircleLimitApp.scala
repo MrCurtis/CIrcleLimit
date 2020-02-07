@@ -104,7 +104,7 @@ object Canvas {
       )
     }
 
-    private def handlePairsFromGeodesics(handles: SortedMap[Int, Complex[Double]], geodesics:Set[(Int,Int)])
+    private def handlePairsFromGeodesics(handles: SortedMap[Int, Complex[Double]], geodesics:List[(Int,Int)])
       = geodesics.map {g => ((g._1, handles(g._1)), (g._2, handles(g._2)))}
 
   }

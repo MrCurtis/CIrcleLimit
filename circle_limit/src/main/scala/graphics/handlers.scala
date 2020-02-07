@@ -11,7 +11,7 @@ import circle_limit.maths.Group
 case class Geometry(
   index: Int=1,
   handles: SortedMap[Int, Complex[Double]]=SortedMap(),
-  geodesics: Set[(Int,Int)]=Set(),
+  geodesics: List[(Int,Int)]=List(),
   lastActive: Option[Int]=None
 )
 case class Root(converter: Converter, geometry: Geometry=Geometry(), group: Group=Group.trivialGroup)
@@ -60,7 +60,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
           geometry.copy(
             index = geometry.index + 1,
             handles = geometry.handles + (geometry.index -> position),
-            geodesics = geometry.geodesics union Set((lastIndex, geometry.index)),
+            geodesics = geometry.geodesics :+ (lastIndex, geometry.index),
             lastActive = Some(geometry.index)
           )
         )
