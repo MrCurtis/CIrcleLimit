@@ -64,7 +64,6 @@ object Canvas {
       def handleMouseDown(elementID: Int) = bs.setState(State(Some(elementID)))
       def handleMouseUp() = {println("mouse up"); bs.setState(State(None))}
       def handleMouseMove(e: ReactMouseEventFromInput) = {
-          println(state.vertexSelected)
           state.vertexSelected match {
             case Some(id) => {
               val newPosition = props.modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
