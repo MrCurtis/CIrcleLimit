@@ -199,8 +199,14 @@ object GeodesicView {
     }
   }
 
+  implicit val complexReuse = Reusability.byRef[Complex[Double]]
+  implicit val mtReuse = Reusability.byRef[MoebiusTransformation]
+  implicit val converter = Reusability.byRef[Converter]
+  implicit val propsReuse = Reusability.derive[Props]
+
   val component = ScalaComponent.builder[Props]("GeodesicView")
     .renderBackend[Backend]
+    .configure(Reusability.shouldComponentUpdate)
     .build
 
   def apply(startPoint: (Int, Complex[Double]), endPoint: (Int, Complex[Double]), transformation: MoebiusTransformation, converter: Converter) = {
