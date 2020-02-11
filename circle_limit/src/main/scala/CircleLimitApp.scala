@@ -62,7 +62,7 @@ object Canvas {
       }
 
       def handleMouseDown(elementID: Int) = bs.setState(State(Some(elementID)))
-      def handleMouseUp() = {println("mouse up"); bs.setState(State(None))}
+      def handleMouseUp() = bs.setState(State(None))
       def handleMouseMove(e: ReactMouseEventFromInput) = {
           state.vertexSelected match {
             case Some(id) => {
@@ -79,7 +79,7 @@ object Canvas {
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       def vertexElement(vertex: (Int, Complex[Double])) = {
           vertex match {
-            case (id, position) => VertexHandle(toGraphical(position), handleMouseDown, handleMouseUp, id)
+            case (id, position) => VertexHandle(props.modelProxy, toGraphical(position), handleMouseDown, handleMouseUp, id)
           }
       }
       val geodesicElements = for {
@@ -148,6 +148,7 @@ object BoundaryCircle {
 
 object VertexHandle {
   case class Props(
+    modelProxy: ModelProxy[Root],
     position: Vector,
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
@@ -166,8 +167,21 @@ object VertexHandle {
         ^.stroke := "none",
         ^.fill := "red",
         onMouseDown --> props.handleMouseDown(props.key),
-        onMouseUp --> props.handleMouseUp
+        onMouseUp --> props.handleMouseUp,
+        onClick ==> handleClick(props.modelProxy, props.key),
       )
+    }
+
+    def handleClick(modelProxy: ModelProxy[Root], id: Int)(event: ReactMouseEventFromInput) = {
+      modelProxy.dispatchCB({
+        if (event.detail == 2) {
+          VertexDoubleClick(id)
+        } else if (event.detail == 3) {
+          VertexTripleClick(id)
+        } else  {
+          NoAction
+        }
+      })
     }
   }
 
@@ -176,11 +190,12 @@ object VertexHandle {
     .build
 
   def apply(
+    modelProxy: ModelProxy[Root],
     position: Vector,
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
     key: Int,
-  ) = component.withKey(key)(Props(position, handleMouseDown, handleMouseUp, key))
+  ) = component.withKey(key)(Props(modelProxy, position, handleMouseDown, handleMouseUp, key))
 }
 
 
