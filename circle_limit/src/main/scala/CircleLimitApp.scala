@@ -63,23 +63,12 @@ object Canvas {
 
       def handleMouseDown(elementID: Int) = bs.setState(State(Some(elementID)))
       def handleMouseUp() = bs.setState(State(None))
-      def handleMouseMove(e: ReactMouseEventFromInput) = {
-          state.vertexSelected match {
-            case Some(id) => {
-              val newPosition = props.modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
-              props.modelProxy.dispatchCB(MoveVertex(id, newPosition))
-            }
-            case None => {
-              props.modelProxy.dispatchCB(NoAction)
-            }
-          }
-        }
 
       val vertices = model.geometry.handles
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
       def vertexElement(vertex: (Int, Complex[Double])) = {
           vertex match {
-            case (id, position) => VertexHandle(props.modelProxy, toGraphical(position), handleMouseDown, handleMouseUp, id)
+            case (id, position) => VertexHandle(props.modelProxy, toGraphical(position), handleMouseDown, handleMouseUp, handleMouseMove(state.vertexSelected, props.modelProxy)(_), id)
           }
       }
       val geodesicElements = for {
@@ -94,7 +83,7 @@ object Canvas {
           ^.width := "100%",
           ^.fill := "white",
           onClick ==> handleClick,
-          onMouseMove ==> handleMouseMove,
+          onMouseMove ==> handleMouseMove(state.vertexSelected, props.modelProxy),
           onMouseUp --> handleMouseUp
         ),
         BoundaryCircle(model.converter),
@@ -102,6 +91,18 @@ object Canvas {
         vertices.toTagMod(vertexElement _),
       )
     }
+
+    def handleMouseMove(vertexSelected: Option[Int], modelProxy: ModelProxy[Root])(e: ReactMouseEventFromInput) = {
+        vertexSelected match {
+          case Some(id) => {
+            val newPosition = modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
+            modelProxy.dispatchCB(MoveVertex(id, newPosition))
+          }
+          case None => {
+            modelProxy.dispatchCB(NoAction)
+          }
+        }
+      }
 
     private def handlePairsFromGeodesics(handles: SortedMap[Int, Complex[Double]], geodesics:List[(Int,Int)])
       = geodesics.map {g => ((g._1, handles(g._1)), (g._2, handles(g._2)))}
@@ -152,6 +153,7 @@ object VertexHandle {
     position: Vector,
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
+    handleMouseMove: ReactMouseEventFromInput => Callback,
     key: Int,
   )
 
@@ -169,6 +171,7 @@ object VertexHandle {
         onMouseDown --> props.handleMouseDown(props.key),
         onMouseUp --> props.handleMouseUp,
         onClick ==> handleClick(props.modelProxy, props.key),
+        onMouseMove ==> props.handleMouseMove,
       )
     }
 
@@ -194,8 +197,9 @@ object VertexHandle {
     position: Vector,
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
+    handleMouseMove: ReactMouseEventFromInput => Callback,
     key: Int,
-  ) = component.withKey(key)(Props(modelProxy, position, handleMouseDown, handleMouseUp, key))
+  ) = component.withKey(key)(Props(modelProxy, position, handleMouseDown, handleMouseUp, handleMouseMove, key))
 }
 
 
