@@ -9,6 +9,7 @@ import scala.scalajs.js.DynamicImplicits.number2dynamic
 
 import org.scalajs.dom.window
 import org.scalajs.dom.document
+import org.scalajs.dom.{Array => JSArray}
 import org.scalajs.dom.raw.MouseEvent
 import spire.math.Complex
 import spire.implicits._
@@ -243,6 +244,7 @@ object CircleLimitApp {
 
   def main(args: Array[String]): Unit = {
     setUpResizeHandler()
+    setUpFading()
     resize()
     connection(p => Canvas(p)).renderIntoDOM(document.getElementById(svgElementId))
   }
@@ -256,6 +258,21 @@ object CircleLimitApp {
       val svgWidth = svgElement.getBoundingClientRect().width.toDouble
       val svgHeight = svgElement.getBoundingClientRect().height.toDouble
       AppCircuit(Resize(svgWidth, svgHeight))
+  }
+  
+  private def setUpFading() = {
+    def makeDisapear() {
+      var elements = document.getElementsByClassName("control").toArray
+      for (element <- elements) element.classList.add("hide-away")
+    }
+    var t = window.setTimeout(() => makeDisapear, 3000)
+    def resetTimer() {
+      var elements = document.getElementsByClassName("control")
+      elements.foreach((el: js.Dynamic) => el.classList.remove("hide-away"))
+      window.clearTimeout(t)
+      t = window.setTimeout(() => makeDisapear, 3000)
+    }
+    document.onmousemove = (event: MouseEvent) => resetTimer
   }
 }
 
