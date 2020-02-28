@@ -319,3 +319,57 @@ object GroupHandlerTestSuite extends TestSuite {
     }
   }
 }
+
+
+object FadingHandlerTestSuite extends TestSuite {
+  val tests = TestSuite {
+
+    "Hide-controller event sets to hidden if currently showing" - {
+      val initial = Show
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, HideControls)
+
+      result match {
+        case Some(ModelUpdate(Hide)) =>
+        case _ => assert(false)
+      }
+    }
+
+    "Hide-controller event has no effect if currently hidden" - {
+      val initial = Hide
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, HideControls)
+
+      result match {
+        case Some(NoChange) =>
+        case _ => assert (false)
+      }
+    }
+
+    "Show-controller event sets to show if currently hidden" - {
+      val initial = Hide
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, ShowControls)
+
+      result match {
+        case Some(ModelUpdate(Show)) =>
+        case _ => assert(false)
+      }
+    }
+
+    "Show-controller event has no effect if currently showing" - {
+      val initial = Show
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, ShowControls)
+
+      result match {
+        case Some(NoChange) =>
+        case _ => assert (false)
+      }
+    }
+  }
+}

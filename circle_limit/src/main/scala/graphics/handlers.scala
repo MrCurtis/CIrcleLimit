@@ -15,6 +15,9 @@ case class Geometry(
   lastActive: Option[Int]=None
 )
 case class Root(converter: Converter, geometry: Geometry=Geometry(), group: Group=Group.trivialGroup)
+sealed trait Visibility
+case object Show extends Visibility
+case object Hide extends Visibility
 
 
 case class MoveVertex(index: Int, position: Complex[Double]) extends Action
@@ -24,6 +27,8 @@ case class CanvasSingleClick(position:  Complex[Double]) extends Action
 case class VertexDoubleClick(id: Int) extends Action
 case class VertexTripleClick(id: Int) extends Action
 case class SelectGroup(group: Group) extends Action
+case object HideControls extends Action
+case object ShowControls extends Action
 
 
 class ConverterHandler[M](modelRW: ModelRW[M, Converter]) extends ActionHandler(modelRW) {
@@ -127,5 +132,23 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
 class GroupHandler[M](modelRW: ModelRW[M, Group]) extends ActionHandler(modelRW) {
   override def handle = {
     case SelectGroup(g) => updated(g)
+  }
+}
+
+
+class FadingHandler[M](modelRW: ModelRW[M, Visibility]) extends ActionHandler(modelRW) {
+  override def handle = {
+    case HideControls => {
+      modelRW.value match {
+        case Show => updated(Hide)
+        case Hide => noChange
+      }
+    }
+    case ShowControls => {
+      modelRW.value match {
+        case Hide => updated(Show)
+        case Show => noChange
+      }
+    }
   }
 }
