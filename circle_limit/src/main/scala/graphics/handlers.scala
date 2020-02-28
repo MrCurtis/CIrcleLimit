@@ -14,7 +14,12 @@ case class Geometry(
   geodesics: List[(Int,Int)]=List(),
   lastActive: Option[Int]=None
 )
-case class Root(converter: Converter, geometry: Geometry=Geometry(), group: Group=Group.trivialGroup)
+case class Root(
+  converter: Converter,
+  geometry: Geometry=Geometry(),
+  group: Group=Group.trivialGroup,
+  visibility: Visibility=Show
+)
 sealed trait Visibility
 case object Show extends Visibility
 case object Hide extends Visibility

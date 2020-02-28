@@ -9,7 +9,6 @@ import scala.scalajs.js.DynamicImplicits.number2dynamic
 
 import org.scalajs.dom.window
 import org.scalajs.dom.document
-import org.scalajs.dom.{Array => JSArray}
 import org.scalajs.dom.raw.MouseEvent
 import spire.math.Complex
 import spire.implicits._
@@ -34,7 +33,12 @@ import circle_limit.graphics.{
   SelectGroup,
   VertexDoubleClick,
   VertexTripleClick,
-  Resize
+  Visibility,
+  Resize,
+  HideControls,
+  ShowControls,
+  Hide,
+  Show
 }
 
 
@@ -67,9 +71,17 @@ object Canvas {
 
       val vertices = model.geometry.handles
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
-      def vertexElement(vertex: (Int, Complex[Double])) = {
+      def vertexElement(visibility: Visibility)(vertex: (Int, Complex[Double])) = {
           vertex match {
-            case (id, position) => VertexHandle(props.modelProxy, toGraphical(position), handleMouseDown, handleMouseUp, handleMouseMove(state.vertexSelected, props.modelProxy)(_), id)
+            case (id, position) => VertexHandle(
+              props.modelProxy,
+              toGraphical(position),
+              visibility,
+              handleMouseDown,
+              handleMouseUp,
+              handleMouseMove(state.vertexSelected, props.modelProxy)(_),
+              id
+            )
           }
       }
       val geodesicElements = for {
@@ -89,7 +101,7 @@ object Canvas {
         ),
         BoundaryCircle(model.converter),
         geodesicElements.toTagMod,
-        vertices.toTagMod(vertexElement _),
+        vertices.toTagMod(vertexElement(model.visibility) _),
       )
     }
 
@@ -152,6 +164,7 @@ object VertexHandle {
   case class Props(
     modelProxy: ModelProxy[Root],
     position: Vector,
+    visibility: Visibility,
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
     handleMouseMove: ReactMouseEventFromInput => Callback,
@@ -163,7 +176,12 @@ object VertexHandle {
     def render(props: Props) = {
       val position = props.position
       <.circle(
-        ^.`class` := "handle control",
+        ^.`class` := {
+          props.visibility match {
+            case Hide => "handle hide-away"
+            case Show => "handle"
+          }
+        },
         ^.cx := position.x.toString,
         ^.cy := position.y.toString,
         ^.r := "4",
@@ -196,11 +214,14 @@ object VertexHandle {
   def apply(
     modelProxy: ModelProxy[Root],
     position: Vector,
+    visibility: Visibility,
     handleMouseDown: Int => Callback,
     handleMouseUp: Callback,
     handleMouseMove: ReactMouseEventFromInput => Callback,
     key: Int,
-  ) = component.withKey(key)(Props(modelProxy, position, handleMouseDown, handleMouseUp, handleMouseMove, key))
+  ) = component.withKey(key)(
+    Props(modelProxy, position, visibility, handleMouseDown, handleMouseUp, handleMouseMove, key)
+  )
 }
 
 
@@ -262,13 +283,11 @@ object CircleLimitApp {
   
   private def setUpFading() = {
     def makeDisapear() {
-      var elements = document.getElementsByClassName("control").toArray
-      for (element <- elements) element.classList.add("hide-away")
+      AppCircuit(HideControls)
     }
     var t = window.setTimeout(() => makeDisapear, 3000)
     def resetTimer() {
-      var elements = document.getElementsByClassName("control")
-      elements.foreach((el: js.Dynamic) => el.classList.remove("hide-away"))
+      AppCircuit(ShowControls)
       window.clearTimeout(t)
       t = window.setTimeout(() => makeDisapear, 3000)
     }
