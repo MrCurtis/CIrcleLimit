@@ -237,6 +237,19 @@ object GeometryHandlerTestSuite extends TestSuite {
       }
     }
 
+    "Move action can move to the origin" - {
+      val initial = Geometry(
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))
+      )
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MoveVertex(23, 0+0*i))
+      result match {
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles.toSet contains (23, 0+0*i))
+        case _ => assert (false)
+      }
+    }
+
     "Triple-click on vertex deletes it" - {
       val initial = Geometry(
         handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))

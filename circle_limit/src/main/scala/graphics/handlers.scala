@@ -61,7 +61,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
   }
 
   private def handleCanvasSingleClick(position: Complex[Double]) = {
-    if (position.norm > 1) {
+    if (position.abs > 1) {
       noChange
     } else {
       val geometry = modelRW.value
@@ -80,7 +80,7 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
   }
 
   private def handleCanvasDoubleClick(position: Complex[Double]) = {
-    if (position.norm > 1) {
+    if (position.abs > 1) {
       noChange
     } else {
       val geometry = modelRW.value
@@ -107,9 +107,10 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
 
   private def handleMoveVertex(id: Int, position: Complex[Double]) = {
     val geometry = modelRW.value
+    val newPosition = position/(1 max position.norm)
     updated(
       geometry.copy(
-        handles = geometry.handles + (id -> position/(1 max position.norm))
+        handles = geometry.handles + (id -> position/(1 max position.abs))
       )
     )
   }
