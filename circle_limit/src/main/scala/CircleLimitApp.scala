@@ -102,13 +102,16 @@ object Canvas {
         BoundaryCircle(model.converter),
         geodesicElements.toTagMod,
         vertices.toTagMod(vertexElement(model.visibility) _),
+        GroupSelector(props.modelProxy, model.group, model.converter, model.visibility),
       )
     }
 
     def handleMouseMove(vertexSelected: Option[Int], modelProxy: ModelProxy[Root])(e: ReactMouseEventFromInput) = {
         vertexSelected match {
           case Some(id) => {
-            val newPosition = modelProxy().converter.convertFromGraphicalToMathematicalSpace(Vector(e.clientX, e.clientY))
+            val newPosition = modelProxy().converter.convertFromGraphicalToMathematicalSpace(
+              Vector(e.clientX, e.clientY)
+            )
             modelProxy.dispatchCB(MoveVertex(id, newPosition))
           }
           case None => {
@@ -254,6 +257,50 @@ object GeodesicView {
     val key = "%s-%s-%s".format(startPoint._1, endPoint._1, transformation.toString)
     component.withKey(key)(Props(startPoint._2, endPoint._2, transformation, converter))
   }
+}
+
+
+object GroupSelector {
+  case class Props(
+    modelProxy: ModelProxy[Root],
+    group: Group,
+    converter: Converter,
+    visibility: Visibility
+  )
+
+  class Backend(bs: BackendScope[Props, Unit]) {
+    def render(props: Props) = {
+      val centre = props.converter.convertFromMathematicalToGraphicalSpace(Complex(0.95, 0.95))
+      val radius = props.converter.scaleFromMathematicalToGraphicalSpace(0.04)
+      <.circle(
+        ^.`class` := {
+          props.visibility match {
+            case Hide => "group-selector hide-away"
+            case Show => "group-selector"
+          }
+        },
+        ^.stroke := "black",
+        ^.fill := {if (props.group == Group.trivialGroup) "white" else "black"},
+        ^.cx := centre.x,
+        ^.cy := centre.y,
+        ^.r := radius,
+        onClick --> handleClick(props.modelProxy, props.group),
+      )
+    }
+
+    private def handleClick(modelProxy: ModelProxy[Root], group: Group)() = {
+      modelProxy.dispatchCB(
+        SelectGroup(if (group == Group.trivialGroup) Group.torsionFreeGroup(3) else Group.trivialGroup)
+      )
+    }
+  }
+
+  val component = ScalaComponent.builder[Props]("GroupSelector")
+    .renderBackend[Backend]
+    .build
+
+  def apply(modelProxy: ModelProxy[Root], group: Group, converter: Converter, visibility: Visibility)
+    = component(Props(modelProxy, group, converter, visibility))
 }
 
 
