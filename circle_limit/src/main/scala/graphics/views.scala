@@ -25,10 +25,8 @@ object Canvas {
 
   case class Props(modelProxy: ModelProxy[Root])
 
-  case class State(vertexSelected: Option[Int])
-
-  class Backend(bs: BackendScope[Props,State]) {
-    def render(props: Props, state: State) = {
+  class Backend(bs: BackendScope[Props, Unit]) {
+    def render(props: Props) = {
 
       val model = props.modelProxy()
 
@@ -45,8 +43,8 @@ object Canvas {
         })
       }
 
-      def handleMouseDown(elementID: Int) = bs.setState(State(Some(elementID)))
-      def handleMouseUp() = bs.setState(State(None))
+      def handleMouseDown(elementID: Int) = props.modelProxy.dispatchCB(MakeVertexActive(elementID))
+      def handleMouseUp() = props.modelProxy.dispatchCB(MakeVerticesInactive)
 
       val vertices = model.geometry.handles
       val toGraphical = model.converter.convertFromMathematicalToGraphicalSpace(_)
@@ -58,7 +56,7 @@ object Canvas {
               visibility,
               handleMouseDown,
               handleMouseUp,
-              handleMouseMove(state.vertexSelected, props.modelProxy)(_),
+              handleMouseMove(model.geometry.activeVertex, props.modelProxy)(_),
               id
             )
           }
@@ -75,7 +73,7 @@ object Canvas {
           ^.width := "100%",
           ^.fill := "white",
           onClick ==> handleClick,
-          onMouseMove ==> handleMouseMove(state.vertexSelected, props.modelProxy),
+          onMouseMove ==> handleMouseMove(model.geometry.activeVertex, props.modelProxy),
           onMouseUp --> handleMouseUp
         ),
         BoundaryCircle(model.converter),
@@ -105,7 +103,6 @@ object Canvas {
   }
 
   val component = ScalaComponent.builder[Props]("Canvas")
-    .initialState(State(None))
     .renderBackend[Backend]
     .build
 

@@ -311,6 +311,31 @@ object GeometryHandlerTestSuite extends TestSuite {
       }
     }
 
+    "Can mark vertex as active" - {
+      val initial = Geometry(activeVertex = None)
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MakeVertexActive(23))
+
+      result match {
+        case Some(ModelUpdate(Geometry( _, _, _, _, Some(23)))) => assert (true)
+        case _ => assert (false)
+      }
+
+    }
+
+    "Can make all vertices inactive" - {
+      val initial = Geometry(activeVertex = Some(23))
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MakeVerticesInactive)
+
+      result match {
+        case Some(ModelUpdate(Geometry( _, _, _, _, None))) => assert (true)
+        case _ => assert (false)
+      }
+    }
+
   }
 }
 

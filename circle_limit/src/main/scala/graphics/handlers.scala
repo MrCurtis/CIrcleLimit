@@ -12,7 +12,8 @@ case class Geometry(
   index: Int=1,
   handles: SortedMap[Int, Complex[Double]]=SortedMap(),
   geodesics: List[(Int,Int)]=List(),
-  lastActive: Option[Int]=None
+  lastActive: Option[Int]=None,
+  activeVertex: Option[Int]=None,
 )
 case class Root(
   converter: Converter,
@@ -34,6 +35,8 @@ case class VertexTripleClick(id: Int) extends Action
 case class SelectGroup(group: Group) extends Action
 case object HideControls extends Action
 case object ShowControls extends Action
+case class MakeVertexActive(vertexID: Int) extends Action
+case object MakeVerticesInactive extends Action
 
 
 class ConverterHandler[M](modelRW: ModelRW[M, Converter]) extends ActionHandler(modelRW) {
@@ -58,6 +61,8 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
     case MoveVertex(id, position) => handleMoveVertex(id, position)
     case VertexDoubleClick(id) => handleVertexDoubleClick(id)
     case VertexTripleClick(id) => handleVertexTripleClick(id)
+    case MakeVertexActive(id) => handleMakeVertexActive(id)
+    case MakeVerticesInactive => handleMakeVerticesInactive()
   }
 
   private def handleCanvasSingleClick(position: Complex[Double]) = {
@@ -130,6 +135,14 @@ class GeometryHandler[M](modelRW: ModelRW[M, Geometry]) extends ActionHandler(mo
         lastActive = None
       )
     )
+  }
+
+  private def handleMakeVertexActive(id: Int) = {
+    updated(modelRW.value.copy(activeVertex = Some(id)))
+  }
+
+  private def handleMakeVerticesInactive() = {
+    updated(modelRW.value.copy(activeVertex = None))
   }
 
 }
