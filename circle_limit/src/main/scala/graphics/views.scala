@@ -203,7 +203,12 @@ object VertexHandle {
 
 
 object GeodesicView {
-  case class Props(startPoint: Complex[Double], endPoint: Complex[Double], transformation: MoebiusTransformation, converter: Converter)
+  case class Props(
+    startPoint: Complex[Double],
+    endPoint: Complex[Double],
+    transformation: MoebiusTransformation,
+    converter: Converter
+  )
 
   class Backend(bs: BackendScope[Props, Unit]) {
     def render(props: Props) = {
@@ -227,7 +232,12 @@ object GeodesicView {
     .configure(Reusability.shouldComponentUpdate)
     .build
 
-  def apply(startPoint: (Int, Complex[Double]), endPoint: (Int, Complex[Double]), transformation: MoebiusTransformation, converter: Converter) = {
+  def apply(
+    startPoint: (Int, Complex[Double]),
+    endPoint: (Int, Complex[Double]),
+    transformation: MoebiusTransformation,
+    converter: Converter
+  ) = {
     val key = "%s-%s-%s".format(startPoint._1, endPoint._1, transformation.toString)
     component.withKey(key)(Props(startPoint._2, endPoint._2, transformation, converter))
   }
