@@ -1,6 +1,6 @@
 package circle_limit.graphics
 
-import scala.collection.immutable.Queue
+import scala.collection.immutable.SortedMap
 import scala.math.sqrt
 
 import utest._
@@ -10,7 +10,6 @@ import spire.implicits._
 
 import circle_limit.maths.Imaginary.i
 import circle_limit.maths.Group
-import circle_limit.graphics.{Converter, Box, Vector}
 
 
 object ConverterHandlerTestSuite extends TestSuite {
@@ -54,7 +53,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val result = geometryHandler(initial, CanvasDoubleClick(0.5+0.1*i))
 
       result match {
-        case Some(ModelUpdate(x: Geometry)) => assert( x.handles contains Handle(initial.index, 0.5+0.1*i) )
+        case Some(ModelUpdate(x: Geometry)) => assert( x.handles.toSet contains (initial.index, 0.5+0.1*i) )
         case _ => assert (false)
       }
     }
@@ -62,8 +61,8 @@ object GeometryHandlerTestSuite extends TestSuite {
     "Double-click has no effect if outside circle" - {
       val initial = Geometry(
         index = 25,
-        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i)),
-        geodesics = Set((23,24)),
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i)),
+        geodesics = List((23,24)),
         lastActive = Some(24)
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
@@ -87,7 +86,7 @@ object GeometryHandlerTestSuite extends TestSuite {
 
       result match {
         case None =>
-        case Some(ModelUpdate(x: Geometry)) => assert( !(x.handles contains Handle(initial.index, 0.5+0.1*i)) )
+        case Some(ModelUpdate(x: Geometry)) => assert( !(x.handles.toSet contains (initial.index, 0.5+0.1*i)) )
         case _ => assert (false)
       }
     }
@@ -117,7 +116,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val result = geometryHandler(initial, CanvasSingleClick(0.5+0.1*i))
 
       result match {
-        case Some(ModelUpdate(x: Geometry)) => assert( x.handles contains Handle(initial.index, 0.5+0.1*i) )
+        case Some(ModelUpdate(x: Geometry)) => assert( x.handles.toSet contains (initial.index, 0.5+0.1*i) )
         case _ => assert (false)
       }
     }
@@ -169,8 +168,8 @@ object GeometryHandlerTestSuite extends TestSuite {
     "Double-click on active vertex makes inactive" - {
       val initial = Geometry(
         index = 25,
-        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i)),
-        geodesics = Set((23,24)),
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i)),
+        geodesics = List((23,24)),
         lastActive = Some(24)
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
@@ -192,7 +191,7 @@ object GeometryHandlerTestSuite extends TestSuite {
       val result = geometryHandler(initial, CanvasSingleClick(0.5+0.1*i))
 
       result match {
-        case Some(ModelUpdate(x: Geometry)) => assert( x.geodesics contains (13, initial.index) )
+        case Some(ModelUpdate(x: Geometry)) => assert( x.geodesics.toSet contains (13, initial.index) )
         case _ => assert (false)
       }
     }
@@ -213,66 +212,79 @@ object GeometryHandlerTestSuite extends TestSuite {
 
     "Move action moves the specified vertex" - {
       val initial = Geometry(
-        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i))
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 
       val result = geometryHandler(initial, MoveVertex(23, 0.6+0.2*i))
 
       result match {
-        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles contains Handle(23, 0.6+0.2*i) )
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles.toSet contains (23, 0.6+0.2*i) )
         case _ => assert (false)
       }
     }
 
     "Move action only moves vertex to boundary" - {
       val initial = Geometry(
-        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i))
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 
       val result = geometryHandler(initial, MoveVertex(23, 1+1*i))
       result match {
-        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles contains Handle(23, 1.0/2.0.sqrt+1.0/2.0.sqrt*i))
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles.toSet contains (23, 1.0/2.0.sqrt+1.0/2.0.sqrt*i))
+        case _ => assert (false)
+      }
+    }
+
+    "Move action can move to the origin" - {
+      val initial = Geometry(
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))
+      )
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MoveVertex(23, 0+0*i))
+      result match {
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.handles.toSet contains (23, 0+0*i))
         case _ => assert (false)
       }
     }
 
     "Triple-click on vertex deletes it" - {
       val initial = Geometry(
-        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i))
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 
       val result = geometryHandler(initial, VertexTripleClick(23))
 
       result match {
-        case Some(ModelUpdate(g: Geometry)) => assert ( !( g.handles contains Handle(23, 0.7+1.0*i) ))
+        case Some(ModelUpdate(g: Geometry)) => assert ( !( g.handles.toSet contains (23, 0.7+1.0*i) ))
         case _ => assert (false)
       }
     }
 
     "Triple-click on vertex deletes any geodesics attached to it" - {
       val initial = Geometry(
-        handles = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i), Handle(25, -0.5+0.4*i)),
-        geodesics = Set((23, 24), (24, 25), (25, 23))
+        handles = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i), (25, -0.5+0.4*i)),
+        geodesics = List((23, 24), (24, 25), (25, 23))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 
       val result = geometryHandler(initial, VertexTripleClick(23))
 
       result match {
-        case Some(ModelUpdate(g: Geometry)) => assert ( g.geodesics == Set((24, 25)) )
+        case Some(ModelUpdate(g: Geometry)) => assert ( g.geodesics == List((24, 25)) )
         case _ => assert (false)
       }
     }
 
     "Triple-click ensures all dangling vertices are deleted" - {
-      val verticesToBeDeleted = Set(Handle(23, 0.7+1.0*i), Handle(24, 0.5+1.0*i))
-      val verticesToBeKept = Set(Handle(25, -0.5+0.4*i), Handle(26, -0.2+0.2*i))
+      val verticesToBeDeleted = SortedMap((23, 0.7+1.0*i), (24, 0.5+1.0*i))
+      val verticesToBeKept = SortedMap((25, -0.5+0.4*i), (26, -0.2+0.2*i))
       val initial = Geometry(
-        handles = verticesToBeDeleted union verticesToBeKept,
-        geodesics = Set((23, 24), (25, 26))
+        handles = verticesToBeDeleted ++ verticesToBeKept,
+        geodesics = List((23, 24), (25, 26))
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
 
@@ -286,7 +298,7 @@ object GeometryHandlerTestSuite extends TestSuite {
 
     "Triple click on vertex sets to not active - this is to avoid strange behaviour with double double-click" - {
       val initial = Geometry(
-        handles = Set(Handle(23, 0.7+1.0*i)),
+        handles = SortedMap((23, 0.7+1.0*i)),
         lastActive = Some(23)
       )
       val geometryHandler = new GeometryHandler(new RootModelRW(initial))
@@ -295,6 +307,31 @@ object GeometryHandlerTestSuite extends TestSuite {
 
       result match {
         case Some(ModelUpdate(g: Geometry)) => assert ( g.lastActive.isEmpty )
+        case _ => assert (false)
+      }
+    }
+
+    "Can mark vertex as active" - {
+      val initial = Geometry(activeVertex = None)
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MakeVertexActive(23))
+
+      result match {
+        case Some(ModelUpdate(Geometry( _, _, _, _, Some(23)))) => assert (true)
+        case _ => assert (false)
+      }
+
+    }
+
+    "Can make all vertices inactive" - {
+      val initial = Geometry(activeVertex = Some(23))
+      val geometryHandler = new GeometryHandler(new RootModelRW(initial))
+
+      val result = geometryHandler(initial, MakeVerticesInactive)
+
+      result match {
+        case Some(ModelUpdate(Geometry( _, _, _, _, None))) => assert (true)
         case _ => assert (false)
       }
     }
@@ -315,6 +352,60 @@ object GroupHandlerTestSuite extends TestSuite {
 
       result match {
         case Some(ModelUpdate(`newGroup`)) =>
+        case _ => assert (false)
+      }
+    }
+  }
+}
+
+
+object FadingHandlerTestSuite extends TestSuite {
+  val tests = TestSuite {
+
+    "Hide-controller event sets to hidden if currently showing" - {
+      val initial = Show
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, HideControls)
+
+      result match {
+        case Some(ModelUpdate(Hide)) =>
+        case _ => assert(false)
+      }
+    }
+
+    "Hide-controller event has no effect if currently hidden" - {
+      val initial = Hide
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, HideControls)
+
+      result match {
+        case Some(NoChange) =>
+        case _ => assert (false)
+      }
+    }
+
+    "Show-controller event sets to show if currently hidden" - {
+      val initial = Hide
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, ShowControls)
+
+      result match {
+        case Some(ModelUpdate(Show)) =>
+        case _ => assert(false)
+      }
+    }
+
+    "Show-controller event has no effect if currently showing" - {
+      val initial = Show
+      val fadingHandler = new FadingHandler(new RootModelRW(initial))
+
+      val result = fadingHandler(initial, ShowControls)
+
+      result match {
+        case Some(NoChange) =>
         case _ => assert (false)
       }
     }

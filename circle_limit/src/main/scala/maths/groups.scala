@@ -33,7 +33,7 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
    * Returns the images of the geodesic under the elements of the group
    * corresponding to words of length less than or equal to wordLength.
    */
-  def getImagesOfGeodesic(geodesic: Geodesic): Set[Geodesic] = {
+  def getImagesOfGeodesic(geodesic: Geodesic): List[Geodesic] = {
     elements map (t => t transform geodesic )
   }
 
@@ -41,7 +41,7 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
    * Returns the images of all the geodesics under all the elements of the group
    * corresponding to words of length less than or equal to wordLength.
    */
-  def getImagesOfGeodesics(geodesics: Set[Geodesic]): Set[Geodesic] = {
+  def getImagesOfGeodesics(geodesics: List[Geodesic]): List[Geodesic] = {
       geodesics flatMap getImagesOfGeodesic
   }
 
@@ -50,17 +50,17 @@ class Group(generators: List[MoebiusTransformation], wordLength: Int) {
         left: ComplexMatrix,
         right: ComplexMatrix,
         iterationsLeft: Int)
-        : Set[ComplexMatrix] = {
+        : List[ComplexMatrix] = {
       val composed = left * right
-      val allApartFromInverse = generatorsAndInverses.toSet - inverseOf(right)
+      val allApartFromInverse = generatorsAndInverses.filter( _ != inverseOf(right) )
       if (iterationsLeft > 0) {
-        Set(composed) union (
+        List(composed) ++ (
           allApartFromInverse flatMap (
             x => (allWordsRecurse(composed, x, iterationsLeft-1))
           )
         )
       } else {
-        Set(composed)
+        List(composed)
       }
     }
     val id = ComplexMatrix.identity

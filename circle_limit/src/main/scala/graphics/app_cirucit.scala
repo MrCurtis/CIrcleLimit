@@ -1,9 +1,10 @@
 package circle_limit.graphics
 
 import diode.{Circuit, RootModelRW}
+import diode.react.ReactConnector
 
 
-object AppCircuit extends Circuit[Root] {
+object AppCircuit extends Circuit[Root] with ReactConnector[Root]{
 
   def initialModel = Root(
     Converter(
@@ -15,7 +16,8 @@ object AppCircuit extends Circuit[Root] {
   override val actionHandler: HandlerFunction = composeHandlers (
     new ConverterHandler(zoomTo(_.converter)),
     new GeometryHandler(zoomTo(_.geometry)),
-    new GroupHandler(zoomTo(_.group))
+    new GroupHandler(zoomTo(_.group)),
+    new FadingHandler(zoomTo(_.visibility))
   )
 
 }
