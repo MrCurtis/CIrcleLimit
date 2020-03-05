@@ -87,7 +87,7 @@ object GroupTestSuite extends TestSuite {
 
       val returned = group.elements
 
-      assert ( setsOfMoebiusTransformationAlmostEqual ( expected, returned ) )
+      assert ( setsOfMoebiusTransformationAlmostEqual ( expected, returned.toSet ) )
     } 
 
     "getImagesOfGeodesic returns the images of geodesic under the group" - {
@@ -123,7 +123,7 @@ object GroupTestSuite extends TestSuite {
 
       val returned = group.getImagesOfGeodesic(geodesic)
 
-      assert ( expected == returned )
+      assert ( expected == returned.toSet )
     }
 
     "getImagesOfGeodesics returns the images of the geodesics under the group" - {
@@ -136,7 +136,7 @@ object GroupTestSuite extends TestSuite {
       val group = Group(List(transform1, transform2), wordLength)
       val geodesic1 = Geodesic(Complex[Double](-1.0, 0.0), Complex[Double](0.0, 1.0), SpaceType.PoincareDisc)
       val geodesic2 = Geodesic(Complex[Double](-1.0, 0.0), Complex[Double](0.0, -1.0), SpaceType.PoincareDisc)
-      val geodesics = Set(geodesic1, geodesic2)
+      val geodesics = List(geodesic1, geodesic2)
 
       val expected = Set(
         identity.transform(geodesic1),
@@ -180,7 +180,7 @@ object GroupTestSuite extends TestSuite {
 
       val returned = group.getImagesOfGeodesics(geodesics)
 
-      assert (expected == returned)
+      assert (expected == returned.toSet)
     }
 
   }
