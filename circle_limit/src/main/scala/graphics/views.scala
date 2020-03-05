@@ -53,7 +53,6 @@ object Canvas {
               props.modelProxy,
               toGraphical(position),
               visibility,
-              handleMouseUp,
               handleMouseMove(model.geometry.activeVertex, props.modelProxy)(_),
               id
             )
@@ -142,7 +141,6 @@ object VertexHandle {
     modelProxy: ModelProxy[Root],
     position: Vector,
     visibility: Visibility,
-    handleMouseUp: Callback,
     handleMouseMove: ReactMouseEventFromInput => Callback,
     key: Int,
   )
@@ -164,7 +162,7 @@ object VertexHandle {
         ^.stroke := "none",
         ^.fill := "red",
         onMouseDown --> handleMouseDown(props.modelProxy, props.key),
-        onMouseUp --> props.handleMouseUp,
+        onMouseUp --> handleMouseUp(props.modelProxy),
         onClick ==> handleClick(props.modelProxy, props.key),
         onMouseMove ==> props.handleMouseMove,
       )
@@ -181,8 +179,11 @@ object VertexHandle {
         }
       })
     }
+
     private def handleMouseDown(modelProxy: ModelProxy[Root], elementID: Int)
       = modelProxy.dispatchCB(MakeVertexActive(elementID))
+
+    private def handleMouseUp(modelProxy: ModelProxy[Root])() = modelProxy.dispatchCB(MakeVerticesInactive)
   }
 
   val component = ScalaComponent.builder[Props]("VertexHandle")
@@ -193,11 +194,10 @@ object VertexHandle {
     modelProxy: ModelProxy[Root],
     position: Vector,
     visibility: Visibility,
-    handleMouseUp: Callback,
     handleMouseMove: ReactMouseEventFromInput => Callback,
     key: Int,
   ) = component.withKey(key)(
-    Props(modelProxy, position, visibility, handleMouseUp, handleMouseMove, key)
+    Props(modelProxy, position, visibility, handleMouseMove, key)
   )
 }
 
